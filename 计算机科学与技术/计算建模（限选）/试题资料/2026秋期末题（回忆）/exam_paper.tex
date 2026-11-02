@@ -1,0 +1,121 @@
+\documentclass[12pt,a4paper,UTF8,fontset=fandol]{ctexart}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{array}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+% 占位符：原题内容未提及或已遗忘处
+\newcommand{\ph}[1]{\textcolor{red}{\textbf{【#1】}}}
+
+\setlist[enumerate]{nosep, leftmargin=2.5em}
+
+\begin{document}
+
+\begin{center}
+{\LARGE \textbf{计算建模期末试卷}}\\[0.8em]
+{\large 2026 年秋季学期 \quad 考试时间：\ph{120 分钟} \quad 满分：\ph{100 分}}
+\end{center}
+
+\vspace{0.5em}
+\begin{center}
+\renewcommand{\arraystretch}{2.0}
+\begin{tabular}{p{0.22\textwidth}p{0.22\textwidth}p{0.22\textwidth}p{0.22\textwidth}}
+姓名：\underline{\hspace{1.8cm}} & 学号：\underline{\hspace{1.8cm}} & 班级：\underline{\hspace{1.8cm}} & 得分：\underline{\hspace{1.3cm}}
+\end{tabular}
+\end{center}
+
+\vspace{0.5em}
+\noindent\textcolor{red}{说明：试卷中红色【】标注处为原题内容未提及或已遗忘的部分，需补充。}
+
+\section*{一、填空题（共 13 小题，每小题 \ph{2} 分，共 \ph{26} 分）}
+
+\begin{enumerate}[label=（\arabic*）]
+  \item 一个箱子里有 3 个红球和 2 个白球，不放回地取两个球。已知先取出一个红球，求再取一个球仍是红球的概率。 \hfill 答案：\underline{\hspace{4cm}}
+  \item 马尔可夫链的一步转移矩阵 $P$ 与 $n$ 步转移矩阵 $P^{(n)}$ 的关系是什么？请用 Chapman-Kolmogorov（C-K）方程表示 $P^{(m+n)}$。 \hfill 答案：\underline{\hspace{4cm}}
+  \item 设 $X_1, X_2, \dots, X_n$ 独立同分布，服从参数为 $\lambda$ 的指数分布（\ph{原题给出的表达式“$2\lambda + \exp(\lambda x)$”含义待确认}），求 $\lambda$ 的极大似然估计。 \hfill 答案：\underline{\hspace{4cm}}
+  \item 强度为 $\lambda$ 的泊松过程，其点间间距服从均值为 \underline{\hspace{2.5cm}} 的指数分布；若已知 $\lambda$，求该均值。 \hfill 答案：\underline{\hspace{4cm}}
+  \item \ph{第 5 题题目内容待补充} \hfill 答案：\underline{\hspace{4cm}}
+  \item \ph{第 6 题题目内容待补充} \hfill 答案：\underline{\hspace{4cm}}
+  \item \ph{第 7 题题目内容待补充} \hfill 答案：\underline{\hspace{4cm}}
+  \item \ph{第 8 题题目内容待补充} \hfill 答案：\underline{\hspace{4cm}}
+  \item \ph{第 9 题题目内容待补充} \hfill 答案：\underline{\hspace{4cm}}
+  \item \ph{第 10 题题目内容待补充} \hfill 答案：\underline{\hspace{4cm}}
+  \item \ph{第 11 题题目内容待补充} \hfill 答案：\underline{\hspace{4cm}}
+  \item 凸集的仿射组合以及有限个凸集的交集是否仍为凸集？ \hfill 答案：\underline{\hspace{4cm}}
+  \item 线性规划的单纯形法是否为多项式时间算法？ \hfill 答案：\underline{\hspace{4cm}}
+\end{enumerate}
+
+\section*{二、简答题（共 4 小题，每题 \ph{8} 分，共 \ph{32} 分）}
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+  \item 计算建模中一般如何对对象进行建模？如何对求解结果进行优化？请论述常用的优化求解方法。
+  \item \ph{简答题第 2 题题目内容待补充}
+  \item 若要对一个实际物体进行建模，但只能获取其观测值，无法直接获得内部机理或真实状态，此时采用什么方法建模比较合适？请说明理由。
+  \item \ph{简答题第 4 题题目内容待补充}
+\end{enumerate}
+
+\section*{三、计算题（共 3 小题，每题 \ph{14} 分，共 \ph{42} 分）}
+
+\subsection*{1. （\ph{14} 分）齐次泊松过程}
+
+某商店的顾客到达过程服从齐次泊松过程，顾客到达率 $\lambda = 4$（人/小时）。
+
+\begin{enumerate}[label=（\arabic*）]
+  \item 应如何对该过程进行建模？请说明泊松过程建模的基本原理。
+  \item 求 1 小时内到达的顾客数为 2 的概率。
+  \item 求 2 小时内到达的顾客数为 0 的概率。
+  \item 求 2 小时内到达顾客数的期望与方差。
+\end{enumerate}
+
+\subsection*{2. （\ph{14} 分）马尔可夫链}
+
+某顾客只光顾 A、B 两家商店。若本次在 A 店购买，则下次有 $0.8$ 的概率继续在 A 店购买，有 $0.2$ 的概率转去 B 店；若本次在 B 店购买，则下次有 $0.4$ 的概率转去 A 店，有 $0.6$ 的概率继续留在 B 店。状态转移矩阵为
+\[
+P = \begin{pmatrix} 0.8 & 0.2 \\ 0.4 & 0.6 \end{pmatrix}.
+\]
+
+\begin{enumerate}[label=（\arabic*）]
+  \item 应如何对该问题建模？
+  \item 求一步转移之后的状态分布（初始状态分布为 $P(X_0=A)=0.5$，$P(X_0=B)=0.5$）。
+  \item 求两步转移之后的状态分布。
+  \item 求该马尔可夫链的平稳分布。
+\end{enumerate}
+
+\subsection*{3. （\ph{14} 分）随机变量的分布与反变换抽样}
+
+随机变量 $X$ 的概率密度函数为
+\[
+f(x) = \begin{cases}
+2x, & 0 \le x \le 1,\\
+0, & \text{其他}.
+\end{cases}
+\]
+
+\begin{enumerate}[label=（\arabic*）]
+  \item 求 $X$ 的分布函数 $F(x)$。
+  \item 利用反变换法，说明如何由均匀分布 $U(0,1)$ 的随机数生成该分布的随机数，并给出变换表达式（\ph{原题此小问的具体表述与所求内容已遗忘，待补充}）。
+  \item 已知 $u = 0.64$，利用反变换法由 $u$ 求对应的 $x$ 值。
+\end{enumerate}
+
+\section*{四、综述题（共 2 小题，每题 \ph{15} 分，共 \ph{30} 分）}
+
+\subsection*{1. （\ph{15} 分）}
+
+\begin{enumerate}[label=（\arabic*）]
+  \item 建模时若样本量过小会导致什么问题？在工程实践中为防止这种情况，一般会采用什么建模手段？请举一个具体例子说明。
+  \item 在数据存在噪声的情况下，一般采用什么思路进行建模？请举出两种具体的建模方法。
+  \item 当数据中存在离群点（特异点）时，直接使用最小二乘法进行拟合会有什么后果？请给出两种鲁棒的拟合方法。
+\end{enumerate}
+
+\subsection*{2. （\ph{15} 分）MSF \ph{（MSF 的英文全称或正式名称待确认）}}
+
+\begin{enumerate}[label=（\arabic*）]
+  \item 在二维图像去噪中，高斯滤波、维纳滤波、MSF 等方法均可使用，为什么 MSF 特别合适？请说明 MSF 核心的马尔可夫局部性（Markov 局部性）是什么。
+  \item 使用该方法时，一般用吉布斯（Gibbs）函数去替代 \ph{被替代的对象（原题待补充）}；此外，\ph{本小问的另一个设问已遗忘，待补充}。请说明势函数一般用来惩罚什么。
+  \item 拓展：若将 MSF 用于图像分割而非图像去噪，其函数（能量函数/势函数）应当如何设计？
+\end{enumerate}
+
+\end{document}
