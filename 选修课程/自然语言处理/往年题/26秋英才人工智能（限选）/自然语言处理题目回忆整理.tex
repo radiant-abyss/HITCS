@@ -1,0 +1,607 @@
+% !TeX program = xelatex
+% UTF-8 单文件源稿；用 XeLaTeX 连续编译两次。
+\documentclass[UTF8,a4paper,zihao=-4,fontset=windows]{ctexart}
+\usepackage[left=20mm,right=20mm,top=18mm,bottom=19mm]{geometry}
+\usepackage{amsmath,amssymb,mathtools,fontspec,unicode-math}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Consolas}
+\setmathfont{Latin Modern Math}
+\usepackage[table]{xcolor}
+\usepackage{array,tabularx,booktabs,enumitem,needspace,fancyhdr,hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue,
+ pdftitle={自然语言处理回忆题整理},pdfauthor={课程复习整理}}
+\definecolor{TableRule}{HTML}{D9D9D9}
+\arrayrulecolor{TableRule}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.22}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1pt minus 1pt}
+\linespread{1.1}
+\setlength{\emergencystretch}{3em}
+\clubpenalty=10000
+\widowpenalty=10000
+\allowdisplaybreaks[2]
+\setlist{leftmargin=1.8em,itemsep=3pt,parsep=0pt,topsep=5pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\ctexset{section={format=\Large\bfseries,beforeskip=12pt,afterskip=9pt},
+ subsection={format=\large\bfseries,beforeskip=11pt,afterskip=7pt}}
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{1}
+\newcommand{\recalled}[1]{\Needspace{8\baselineskip}\subsection*{#1}}
+\begin{document}
+{\LARGE\bfseries 自然语言处理回忆题整理\par}
+
+这份资料只整理已经回忆到的题目和考点，保留题目解释、公式符号及能确定的计算过程。尚未回忆的题目留空；未记下的选项、数字和条件保持缺失。
+
+\begin{center}
+\begin{tabularx}{\linewidth}{|p{22mm}|p{32mm}|X|}\hline
+\textbf{题型} & \textbf{原卷题量} & \textbf{目前回忆情况}\\\hline
+选择 & 10道 & 5道有线索，其中第8、9题的题号尚有疑问\\\hline
+填空 & 10道 & 6条线索；只有第11、20题能够定位，另4条题号未确定\\\hline
+简答 & 按现有记录整理 & 5道\\\hline
+计算 & 按现有记录整理 & 6道，部分数据和约定未记全\\\hline
+\end{tabularx}
+\end{center}
+
+题干中的“回忆内容”仅记录已有材料；后面的知识解释帮助理解和作答。计算条件不足时，列出已知结果与计算方法，必要时分别说明不同条件下的结果。
+
+\tableofcontents
+\clearpage
+
+\Needspace{12\baselineskip}
+\section{选择题：10道中的已记内容}
+
+选择题一共 10 道。目前有内容的回忆是第 1、2、4 题，以及题号疑为第 8、9 题的两条记录。其余位置保留空位，不补写新的题目或选项。
+
+\begin{center}
+\begin{tabularx}{\linewidth}{|p{20mm}|X|}\hline
+\textbf{原题号} & \textbf{目前回忆到的内容}\\\hline
+1 & “苹果”一词与 NLP 的特性；只记有 C：歧义性\\\hline
+2 & 关于子词划分\\\hline
+3 & 尚未回忆\\\hline
+4 & 关于困惑度 PPL 的论述\\\hline
+5 & 尚未回忆\\\hline
+6 & 尚未回忆\\\hline
+7 & 尚未回忆\\\hline
+8 & 疑为本题：BERT 选中 15\% Token 后的处理方式\\\hline
+9 & 疑为本题：DPO 与 GRPO 的比较\\\hline
+10 & 尚未回忆\\\hline
+\end{tabularx}
+\end{center}
+
+\recalled{选择题1\quad “苹果”与自然语言的特性}
+\textbf{回忆内容：}“苹果”一词体现了 NLP 中的某种性质或特点。笔记只记录了一个选项：\textbf{C：歧义性}。没有记下其余选项、完整语境或明确圈选结果。
+
+\Needspace{4\baselineskip}
+\textbf{解释：}歧义性指同一个语言表达可能有不止一种解释，需要结合上下文判断具体含义。它与“抽象性”不同：抽象性强调一个符号能够概括一类对象；歧义性强调一个表达可能让人产生不同解释。
+
+笔记写有“C：歧义性”，说明回忆到了这个选项；现有记录不足以确定原题一定选 C。因此保留已记选项，不重新编造 A、B、D，也不补出原题未记下的情境。
+
+\recalled{选择题2\quad 子词划分}
+\textbf{回忆内容：}只记有“关于子词划分”。前面有一个被划去的英文词，不能确定原题究竟指定了哪种算法；完整题干和选项尚未回忆。
+
+\Needspace{4\baselineskip}
+\textbf{解释：}子词切分把文本表示为可以重复使用的片段，这些片段可以小于完整词，也可能保留整个词。片段不一定是语言学上的词根或词缀。这样可以在词表大小与序列长度之间折中，也能组合表示较少见的词。
+
+相关方法需要区分：BPE 在训练时反复合并高频相邻符号对，编码新文本时使用已经学到的合并顺序；WordPiece 的常见编码采用词内最长前缀匹配；Unigram 用概率模型比较候选切分；SentencePiece 是可以实现 BPE、Unigram 等算法的工具。
+
+这些是该考点的知识解释，不是补出的原题选项。现有材料不能确定这道题的选项答案。
+
+\recalled{选择题4\quad 困惑度 PPL}
+\textbf{回忆内容：}“关于 PPL，下列论断……”后文没有完整记录，也没有记录选项或要求选正确还是错误的说法。
+
+\Needspace{4\baselineskip}
+\textbf{解释：}困惑度 PPL 用来评价语言模型给真实文本分配概率的表现。在相同测试文本、Tokenize 方法和目标计分规则下，PPL 越低越好。
+
+若第 $t$ 个真实目标 Token 的预测概率是 $p_t$，一共计分 $N$ 个目标，则平均交叉熵和 PPL 的关系为：
+\[
+L=-\frac1N\sum_{t=1}^{N}\ln p_t,\qquad \mathrm{PPL}=e^L.
+\]
+这里 $L$ 是使用自然对数计算的平均交叉熵，$N$ 只统计有效目标，$e$ 是自然指数的底数。如果交叉熵使用以 2 为底的对数，则应写 $\mathrm{PPL}=2^L$。
+
+PPL 不是准确率，也不直接保证事实正确。不同分词粒度的 PPL 不能直接混比；不同批次应累计总损失和有效目标数，再统一求平均和指数，不能简单平均各批次的 PPL。没有原选项时，只能明确这些判断依据，不能补一个选项号。
+
+\recalled{疑为选择题8\quad BERT 的 15\% 与处理比例}
+\textbf{回忆内容：}BERT 预训练预测约 15\% 的 Token，如何处理这些位置？截图记下的三种说法是“全 MASK”“五五开”“8 mask、1 随机、1 不变”。原选项编号和完整措辞没有记录；不额外增加第四个选项。
+
+\Needspace{4\baselineskip}
+\textbf{解释：}原始 BERT 先从合格 Token 中选择约 15\% 作为掩码语言模型的预测目标。\textbf{在这些选中位置中}，80\% 换成 \texttt{[MASK]}，10\% 换成随机 Token，10\% 保持原 Token。三种情况下，监督目标始终是这个位置原来的 Token。
+
+因此，标准处理对应回忆中的“8 mask、1 随机、1 不变”。80\%、10\%、10\% 的分母是选中的那部分，不是全部输入。选中但保持原样的位置仍参与 MLM 损失；未选中的位置不作为本次 MLM 预测目标。15\% 通常表示抽样比例或期望比例，不要求每条输入都恰好选中同样个数。
+
+\recalled{疑为选择题9\quad DPO 与 GRPO 的比较}
+\textbf{回忆内容：}截图原记“DPO 相比 XXX 有什么特点”，用户后来补充比较对象应该是 GRPO。按这条补充记录 DPO 与 GRPO 的比较，不补写原选项或选项编号。
+
+\Needspace{4\baselineskip}
+\textbf{解释：}典型离线 DPO 使用已有的偏好回答对：同一个提示对应两个回答，并标明哪个更受偏好。它利用当前模型和冻结参考模型的相对概率直接训练，通常不需要在训练循环中在线生成一组回答，也不单独训练显式奖励模型和价值模型。参考模型是一份作为比较基准的模型，“冻结”表示不更新它的参数。
+
+标准 GRPO 通常由当前策略针对同一个提示生成一组回答，分别得到标量奖励，再把每条回答与本组的奖励统计量比较，构造相对优势并更新策略。奖励可以来自答案核对、代码测试等规则，也可以来自奖励模型。
+
+两者通常都不需要单独的价值模型，不能把“无价值模型”当作 DPO 独有的区别。较有区分度的是：DPO 直接学习预先给定的偏好对；GRPO 通常对当前策略采样的回答进行组内奖励比较。原选项尚未回忆，因此不指定原题应选哪个字母。
+
+\Needspace{12\baselineskip}
+\section{填空题：10道中的已记内容}
+
+填空题一共 10 道，原题号为 11--20。目前能定位的是第 11 题和第 20 题。另有正向最大匹配、因果自注意力、ReAct、LoRA 四条回忆，但不知道它们分别对应第 12--19 题中的哪一道，因此单独列出，不强行分配题号。
+
+\begin{center}
+\begin{tabularx}{\linewidth}{|p{20mm}|X|}\hline
+\textbf{原题号} & \textbf{目前记录}\\\hline
+11 & NLP 任务体系的第 4 个层级\\\hline
+12 & 尚未与具体回忆内容对应\\\hline
+13 & 尚未与具体回忆内容对应\\\hline
+14 & 尚未与具体回忆内容对应\\\hline
+15 & 尚未与具体回忆内容对应\\\hline
+16 & 尚未与具体回忆内容对应\\\hline
+17 & 尚未与具体回忆内容对应\\\hline
+18 & 尚未与具体回忆内容对应\\\hline
+19 & 尚未与具体回忆内容对应\\\hline
+20 & DeepSeek 压缩 K/V、降低 KV 缓存；缩写疑为 MLA\\\hline
+\end{tabularx}
+\end{center}
+
+第 12--19 题的 8 个位置中，已有下文列出的 4 条题目线索，但题号尚未对应；另外 4 道的内容尚未回忆。表中不把这 4 条线索任意放进某个编号，也不以新题填满其余位置。
+
+\recalled{填空题11\quad NLP 任务体系的第4个层级}
+\textbf{回忆内容：}笔记记有“NLP 应用的第 4 级是什么”。截图补充了从底层到高层的任务体系顺序。
+
+\Needspace{4\baselineskip}
+\textbf{解释：}课件中的顺序是：
+\[
+\text{资源建设}\ \longrightarrow\ \text{基础任务}\ \longrightarrow\ \text{应用任务}\ \longrightarrow\ \text{应用系统}.
+\]
+因此，若空格问第 4 个层级，填写\textbf{应用系统}。
+
+资源建设是准备语料、词典和标注规范；基础任务是分词、词性标注、实体识别等分析工作；应用任务是问答、翻译、摘要等具体需求；应用系统则把这些资源和功能组织为面向用户的完整软件。不要把“完成问答这一任务”和“可以交互使用的问答系统”混为一个层级。
+
+\recalled{填空题20\quad DeepSeek 与 KV 缓存压缩}
+\textbf{回忆内容：}笔记大意是“DeepSeek 用\underline{\hspace{1.5cm}}压缩 K、V 矩阵，降低 KV 缓存”。括注缩写按笔迹疑为 MLA；原题没有记清具体模型版本。
+
+\Needspace{4\baselineskip}
+\textbf{解释：}若这里考查的是降低 KV cache 的低秩联合压缩机制，相关名称是\textbf{多头潜在注意力}，英文 Multi-head Latent Attention，缩写\textbf{MLA}。这是 DeepSeek-V2 原始报告中明确介绍的机制。
+
+生成模型通常缓存过去位置的 Key 和 Value，后续 Token 可以复用，避免重复计算；输入和生成序列越长，缓存就可能越大。MLA 把 K/V 的信息联合压缩到较小的潜向量，减少需要保存的缓存内容。
+
+这里应分清：$W_K,W_V$ 是模型长期保存的投影权重；KV cache 是本次输入产生的中间表征。原笔记说“压缩 K、V 矩阵”，知识解释应主要理解为缓存表征的压缩，不能直接说成把两个权重文件缩小。MLA 是与回忆机制相符的参考名称，但原空格和缩写笔迹仍应以原题为准。
+
+\recalled{题号未确定\quad 正向最大匹配分词}
+\textbf{回忆内容：}“中文分词从左到右扫描，取最长合法词的分词方式叫什么？”
+
+\Needspace{4\baselineskip}
+\textbf{解释：}名称是\textbf{正向最大匹配}，也称前向最大匹配，英文为 Forward Maximum Matching，常缩写为 FMM。
+
+“正向”表示从左向右扫描；“最大匹配”表示在词典与最长词长允许的范围内，优先尝试最长候选。如果没有匹配成功，就缩短候选，直到找到词，必要时退回单字。它是词典匹配方法，局部选择最长词不保证整句话的切分最合理。
+
+\recalled{题号未确定\quad 因果掩码后的自注意力}
+\textbf{回忆内容：}“因果掩码后的自注意力叫\underline{\hspace{1.5cm}}。”
+
+\Needspace{4\baselineskip}
+\textbf{解释：}可称为\textbf{因果自注意力}，也称因果掩码自注意力。这里“因果”指第 $t$ 个位置只能读取自身及其之前的位置，不能提前读取未来。$t$ 表示当前位置的编号。
+
+计算时通常在 Softmax 之前，把未来位置的分数设为 $-\infty$，使它们的权重变为 0。这样，当前位置用于预测下一 Token 时，就不会偷看到答案。Padding 掩码则用于屏蔽组批时补入的无效位置，作用与因果掩码不同。仅说“有掩码”并不足以证明屏蔽的一定是未来，因此这里保留“因果”这个限定。
+
+\recalled{题号未确定\quad ReAct 中的行动}
+\textbf{回忆内容：}“ReAct 分为思考和\underline{\hspace{1.5cm}}（Action）。”
+
+\Needspace{4\baselineskip}
+\textbf{解释：}Action 对应\textbf{行动}。ReAct 将推理或思考与行动结合。模型可以输出工具调用，由外部程序真正执行，再接收工具返回的观察结果。
+
+常见执行轨迹是 Thought（思考）$\rightarrow$ Action（行动）$\rightarrow$ Observation（观察），然后决定继续行动还是给出答案。Observation 是这一机制的知识解释，不是新增的原题空格。模型只写出“我要查资料”，不等于查询已经执行，必须有工具执行及结果返回。
+
+\recalled{题号未确定\quad LoRA}
+\textbf{回忆内容：}截图记录了 LoRA，但注明“记不清问什么了”；另一处补充“LoRA 算公式”。没有恢复出具体空格、数字或计算要求。
+
+\Needspace{4\baselineskip}
+\textbf{解释：}LoRA 称为低秩适配。它冻结已有线性层的基础权重，用两个较小的可训练矩阵表示权重增量。常见写法为：
+\[
+h=W_0x+\frac{\alpha}{r}BAx.
+\]
+各符号的意思是：$x$ 为输入向量，$h$ 为输出向量；$W_0$ 为冻结的基础权重；$A$、$B$ 为需要训练的增量矩阵；$r$ 为设置的低秩维度；$\alpha$ 为缩放系数。
+
+若 $W_0$ 的形状为 $d\times k$，表示输入有 $k$ 个分量、输出有 $d$ 个分量，则可以采用：
+\[
+A\in\mathbb R^{r\times k},\qquad B\in\mathbb R^{d\times r}.
+\]
+因此 $BA$ 的形状仍为 $d\times k$，可以与原权重作用在同一个输入上。低秩说的是增量的表示方式，不要求原权重本身低秩。
+
+这里只解释回忆到的 LoRA 考点，没有另加矩阵尺寸、秩的数值或参数量计算题。LoRA 属于参数高效微调方法；它在截图中写在“RLHF”标题下，不代表 LoRA 本身就是一种 RLHF 算法。
+
+\Needspace{12\baselineskip}
+\section{简答题}
+
+\recalled{简答题1 自监督学习与语言模型预训练}
+\textbf{回忆内容：}截图记为“自监督学习，为什么适合大规模训练”；手写笔记还记有“为什么语言模型常用于预训练阶段”。
+
+\Needspace{4\baselineskip}
+\textbf{参考解释：}自监督学习是从数据本身构造训练答案。例如给模型一段真实前文，让它预测原文中紧接的Token；原文自己就提供了正确目标，不必为每个位置再请人单独标注。
+
+语言模型可以表示“给定前文，下一个Token是什么”的概率分布。记 $w_t$ 为当前位置的真实Token，$w_{<t}$ 为前面的Token，则模型计算 $P(w_t\mid w_{<t})$。训练时提高真实目标的概率，通常用交叉熵衡量预测误差。
+
+这适合大规模预训练，主要有三个原因：
+\begin{enumerate}
+\item {}\textbf{文本能自动提供大量目标。}一条文本可以产生多个预测位置，目标构造容易自动化，降低逐例人工标注的成本。
+\item {}\textbf{任务覆盖广泛的语言规律。}为了预测后续内容，模型需要学习词语搭配、语法、篇章联系及知识表达，得到可用于多种下游任务的参数。
+\item {}\textbf{训练方式容易扩展。}可以在更多文本上使用同一类预测目标，再通过微调或提示适应具体需求。
+\end{enumerate}
+自监督不代表完全不需要人工处理数据，仍需清洗、去重和独立评测。它的重点是“监督目标来自数据本身”。
+
+\recalled{简答题2 GPT与BERT的比较}
+\textbf{回忆内容：}从模型结构、训练和擅长的任务三个方面，比较GPT与BERT。
+
+\Needspace{4\baselineskip}
+\textbf{参考解释：}下面按原始GPT和BERT的结构、预训练方式介绍，再说明常见的任务适配方向。
+\begin{enumerate}
+\item {}\textbf{结构。}GPT使用因果Transformer，通常归为Decoder-only，即解码器式主干；当前位置只能读取自身与左侧前文。BERT使用双向Transformer Encoder，即编码器式主干；输入位置可以结合左右两侧的信息。
+\item {}\textbf{训练目标。}GPT主要进行自回归下一Token预测。原始BERT使用掩码语言模型MLM和下一句预测NSP。MLM将部分输入遮盖或替换，要求恢复原Token；NSP判断后一段是否紧接前一段。
+\item {}\textbf{常见任务。}GPT式结构适合续写和条件生成；BERT式编码器常用于文本分类、命名实体识别、抽取式阅读理解等任务。分类可以在句子表示后接分类头；标注任务对每个位置输出标签；抽取式问答预测答案在篇章中的起点与终点。
+\end{enumerate}
+这些是结构与训练方式带来的常见适配性，不是绝对限制。GPT也可以做分类；BERT也可以通过专门设计参与生成。作答时重点说清“能看哪些位置、预训练预测什么、下游怎样使用”。
+
+\recalled{简答题3 RLHF的三个阶段及使用的数据}
+\textbf{回忆内容：}RLHF的三个阶段，以及各阶段用到的数据。
+
+\Needspace{4\baselineskip}
+\textbf{参考解释：}这里按经典的“SFT、奖励模型、PPO”流程说明。RLHF是基于人类反馈的强化学习。
+\begin{enumerate}
+\item {}\textbf{SFT监督微调。}使用“提示或指令＋示范回答”训练预训练模型，让它学会按指令作答。数据中的目标回答可以来自人工编写或经审核的示范。
+\item {}\textbf{奖励模型训练。}对同一个提示准备多个候选回答，让标注者比较或排序，形成偏好数据。奖励模型输入提示和回答，输出一个分数；训练使更受偏好的回答得到更高分。
+\item {}\textbf{PPO策略优化。}从提示集合中取问题，由当前策略在线生成回答，奖励模型给出反馈，再用PPO更新策略。参考策略通常冻结，用KL散度约束偏离程度；价值模型帮助估计回报和优势。
+\end{enumerate}
+“策略”在这里就是负责生成回答的语言模型。典型PPO阶段更新策略模型和价值模型，奖励模型与参考模型保持冻结；它不要求每次新采样都由人另写一条标准答案。
+
+三个阶段所学的内容分别是：模仿示范回答、学习偏好评分、根据奖励改进生成策略。DPO和GRPO是其他优化路线，不是本题中三个阶段的名称。
+
+\recalled{简答题4 RAG与大语言模型的痛点}
+\textbf{回忆内容：}RAG是什么？说明它能解决或缓解的至少两个大语言模型痛点。
+
+\Needspace{4\baselineskip}
+\textbf{参考解释：}RAG是检索增强生成。回答问题前，先从外部资料中找到相关片段，再把问题和证据一起提供给语言模型，由模型依据资料生成回答。
+
+基本流程是：整理文档并切块，建立索引；用户提出问题后检索相关片段，必要时重排序；将片段放入上下文，生成答案并提供来源。
+
+可解释的痛点包括：
+\begin{enumerate}
+\item {}\textbf{知识不完整或过时。}模型参数里的知识可能缺失或落后。更新知识库后，新资料可以通过检索进入本次输入，不必每次都重新训练模型。
+\item {}\textbf{缺少私有或领域知识。}课件、公司规章等未进入预训练的数据，可以作为外部资料检索使用。
+\item {}\textbf{回答缺少依据。}检索片段为回答提供证据和可核查的引用，有助于缓解无依据生成。
+\end{enumerate}
+原回忆要求至少两点，可以从这些问题中选择并说明机制。RAG只是在当前输入中提供资料，并不因为执行一次检索就永久修改模型参数；它也不能保证完全消除幻觉，检索错误和曲解证据仍可能发生。
+
+\recalled{简答题5 MoE与DeepSeek的改进}
+\textbf{回忆内容：}MoE是什么？DeepSeek在MoE上改进了哪两点？回忆中没有写明DeepSeek版本。
+
+\Needspace{4\baselineskip}
+\textbf{参考解释：}MoE是混合专家。模型中设置多个专家子网络，由路由器根据当前Token的表示选择部分专家参与计算，再合并结果。这样可以扩大总参数容量，同时控制每个Token的激活计算量。
+
+如果考查的是原始DeepSeekMoE，原论文强调的两项专家设计是：
+\begin{enumerate}
+\item {}\textbf{细粒度专家划分。}将较大的专家拆成更多较小专家，提供更灵活的专家组合，促进更细的知识分工。
+\item {}\textbf{共享专家隔离。}设置共享专家学习不同输入都需要的共通知识，让路由专家更专注于差异化知识，减少重复学习。
+\end{enumerate}
+DeepSeek-V3的无辅助损失负载均衡是后续模型中的另一项设计。原回忆没有指定版本，因此不能把“原始DeepSeekMoE”补进题干，也不能把不同版本的设计混成一个确定答案。上面两点是对应原始DeepSeekMoE的知识解释。
+
+\Needspace{12\baselineskip}
+\section{计算题}
+
+\recalled{计算题1 二元语言模型 平滑与困惑度}
+
+\textbf{回忆内容：}
+笔记记有三条训练语料，原文连写为：
+\begin{quote}
+我喜欢读书\texttt{<eos>}\\
+我喜欢写字\texttt{<eos>}\\
+他喜欢读书\texttt{<eos>}
+\end{quote}
+测试句按字迹记为“他喜欢写书\texttt{<eos>}”。小问包括：
+\begin{enumerate}[label=(\arabic*)]
+\item {}求 $P(\text{喜欢}\mid\text{我})$，另一个条件概率的目标字样疑似“阅读”，也可能与“读书”有关；说明未平滑时句子概率为什么可能为0。
+\item {}进行加一平滑。
+\item {}计算 PPL，原记 $N=5$。
+\end{enumerate}
+这里没有记录明确的 Token 边界、完整词表、起点处理和首词计分规则，因此保留原来的连写形式，不把它改成某一种确定分词。
+
+\Needspace{4\baselineskip}
+\textbf{解释与能确定的结果：}
+
+\Needspace{6\baselineskip}
+\textbf{1. 二元模型的概率怎样算。}
+二元模型用前一个 Token 预测下一个 Token。记 $C(h,w)$ 为前文是 $h$、后面接 $w$ 的次数，$C(h)$ 为以 $h$ 作预测前文的总次数，则未平滑的最大似然估计为：
+\[
+P(w\mid h)=\frac{C(h,w)}{C(h)}.
+\]
+笔记已经明确写出 $P(\text{喜欢}\mid\text{我})$ 这个问法。按这一词粒度看，三条语料中“我”作为前文出现2次，后面都接“喜欢”，所以：
+\[
+\boxed{P(\text{喜欢}\mid\text{我})=\frac22=1.}
+\]
+另一个目标到底是“阅读”还是“读书”尚不清楚，不能替换目标后给出一个确定数值。计数前应先确定原目标以及它是不是一个 Token。
+
+\Needspace{6\baselineskip}
+\textbf{2. 为什么句子概率可能为0。}
+给句子评分时，把各步正确目标的条件概率相乘：
+\[
+P(\text{句子})=p_1p_2\cdots p_N.
+\]
+这里 $p_t$ 是第 $t$ 个被计分目标的预测概率。若某一步对应的词对从未出现过，直接计数得到的概率可能为0，整个乘积也就变成0。训练语料中没有出现某个组合，并不能说明它在语言中绝不可能出现。
+
+\Needspace{6\baselineskip}
+\textbf{3. 加一平滑的正确公式。}
+\[
+P_{+1}(w\mid h)=\frac{C(h,w)+1}{C(h)+V}.
+\]
+$V$ 是固定预测词表中的候选 Token 数。因为每个候选 Token 的计数都加1，所以分母要加 $V$。分母中的 $C(h)$ 数的是\textbf{给定前文}的次数，不是目标词 $w$ 的出现次数。
+
+真正计算时，先确定分词与词表，再为测试句逐项列出“前文、目标、词对计数、前文总计数”，最后代入公式。这里没有记录 $V$ 和完整边界规则，不能把分母直接写成某个具体整数。
+
+\Needspace{6\baselineskip}
+\textbf{4. PPL 怎样由各步概率得到。}
+\[
+\mathrm{PPL}=\exp\left(-\frac1N\sum_{t=1}^N\ln p_t\right)
+=\left(p_1p_2\cdots p_N\right)^{-1/N}.
+\]
+原记 $N=5$，表示有5个目标参与计分。但哪些字或词分别算一个 Token、起点是否只是条件、结束符是否计分，都需要与这5个目标一致。仅有 $N=5$ 不能反推出唯一分词和每步概率，因此这里不给一个假设出来的 PPL 数值。
+
+\recalled{计算题2 BPE 合并与编码}
+
+\textbf{回忆内容：}
+笔记写有“给一个词，BPE 算法”。截图补充了下面三个计算要求：
+\begin{enumerate}[label=(\arabic*)]
+\item {}第一次合并哪一对符号，合并频次是多少？
+\item {}三次合并后得到什么词表或符号序列？
+\item {}根据规则对 \texttt{lower</w>} 编码。
+\end{enumerate}
+原材料没有记录训练词频表、初始符号表、实际合并规则及并列频次的处理方式。
+
+\Needspace{4\baselineskip}
+\textbf{解释与能确定的结果：}
+
+\Needspace{6\baselineskip}
+\textbf{1. BPE 训练在做什么。}
+BPE 从较小的符号开始，反复合并频次最高的相邻符号对。每轮都要执行“统计相邻对、选择一对、替换合并、更新统计”这几个步骤。词频必须参与计数：一个训练词出现多次，它内部的相邻符号对也要按相应次数累计。
+
+\Needspace{6\baselineskip}
+\textbf{2. 三次合并怎样记录。}
+每次写清楚“本轮被合并的两个符号、合并频次、合并后各词的符号序列”。做完一轮再重新统计，不能一直使用初始相邻对的频次。如果最高频对并列，应按原题规定的规则选择；没有这项规则时，中间结果可能不唯一。
+
+“累计词表”指训练过程中建立过的符号；“当前符号序列”指完成合并后各词实际由哪些符号组成。这两种记录不一定相同，作答时要与原题所问一致。
+
+\Needspace{6\baselineskip}
+\textbf{3. \texttt{lower</w>} 怎样编码。}
+编码阶段使用已经学到的合并规则，并遵循规则的先后优先级。\texttt{</w>} 通常表示词尾边界，是否单独作为初始符号也由原题设定。不能只因为字符串里出现 \texttt{low}，就认定它是一个已经学到的 Token。
+
+这里缺少词频和合并规则，因此不能确定第一次合并是什么、三次后的具体词表是什么，或 \texttt{lower</w>} 最终如何切分。上述步骤说明的是作答方法，没有补入新的训练词或频次。
+
+\recalled{计算题3 Transformer 注意力与参数量}
+
+\textbf{回忆内容：}
+按笔迹辨读，数据为：
+\[
+q=[2,0,2,0],\quad k_1=[1,1,1,0],\quad k_2=[1,-1,-1,1],\quad d=4,
+\]
+\[
+v_1=[a,0],\qquad v_2=[2,0].
+\]
+$v_1$ 的第一坐标有涂改，这里用 $a$ 保留原来的未知值。原小问记为：
+\begin{enumerate}[label=(\arabic*)]
+\item {}求缩放后的 scores，也就是 Softmax 之前的分数。
+\item {}加入因果掩码后，求 attention。
+\item {}隐藏维度为512，另记“\texttt{d\_head=8}”，求一个头对应的维度，以及 Q、K、V 和输出映射的参数量。
+\end{enumerate}
+这里没有记录查询所在位置；“8”究竟指头数还是每头维度、参数量是否含偏置，也没有明确写出。
+
+\Needspace{4\baselineskip}
+\textbf{解释与能确定的结果：}
+
+\Needspace{6\baselineskip}
+\textbf{1. 缩放分数可以计算。}
+点积是对应坐标相乘后相加：
+\[
+q\cdot k_1=2\times1+0\times1+2\times1+0\times0=4,
+\]
+\[
+q\cdot k_2=2\times1+0\times(-1)+2\times(-1)+0\times1=0.
+\]
+因此原始分数为 $[4,0]$。按笔记给出的 $d=4$，缩放时除以 $\sqrt4=2$：
+\[
+\boxed{\text{Softmax 之前的缩放分数}=[2,0].}
+\]
+
+\Needspace{6\baselineskip}
+\textbf{2. 因果掩码需要查询位置。}
+因果掩码允许读取当前位置与过去位置，屏蔽未来位置。被屏蔽的分数应在 Softmax 前设为 $-\infty$，因为 $e^{-\infty}=0$，这样才不会分到权重。
+
+为了说明位置为何重要，下面列出两种可能的计算分支。\textbf{它们是解题方法的说明，不是替原题指定的位置条件。}
+\begin{itemize}
+\item {}如果查询处于第1个位置，$k_1$ 对应当前、$k_2$ 对应未来，则分数为 $[2,-\infty]$，权重为 $[1,0]$，输出为 $v_1=[a,0]$。
+\item {}如果查询处于第2个位置，$k_1$ 对应过去、$k_2$ 对应当前，则两项均可见。权重为：
+\[
+\left[\frac{e^2}{e^2+1},\frac1{e^2+1}\right]
+\approx[0.880797,0.119203].
+\]
+对应的加权输出为：
+\[
+\left[\frac{e^2a+2}{e^2+1},0\right].
+\]
+\end{itemize}
+未确认查询位置及 $a$ 的原值前，不能从这两个分支中指定一个数值输出作为唯一答案。
+
+\Needspace{6\baselineskip}
+\textbf{3. 先确定矩阵形状，再数参数。}
+设隐藏维度为 $D$、头数为 $H$，常见等宽多头结构中每头维度是 $D/H$。“8”的两种解释会给出不同的单头结果：
+\begin{center}
+\begin{tabularx}{\linewidth}{|X|p{30mm}|p{40mm}|}\hline
+\textbf{对笔记中“8”的解释} & \textbf{每头维度} & \textbf{单头一个输入投影}\\\hline
+若8表示头数 & $512/8=64$ & $512\times64=32,768$ 个权重\\\hline
+若8表示每头维度 & 8 & $512\times8=4,096$ 个权重\\\hline
+\end{tabularx}
+\end{center}
+上表每个输入投影分别指 $W_Q$、$W_K$ 或 $W_V$，不含偏置。三个投影的单头合计应再乘3。
+
+若各头拼接后为512维，输出也为512维，则全局输出投影 $W_O$ 的权重数为 $512\times512=262,144$。在这些标准结构条件下，所有头的三个输入投影与全局输出投影合计 $4\times512^2=1,048,576$ 个权重。是否另加偏置，要看原题规定，不能默认计入或忽略。
+
+Q/K/V 本身是当前输入计算出的向量；可训练参数是生成它们的投影矩阵。若原题只写 Q/K/V，需要核对它指投影矩阵的参数量，还是中间张量的形状或元素数，不能把两者混为一谈；投影参数量还应明确是单头还是全部头。
+
+\recalled{计算题4 组内标准化优势}
+
+\textbf{回忆内容：}
+原笔记标题为 RLHF，所写公式更具体地对应 GRPO 式组内相对优势。奖励按笔迹辨读为：
+\[
+R=[1,1,2,0].
+\]
+所给公式为：
+\[
+\widehat A_i=\frac{r_i-\operatorname{mean}(R)}{\operatorname{std}(R)}.
+\]
+要求计算优势，并分析“所有回答全对或全错时会怎样”。这里没有记录总体或样本标准差的约定，也没有写出零方差处理方法。
+
+\Needspace{4\baselineskip}
+\textbf{解释与能确定的结果：}
+
+\Needspace{6\baselineskip}
+\textbf{1. 平均奖励和偏差可以确定。}
+\[
+\bar r=\frac{1+1+2+0}{4}=1,\qquad
+R-\bar r=[0,0,1,-1].
+\]
+$r_i$ 是第 $i$ 条回答的奖励，$\bar r$ 是这一组奖励的平均数。前两条处于平均水平，第3条高于平均，第4条低于平均。
+
+\Needspace{6\baselineskip}
+\textbf{2. 标准差约定不同，数值不同。}
+如果采用\textbf{总体标准差}，平方偏差之和除以4：
+\[
+s_{\rm pop}=\sqrt{\frac{0^2+0^2+1^2+(-1)^2}{4}}
+=\frac1{\sqrt2}.
+\]
+所以：
+\[
+\widehat A=[0,0,\sqrt2,-\sqrt2]
+\approx[0,0,1.414214,-1.414214].
+\]
+如果采用\textbf{样本标准差}，平方偏差之和除以 $4-1=3$：
+\[
+s_{\rm sample}=\sqrt{\frac23},\qquad
+\widehat A=[0,0,\sqrt{3/2},-\sqrt{3/2}]
+\approx[0,0,1.224745,-1.224745].
+\]
+两种标准差各有自己的定义；原题未记录采用哪一种，就不能把其中一组数值说成唯一答案。
+
+\Needspace{6\baselineskip}
+\textbf{3. 奖励全相同时，原公式不能直接计算。}
+如果奖励仅按正确性给固定分，那么全对或全错都可能使组内奖励完全相同。此时各项 $r_i-\bar r=0$，标准差也为0，原式出现 $0/0$，数学上未定义。
+
+只有在实现额外采用 $\operatorname{std}(R)+\epsilon$ 等合法处理时，才可以得到 $0/(0+\epsilon)=0$。这里 $\epsilon$ 表示用于避免除零的小正数。优势为0说明这一组的相对奖励没有区分信号，不表示“全对”和“全错”的实际质量相同，也不能直接推断整个训练的所有更新都为0。
+
+\recalled{计算题5 BLEU 的片段精确率与长度惩罚}
+
+\textbf{回忆内容：}
+\begin{quote}
+候选：\texttt{the cat on the seat}\\
+参考：\texttt{the cat sat on the seat}
+\end{quote}
+要求求 unigram 精确率 $p_1$、bigram 精确率 $p_2$、长度惩罚 $BP$ 和 BLEU。笔记写有候选长度 $c=5$、参考长度 $r=6$，没有明确 BLEU 阶数、权重和平滑设置。
+
+\Needspace{4\baselineskip}
+\textbf{解释与能确定的结果：}
+
+\Needspace{6\baselineskip}
+\textbf{1. 计算 unigram 精确率。}
+Unigram 是单个词。BLEU 使用裁剪计数，一个词的匹配次数不能超过它在参考句中出现的次数。本例候选中 \texttt{the} 出现2次，参考中也有2次；其余 \texttt{cat}、\texttt{on}、\texttt{seat} 各有1次，都能匹配。因此：
+\[
+\boxed{p_1=\frac{2+1+1+1}{5}=1.}
+\]
+
+\Needspace{6\baselineskip}
+\textbf{2. 计算 bigram 精确率。}
+Bigram 是相邻两个词。候选的四个 bigram 是：
+\begin{quote}
+\texttt{the cat}、\texttt{cat on}、\texttt{on the}、\texttt{the seat}。
+\end{quote}
+其中只有 \texttt{cat on} 没有出现在参考句中，所以：
+\[
+\boxed{p_2=\frac34=0.75.}
+\]
+分母是候选句产生的4个 bigram，因为这里衡量的是候选片段的精确率。
+
+\Needspace{6\baselineskip}
+\textbf{3. 计算长度惩罚。}
+本例 $c=5<r=6$，候选较短，所以：
+\[
+\boxed{BP=\exp\left(1-\frac rc\right)
+=\exp\left(1-\frac65\right)
+=e^{-0.2}\approx0.818731.}
+\]
+
+\Needspace{6\baselineskip}
+\textbf{4. BLEU 还取决于评价设置。}
+一般形式是：
+\[
+\mathrm{BLEU}=BP\exp\left(\sum_{n=1}^{N}w_n\ln p_n\right).
+\]
+$N$ 是采用的最大 n-gram 阶数，$w_n$ 是第 $n$ 阶的权重，$p_n$ 是对应的裁剪精确率。原题未记全这些设置，因此整体 BLEU 不能唯一确定。
+
+\textbf{若原题只采用1、2元，权重各为 $1/2$，且不额外平滑}，才有：
+\[
+\mathrm{BLEU}_2=BP\sqrt{p_1p_2}
+=e^{-0.2}\sqrt{\frac34}\approx0.709042.
+\]
+这对应百分数表示约70.90，但这里保留“若”的条件，不能把它改写成原题已给定的 BLEU-2。这里的 $p_1,p_2$ 是片段匹配精确率，不是语言模型的下一词条件概率。
+
+\clearpage
+\recalled{计算题6 Elo 评分}
+
+\textbf{回忆内容：}
+仅记有两方初始评分 $R_A=1500$、$R_B=1300$，以及“单次求 Elo”的线索。没有记录实际赛果和更新系数 $K$，也没有明确只问预期得分还是更新后的评分。
+
+\Needspace{4\baselineskip}
+\textbf{解释与能确定的结果：}
+
+\Needspace{6\baselineskip}
+\textbf{1. 初始评分足以计算预期得分。}
+采用常见 Elo 公式：
+\[
+E_A=\frac1{1+10^{(R_B-R_A)/400}},\qquad E_B=1-E_A.
+\]
+$E_A,E_B$ 是比较前双方的预期得分。本例代入初始评分可得：
+\[
+E_A=\frac1{1+10^{(1300-1500)/400}}
+=\frac1{1+10^{-0.5}}\approx0.759746927,
+\]
+\[
+\boxed{E_A\approx0.759747,\qquad E_B\approx0.240253.}
+\]
+严格说这是预期得分；如果比较中允许平局，不应直接把它称为排除平局后的纯胜率。
+
+\Needspace{6\baselineskip}
+\textbf{2. 新评分需要实际赛果和 $K$。}
+\[
+R'_A=R_A+K(S_A-E_A),\qquad
+R'_B=R_B+K(S_B-E_B).
+\]
+$S$ 是实际得分，胜、平、负分别取1、0.5、0；$K$ 控制每次评分调整的幅度。把已经确定的初始评分和预期得分代入，只能得到：
+\[
+\boxed{R'_A=1500+K(S_A-0.759746927),}
+\]
+\[
+\boxed{R'_B=1300+K(S_B-0.240253073).}
+\]
+这里没有记录 $K$ 和实际胜负，因此不能继续算出唯一的新评分，不能自行假定某一方获胜或指定 $K$ 的数值。
+
+
+\Needspace{12\baselineskip}
+\section{资料来源}
+
+题目回忆来自用户提供的《未命名笔记6.pdf》第2--6页、绿色文字截图，以及用户关于“DPO与GRPO”的补充。选择题10道、填空题10道采用用户补充的原卷总量。
+
+知识解释对照车老师的自然语言处理课件：第01讲的语言特性与NLP任务层级，第02讲的分词与BPE，第04--05讲的注意力、语言模型与PPL，第07讲的GPT与BERT，第08--10讲的微调、对齐、RAG与ReAct，以及第11讲的BLEU与Elo。
+
+MLA与不同版本的DeepSeekMoE设计参考下列原始报告。模型版本只用于说明相应知识，不作为原题已经给出的条件。
+\begin{enumerate}
+\item DeepSeek-V2：\url{https://arxiv.org/html/2405.04434v5}
+\item DeepSeekMoE：\url{https://arxiv.org/abs/2401.06066}
+\item DeepSeek-V3：\url{https://arxiv.org/abs/2412.19437}
+\end{enumerate}
+\end{document}

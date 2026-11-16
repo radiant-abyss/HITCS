@@ -1,0 +1,1329 @@
+% !TeX program = xelatex
+% Compile twice: xelatex -interaction=nonstopmode -no-shell-escape 自然语言处理课程复习资料.tex
+\documentclass[UTF8,a4paper,zihao=-4,fontset=windows]{ctexart}
+\usepackage[left=20mm,right=20mm,top=18mm,bottom=19mm]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Consolas}[Scale=0.88]
+\setmathfont{Latin Modern Math}
+\usepackage[table]{xcolor}
+\usepackage{array,longtable,booktabs}
+\usepackage{enumitem}
+\usepackage{needspace}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue,
+  pdftitle={自然语言处理课程复习资料},pdfauthor={课程复习整理},
+  bookmarksnumbered=true,bookmarksopen=true}
+\definecolor{TableHead}{HTML}{DCE6F1}
+\definecolor{TableAlt}{HTML}{F5F7FA}
+\definecolor{TableRule}{HTML}{D9D9D9}
+\arrayrulecolor{TableRule}
+\renewcommand{\arraystretch}{1.30}
+\setlength{\tabcolsep}{5pt}
+\setlength{\LTpre}{7pt}
+\setlength{\LTpost}{9pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt minus 1pt}
+\linespread{1.12}
+\setlength{\emergencystretch}{2.5em}
+\clubpenalty=10000
+\widowpenalty=10000
+\setlist{nosep,leftmargin=1.6em,topsep=4pt}
+\allowdisplaybreaks[2]
+\pagestyle{fancy}\fancyhf{}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\ctexset{section={format=\Large\bfseries,name={第,讲},number=\chinese{section},beforeskip=8pt,afterskip=10pt},
+ subsection={format=\large\bfseries,beforeskip=10pt,afterskip=6pt},
+ subsubsection={format=\normalsize\bfseries,beforeskip=8pt,afterskip=4pt}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+\newcommand{\source}[1]{{\small #1}\par}
+\newcommand{\unnumsection}[1]{\Needspace{8\baselineskip}\phantomsection\section*{#1}\addcontentsline{toc}{section}{#1}}
+\begin{document}
+{\LARGE\bfseries 自然语言处理课程复习资料\par}\vspace{4pt}
+车万翔老师课件配套整理
+
+这份资料围绕“文本如何表示、模型如何学习、如何适配任务、怎样验证效果”串联全课程。复习时应能说明概念，写出关键公式并解释符号，比较相近方法，再把方法放进具体任务中分析。
+
+\Needspace{6\baselineskip}
+\subsection*{使用说明}
+原课件共 11 讲、469 页。文中的［05 p12］表示第 05 讲 PDF 的第 12 页，页码从封面开始计数。正文按课件内容整理；标为“理解补充”“公式校核”的文字用于说明条件或纠正易误读之处。自测包含课件练习题解和整理者编写的题目；复习安排由整理者编写，不属于教师公布的考试范围。
+
+课件列出的考核方式为实验 40\%、期末闭卷 60\%；实验有两个项目，每个 20 分，期末包括填空、选择、简答、分析、综合等题型。实验题目为“从头实现语言模型”和“类 ChatGPT 通用对话系统”。［01 p3--5］
+
+建议先阅读下面的知识地图，再按章复习，最后完成末尾的综合自测。第一次学习应回到原课件核对图示与代码；考前使用本资料回忆定义、条件、流程和差异。
+
+\Needspace{6\baselineskip}
+\subsection*{全课程知识地图}
+文本 \ensuremath{\rightarrow} 分词与子词切分 \ensuremath{\rightarrow} 数值表示 \ensuremath{\rightarrow} 神经网络 \ensuremath{\rightarrow} 语言模型 \ensuremath{\rightarrow} 预训练 \ensuremath{\rightarrow} 任务微调与参数高效微调 \ensuremath{\rightarrow} 提示和对齐 \ensuremath{\rightarrow} RAG 与智能体 \ensuremath{\rightarrow} 能力评估。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{33.66mm}|>{\raggedright\arraybackslash}p{91.53mm}|>{\raggedright\arraybackslash}p{33.66mm}|}
+\hline
+\rowcolor{TableHead}\textbf{阶段} & \textbf{需要回答的问题} & \textbf{对应讲次}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{阶段} & \textbf{需要回答的问题} & \textbf{对应讲次}\\\hline
+\endhead
+任务与输入 & 什么是 NLP，输入输出是什么，文本怎样切成 token & 01--02\\\hline
+\rowcolor{TableAlt}
+实现与基础模型 & 如何处理数据、训练网络、处理变长序列 & 03--04\\\hline
+概率与表示 & 什么是语言模型，词向量如何学习 & 05--06\\\hline
+\rowcolor{TableAlt}
+预训练架构 & GPT、BERT、T5、BART 的结构和目标有何区别 & 07\\\hline
+任务适配与压缩 & 如何接任务头，如何节省微调与部署资源 & 08\\\hline
+\rowcolor{TableAlt}
+提示与对齐 & ICL、CoT、RAG、RLHF、DPO 分别改变什么 & 09\\*\hline
+应用与验证 & 如何构建可用系统，如何判断模型做对了 & 10--11\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+\Needspace{6\baselineskip}
+\clearpage\tableofcontents\clearpage
+\section{绪论}
+\Needspace{6\baselineskip}
+\subsection*{自然语言处理的定义与任务}
+自然语言处理（Natural Language Processing，NLP）用计算机理解和生成自然语言。理解任务包括情感判断、信息抽取等；生成任务包括翻译、摘要和问答。［01 p8--9］
+
+按建设层级可分为资源建设、基础任务、应用任务、应用系统。例如课程通知与标注规范属于资源，识别时间地点属于基础任务，课程问答属于应用任务，面向学生的课程助手属于应用系统。［01 p15］
+
+按输入输出可分为回归、分类、匹配、解析、生成。作文评分是回归，情感判断是分类，文本相似度或蕴含判断是匹配，实体标签与句法结构预测是解析，翻译和摘要是生成。这些类别可以交叉，判断时先明确输入、输出以及评价标准。［01 p16--17］
+
+大语言模型可以用生成标签文本统一处理部分理解任务。例如让模型输出“正面”完成分类，但评价时仍应检查类别是否正确；输出自然语言并不免除结构和格式约束。［01 p17］
+
+\Needspace{10\baselineskip}
+\subsection*{八大难点}
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{40.35mm}|>{\raggedright\arraybackslash}p{122.17mm}|}
+\hline
+\rowcolor{TableHead}\textbf{特点} & \textbf{含义与例子}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{特点} & \textbf{含义与例子}\\\hline
+\endhead
+抽象性 & 一个词概括一类对象，例如“车”并非某一辆具体车辆\\\hline
+\rowcolor{TableAlt}
+组合性 & 单元按结构组合，词序改变可能使施事和受事互换\\\hline
+歧义性 & 同一表达有多个解释，例如“苹果涨价了”\\\hline
+\rowcolor{TableAlt}
+进化性 & 新词和新义不断出现，例如“种草”含义扩展\\\hline
+非规范性 & 拼写变体、缩写、口语和网络用语普遍存在\\\hline
+\rowcolor{TableAlt}
+主观性 & 分词边界、情感等判断依赖标注规范与判断标准\\\hline
+知识性 & 指代和隐含关系可能需要常识、领域知识与语境\\*\hline
+\rowcolor{TableAlt}
+难移植性 & 领域或语言变化后，原数据中的规律未必适用\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+八大难点见［01 p11--14］。复习应为每个难点准备一个例子，并说明它如何影响数据、模型或评价，而不是仅背名称。
+
+\Needspace{6\baselineskip}
+\subsection*{形式 语义 推理与语用}
+课件用“名、实、知、境”解释研究层次：形式关注语言符号；语义联系语言与事实或意见；推理进一步使用知识；语用进一步结合语言所处环境。［01 p18--19］
+
+例如“这里有点冷”：形式层面分析词和句法；语义层面理解温度偏低；推理层面联系开窗与冷风；语用层面结合情境判断说话者可能在请求关窗。语用解释依赖情境，不能把一种可能意图当成句子的唯一字面含义。
+
+\Needspace{6\baselineskip}
+\subsection*{技术发展与训练阶段}
+理性主义依靠专家知识和规则；经验主义从数据中学习，包括统计学习、深度学习、预训练和大模型。课件按主要兴起时期列出专家知识、浅层机器学习、深度学习、预训练语言模型、大语言模型五个阶段，技术之间长期并存。［01 p20--25］
+
+规则方法便于解释和干预，但依赖人工构建，覆盖和维护困难。独热等离散表示不能直接表达语义相似性；稠密嵌入允许模型从数据中学习相近表达的关系。预训练把大量未标注文本变成自监督学习信号，再迁移到下游任务。［01 p21--26］
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{29.56mm}|>{\raggedright\arraybackslash}p{52.96mm}|>{\raggedright\arraybackslash}p{29.56mm}|>{\raggedright\arraybackslash}p{43.11mm}|}
+\hline
+\rowcolor{TableHead}\textbf{过程} & \textbf{主要信息来源} & \textbf{是否更新参数} & \textbf{目的}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{过程} & \textbf{主要信息来源} & \textbf{是否更新参数} & \textbf{目的}\\\hline
+\endhead
+预训练 & 大规模文本等数据提供的自监督信号 & 是 & 学习通用表示和生成规律\\\hline
+\rowcolor{TableAlt}
+微调 & 任务样本或指令与回答 & 是，全部或部分 & 适应具体任务和行为要求\\*\hline
+提示与 ICL & 当前输入中的指令与示例 & 通常否 & 利用上下文引导本次推断\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+以上区分见［01 p26--27］。提示学习中也存在训练提示参数的方法，不能把“所有名称含提示的方法”一概归为无参数更新；第九讲将进一步区分。
+
+对齐强调 Helpful、Honest、Harmless，即帮助完成任务、如实表达与能力边界、减少偏见和有害输出。智能体通过调用工具、观察反馈和验证结果多轮完成目标。［01 p29--30］
+
+\Needspace{6\baselineskip}
+\subsection*{本讲检查}
+\begin{enumerate}
+\item {}能用同一句话分别说明形式、语义、推理和语用。
+\item {}能说明“用生成完成分类”为什么仍须按分类任务评价。
+\item {}能区分预训练、微调、提示，以及应用系统中的工具执行。
+\end{enumerate}
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{自然语言处理基础}
+\Needspace{6\baselineskip}
+\subsection{文本表示}
+文本处理先确定字、词或词元（Token），再转为数值向量。Token是模型的处理单元，可以是字、子词或整词。独热表示用词表中唯一坐标表示一个词，维度等于词表大小，稀疏且不能直接体现语义相似性。［02 p3-4］
+
+分布假设认为上下文相似的词往往含义相近。共现矩阵以词为行、上下文为列，统计共现次数；上下文可以是窗口、句子或文档。PMI比较实际共现概率与独立假设的预期，PPMI将负值截断：［02 p5-6］
+
+\[\operatorname{PMI}(w,c)=\log_2\frac{P(w,c)}{P(w)P(c)},\qquad \operatorname{PPMI}(w,c)=\max\{\operatorname{PMI}(w,c),0\}.\]
+PMI大于0表示高于独立预期，等于0表示与预期相同。课件“爱---深度”实际共现1次，预期为4\ensuremath{\times}4/\allowbreak{}70，因此PMI约2.13。SVD将共现矩阵分解，并保留较大的奇异值以得到低维表示：［02 p6-7］
+
+\[M=U\Sigma V^{\mathsf T}.\]
+词嵌入是连续、低维、稠密向量。嵌入层把ID映射为向量，例如输入形状[2,4]经Embedding(8,4)成为[2,4,4]。静态表示通常让同词使用同一向量；上下文表示允许“苹果”在不同句子中得到不同表示。词袋聚合简单，但“张三打李四”与“李四打张三”可相同，因而丢失词序、角色及否定范围。［02 p8-10］
+
+\Needspace{6\baselineskip}
+\subsection{中文分词与子词}
+中文分词需确定词边界，存在歧义且依赖标注规范。最大匹配每次先尝试词典允许的最长候选，失败则缩短，最终可退回单字。正向从左向右，逆向从右向左；词典含“研究生、研究、生命、的、起源”时，正向为“研究生/\allowbreak{}命/\allowbreak{}的/\allowbreak{}起源”，逆向为“研究/\allowbreak{}生命/\allowbreak{}的/\allowbreak{}起源”。局部最长不保证全句最佳。［02 p11-12］
+
+整词词表大、词形变化带来稀疏性；字符词表小但序列长；子词在两者间折中，且不一定对应词根或词缀。BPE训练反复合并最高频相邻单元对，并保留规则顺序；频次须乘词出现次数。编码新文本时按已学合并优先级执行。例如先学b+c，再学a+b，则a b c切为a/\allowbreak{}bc。WordPiece常见编码采用词内最长前缀匹配，Unigram用概率模型比较切分；SentencePiece是支持BPE、Unigram等方法的工具。［02 p13-16、p41］
+
+\Needspace{10\baselineskip}
+\subsection{任务、输出形式与标签}
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{38.58mm}|>{\raggedright\arraybackslash}p{82.15mm}|>{\raggedright\arraybackslash}p{38.13mm}|}
+\hline
+\rowcolor{TableHead}\textbf{任务} & \textbf{需要识别的内容} & \textbf{来源}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{任务} & \textbf{需要识别的内容} & \textbf{来源}\\\hline
+\endhead
+词性标注 & 每个词在句中的词性 & ［02 p17］\\\hline
+\rowcolor{TableAlt}
+句法分析 & 短语层次或词间依存关系 & ［02 p18-19］\\\hline
+词义消歧/\allowbreak{}语义角色 & 具体词义；谓词及施事、时间、地点等 & ［02 p20］\\\hline
+\rowcolor{TableAlt}
+语义依存/\allowbreak{}语义解析 & 语义关系图；可执行表示如SQL & ［02 p21］\\\hline
+信息抽取/\allowbreak{}情感分析 & 实体、事件及参与者；整体或方面级态度 & ［02 p22-23］\\*\hline
+\rowcolor{TableAlt}
+问答/\allowbreak{}翻译/\allowbreak{}对话 & 基于证据回答；跨语言生成；结合历史回复 & ［02 p24-26］\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+任务型对话流程为NLU理解意图和槽位\ensuremath{\rightarrow}维护状态\ensuremath{\rightarrow}选择策略\ensuremath{\rightarrow}NLG生成；缺槽位时应追问。文本分类输出类别；结构预测输出标签序列、片段或图；Seq2seq输出长度可变的序列。任务说明“做什么”，问题形式说明“输出如何表达”。文本匹配的双塔分别编码、便于预计算检索；单塔联合编码，直接建模交互。［02 p26-29］
+
+分词BMES中B开始、M中间、E结束、S单字词；“我/\allowbreak{}爱/\allowbreak{}北京/\allowbreak{}天安门/\allowbreak{}。”为S S B E B M E S。NER的BIO中B开始、I内部、O外部，后缀表示实体类型。图预测可先给边打分再解码，也可逐步执行动作构造结构。［02 p30-33］
+
+\Needspace{6\baselineskip}
+\subsection{指标与易错点}
+\[\mathrm{Accuracy}=\frac{\text{正确样本数}}{\text{总样本数}},\quad P=\frac{\text{正确实体数}}{\text{预测实体数}},\quad R=\frac{\text{正确实体数}}{\text{标准实体数}},\quad F_1=\frac{2PR}{P+R}.\]
+类别不均衡时准确率可误导；95\%正常邮件下全部预测正常，垃圾邮件召回为0。严格实体F1要求边界和类型完整匹配，不能用字级准确率代替。UAS只检查中心词，LAS同时检查中心词和关系，因此同范围下LAS\ensuremath{\le}UAS。BLEU关注n-gram重叠精确率并结合长度惩罚；ROUGE关注n-gram或最长公共子序列重叠，必须说明具体版本。重叠高不保证事实正确。［02 p34-37］
+
+训练集拟合参数，验证集选择方案，测试集在方案确定后最终评价；近重复文本跨集合会泄漏。课后明确要求实现最大匹配、复现PPMI/\allowbreak{}SVD并比较模型分词。［02 p38、p40］
+
+\Needspace{6\baselineskip}
+\subsection{自测与参考答案}
+\begin{enumerate}
+\item {}\textbf{BPE训练与编码有什么区别？} 训练统计并学习合并规则，编码遵循已学规则优先级。［02 p15-16］
+\item {}\textbf{课件练习 标准实体4个，预测3个，正确2个，P/\allowbreak{}R/\allowbreak{}F1？} 2/\allowbreak{}3、1/\allowbreak{}2、4/\allowbreak{}7\ensuremath{\approx}0.5714。［02 p35、p39，计算］
+\item {}\textbf{中心词对、关系错如何计分？} UAS算对，LAS算错。［02 p36］
+\item {}\textbf{课件练习 40人分4组、8人请假，能否断定每组到课8人？} 不能，只能确定总到课32人、平均每组8人，缺少分组与缺席分布。［02 p39，推理解答］
+\end{enumerate}
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{基础工具集与常用数据集}
+\Needspace{6\baselineskip}
+\subsection{工具分工与Token字节边界}
+tiktoken负责字符串与Token ID互转；NLTK提供英文分析及语言资源；LTP提供中文词法、句法、语义分析；PyTorch处理张量、模型与训练；Datasets/\allowbreak{}Evaluate处理数据与指标。［03 p2］
+
+Token边界可以切开一个字符的UTF-8字节。“我爱北京天安门！”在课件配置中有8个Token，“爱”的三个字节被分成两个Token，“北京”却对应一个Token。因此不能逐片段UTF-8解码并忽略错误再拼接，否则“爱”会消失。正确方法是完整decode(ids)，或先拼接所有字节再解码，并做往返一致性断言。Token数不等于字数或词数。［03 p3-5］
+
+NLTK包括分句、词元解析、词性、组块、实体与句法分析，以及WordNet、SentiWordNet等资源。WordNet用synset组织同义概念，并连接上位/\allowbreak{}下位关系；一个词可有多个义项。词性依语境变化，如fire可为名词或动词。停用词处理要结合任务，删除not可能反转情感。LTP支持分词、词性、NER、依存句法、语义角色及语义依存，可通过pipeline选择任务。［03 p6-11］
+
+\Needspace{6\baselineskip}
+\subsection{张量与形状}
+设B为批大小、T为长度、D为表示维度、C为类别数。Token ID形状[B,T]，常为long；嵌入[B,T,D]、句表示[B,D]、分类logits[B,C]，通常为浮点。标量形状为()。张量记录统一dtype、shape和stride，列表元素则可为不同对象。［03 p12-15］
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{34.48mm}|>{\raggedright\arraybackslash}p{89.90mm}|>{\raggedright\arraybackslash}p{34.48mm}|}
+\hline
+\rowcolor{TableHead}\textbf{运算} & \textbf{规则或示例} & \textbf{来源}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{运算} & \textbf{规则或示例} & \textbf{来源}\\\hline
+\endhead
+逐元素乘/\allowbreak{}矩阵乘 & *逐元素；@点积或矩阵乘，(2,3)@(3,4)\ensuremath{\rightarrow}(2,4) & ［03 p16］\\\hline
+\rowcolor{TableAlt}
+dim/\allowbreak{}keepdim & 沿指定轴聚合；keepdim保留长度1的轴 & ［03 p17］\\\hline
+reshape/\allowbreak{}transpose & 前者按顺序重分组，后者交换轴，不可混用 & ［03 p18］\\\hline
+\rowcolor{TableAlt}
+unsqueeze/\allowbreak{}squeeze & 新增/\allowbreak{}移除单例轴 & ［03 p18］\\\hline
+cat & 沿既有轴拼接；(3,4)两份可拼成(6,4)或(3,8) & ［03 p19］\\*\hline
+\rowcolor{TableAlt}
+广播 & 从末轴对齐，维度相同或一方为1；(3,1)+(1,2)\ensuremath{\rightarrow}(3,2) & ［03 p20］\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+x=[[1,2,3],[4,5,6]]时，mean(0)=[2.5,3.5,4.5]，mean(1)=[2,5]，mean(1,keepdim=True)=[[2],[5]]。逐行去均值需用后者；x减形状(2,)的向量失败，因为末轴3与2不兼容。［03 p17、p26］
+
+\Needspace{6\baselineskip}
+\subsection{自动微分与训练}
+动态计算图随执行记录运算，通过链式法则求梯度。课件例在a=2、b=3时：［03 p21-22］
+
+\[e=(a+b)(b-2)=5,\qquad \frac{\partial e}{\partial a}=b-2=1,\qquad \frac{\partial e}{\partial b}=(b-2)+(a+b)=6.\]
+b经过两条路径影响e，梯度必须相加。nn.Module组织模型，优化器更新参数，Dataset/\allowbreak{}DataLoader组织数据。一次训练更新依次为：清梯度zero\_grad\ensuremath{\rightarrow}前向得到logits\ensuremath{\rightarrow}算损失\ensuremath{\rightarrow}backward求梯度\ensuremath{\rightarrow}step更新参数。backward本身不等于更新参数。GPU要求模型和数据同设备，是否加速依规模而定；compile可优化部分计算。［03 p23-25］
+
+\Needspace{6\baselineskip}
+\subsection{语料与数据质量}
+预训练语料通常是连续文本，从文本构造预测目标；任务训练集带标签或参考输出；评价基准还规定划分、指标和协议。Wikipedia使用时应固定快照日期、抽取正文、按需繁简转换，并保留ID与来源。历史版本重复不应无条件混入。［03 p27-29］
+
+Common Crawl中WARC是原始响应与内容，WAT是元数据，WET是抽取文本；WET仍需清洗。C4/\allowbreak{}mC4/\allowbreak{}CC-100由Common Crawl派生，BookCorpus/\allowbreak{}The Pile偏书籍或多来源英文，ROOTS为BLOOM多语言语料，RedPajama/\allowbreak{}SlimPajama体现清洗去重差异，悟道/\allowbreak{}CLUECorpus2020/\allowbreak{}MNBVC为中文资源。复习应关注来源、领域、语言、过滤及访问条件。［03 p30-31］
+
+清洗处理网页模板、乱码和精确/\allowbreak{}近重复；不要一律删除代码、否定或有效语境。过滤越强并不必然更好，同规则对不同语言也可能效果不同。FineWeb-Edu与FineWeb2分别作为质量筛选及多语言处理的例子。［03 p32-33］
+
+Datasets加载后先检查字段及标签映射；map用于预处理，filter筛选样本，with\_format指定数值格式；streaming按需读取，访问方式不同于普通随机索引。Evaluate提供统一指标计算接口。训练/\allowbreak{}验证/\allowbreak{}测试分别承担拟合、选择、最终评估，不应根据测试分数持续调参；原文和转载跨集合仍会泄漏，应分组去重，必要时按时间划分。［03 p34-38］
+
+\Needspace{6\baselineskip}
+\subsection{自测与实验检查}
+\begin{enumerate}
+\item {}\textbf{为何逐Token解码可能丢字？} Token可能仅含字符的部分UTF-8字节，必须完整解码或先拼字节。［03 p3-5］
+\item {}\textbf{(2,3)为何不能减(2,)，却能减(2,1)？} 广播从末轴比较，3与2不兼容，3与1兼容。［03 p20、p26］
+\item {}\textbf{backward和step区别？} 前者求梯度，后者按梯度更新参数。［03 p24］
+\item {}\textbf{换了URL就能避免数据泄漏吗？} 不能，转载可能近重复，须检查内容与来源。［03 p37］
+\end{enumerate}
+课后实验要求：Token ID/\allowbreak{}字节片段/\allowbreak{}往返断言；张量shape与手算梯度；数据字段、划分、指标和错误案例。所有实验记录代码、依赖及数据/\allowbreak{}模型版本。［03 p39］
+
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{自然语言处理中的深度学习基础}
+\Needspace{6\baselineskip}
+\subsection{线性模型与非线性}
+本讲以影评情感分类贯穿，模型需识别情感词、否定、转折及上下文。感知器使用线性评分，Logistic回归将评分映为二分类概率，Softmax回归形成多类概率分布：［04 p3-6］
+
+\[z=w^{\mathsf T}x+b,\qquad \sigma(z)=\frac1{1+e^{-z}},\qquad p_i=\frac{e^{z_i}}{\sum_j e^{z_j}}.\]
+感知器以z\ensuremath{\ge}0判为1，等价于Logistic概率\ensuremath{\ge}0.5。Softmax先减最大logit，概率不变且可避免溢出。仅叠加线性层仍是仿射变换，需要非线性激活才能解决XOR等问题。ReLU保留正值、将负值归零；tanh范围为-1至1，sigmoid为0至1。［04 p4-9］
+
+课件XOR网络可手算四组输入：［04 p8］
+
+\[h_1=\operatorname{ReLU}(x_1+x_2),\quad h_2=\operatorname{ReLU}(x_1+x_2-1),\quad y=h_1-2h_2.\]
+MLP示例8\ensuremath{\rightarrow}16\ensuremath{\rightarrow}2将[4,8]变为[4,2]。使用CrossEntropyLoss时保留logits，勿先自行softmax。平均池化MLP先聚合有效词向量，简单但忽略词序。［04 p10-11］
+
+\Needspace{10\baselineskip}
+\subsection{CNN、RNN、LSTM与Seq2seq}
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{26.08mm}|>{\raggedright\arraybackslash}p{63.47mm}|>{\raggedright\arraybackslash}p{39.56mm}|>{\raggedright\arraybackslash}p{26.08mm}|}
+\hline
+\rowcolor{TableHead}\textbf{模型} & \textbf{核心机制} & \textbf{限制} & \textbf{来源}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{模型} & \textbf{核心机制} & \textbf{限制} & \textbf{来源}\\\hline
+\endhead
+CNN & 共享卷积核扫描局部窗口，池化形成定长向量 & 长距关系依赖感受野 & ［04 p12-13、p27］\\\hline
+\rowcolor{TableAlt}
+RNN & 当前状态依赖当前输入与上一状态，跨时间共享参数 & 串行、长程信息和梯度问题 & ［04 p14-15］\\\hline
+LSTM & 加性状态通路与遗忘/\allowbreak{}输入/\allowbreak{}输出门 & 仍有串行和长程记忆限制 & ［04 p15-17、p27］\\*\hline
+\rowcolor{TableAlt}
+Transformer & 位置间通过注意力直接交互 & 全注意力长度开销为平方级 & ［04 p19-27］\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+CNN例x=[1,2,0,3]、卷积核[1,-1]、步长1且无padding，响应为[-1,2,-3]，最大池化为2。加深卷积、扩张或扩大窗口可扩大感受野，故不能把“长距受限”说成所有CNN绝对不能处理长距。［04 p12-14、p27］
+
+LSTM遗忘门控制旧状态保留，输入门控制新信息写入，输出门控制输出。双向是同层两个相反方向，堆叠是多层，二者不同。nn.LSTM(8,16,batch\_first=True)输入[2,6,8]时，out=[2,6,16]，hn/\allowbreak{}cn=[1,2,16]；分类用最后有效状态，标注用所有有效状态，变长序列考虑打包以免padding继续递推。［04 p15-17］
+
+Seq2seq的编码器把源句压为固定维状态，长句细节容易丢失；注意力让解码器每步按当前需求重新读取源位置，步骤为打分\ensuremath{\rightarrow}归一化\ensuremath{\rightarrow}加权求和。［04 p18-19］
+
+\Needspace{6\baselineskip}
+\subsection{自注意力与Transformer}
+同一输入经三组线性映射得到Q、K、V；Q与K用于匹配，V是被汇总的信息。权重在被读取位置上归一化，再对V加权：［04 p20、p23］
+
+\[q_i=W^Qx_i,\quad k_i=W^Kx_i,\quad v_i=W^Vx_i\]
+\[\alpha_{ij}=\operatorname{softmax}_j\!\bigl(\operatorname{attn}(q_i,k_j)\bigr)\]
+\[y_i=\sum_j\alpha_{ij}v_j.\]
+第25页图像代码采用缩放点积，可写为：［04 p25，依代码整理］
+
+\[\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V.\]
+多头使用多组映射，让不同头形成各自的注意力分布。输入[B,T,C]分为h个头后，Q/\allowbreak{}K/\allowbreak{}V形状[B,h,T,C/\allowbreak{}h]，权重[B,h,T,T]，各头结果合并回[B,T,C]。课件B=2、T=3、C=4、h=2，故权重为[2,2,3,3]、每头维度2。［04 p24-25，形状依代码推导］
+
+自注意力本身未表达位置，需要位置表示。位置嵌入为各位置学习向量，位置编码用确定函数映射位置；课件输入为词向量加位置向量。堆叠注意力层通过消息传播组合复杂关系，MLP增加非线性，LayerNorm与残差帮助学习。［04 p21-22、p26］
+
+\Needspace{6\baselineskip}
+\subsection{变长训练与比较}
+固定数据划分，只用训练集建立词表，预留pad/\allowbreak{}unk；批次记录有效长度。分类MLP/\allowbreak{}CNN/\allowbreak{}LSTM/\allowbreak{}Transformer最终都输出[B,2]，差别在编码与聚合。平均池化必须排除padding：［04 p28-30］
+
+\[h_b=\frac{\sum_t m_{bt}x_{bt}}{\sum_t m_{bt}},\qquad m_{bt}\in\{0,1\}.\]
+其中m标记有效词元，分母不能用补齐后的长度，且每条需至少一个有效词元。序列标注输出[B,T,C]，损失和准确率也仅统计有效位置；输入词表与标签表是不同映射。公平实验应相同划分、词表及标签映射，报告参数量、耗时、验证/\allowbreak{}测试指标，换随机种子报告均值与波动，并检查否定/\allowbreak{}转折/\allowbreak{}长句错误。［04 p29-32］
+
+\Needspace{6\baselineskip}
+\subsection{自测与参考答案}
+\begin{enumerate}
+\item {}\textbf{两个线性层能否解决XOR？} 单纯叠加不行，需非线性激活。［04 p7-9］
+\item {}\textbf{双向就是两层吗？} 不是，方向与层数不同。［04 p16］
+\item {}\textbf{注意力比固定句向量多了什么？} 每步按当前需求读取不同源信息。［04 p18-19］
+\item {}\textbf{Q=[Tq,dk]、K=[Tk,dk]、V=[Tk,dv]，输出形状？} [Tq,dv]。［04 p23、p25，推导］
+\item {}\textbf{padding要在哪些地方处理？} 平均池化分子/\allowbreak{}分母、RNN有效递推、序列标注损失与指标。［04 p17、p29、p31］
+\end{enumerate}
+本讲第2页目标提到Mask，但正文明确展开的是padding与变长处理；第25页代码不含causal mask或最终输出投影，不应误认其为完整现代Transformer实现。课后任务为比较四种情感分类模型。［04 p2、p25、p29-32］
+
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{语言模型}
+\Needspace{6\baselineskip}
+\subsection{语言模型、词元和概率分解}
+\source{［05 p3-7］}
+语言模型给自然语言序列分配概率，也可定义为给定上文时下一个词元的条件概率分布。两种定义通过链式法则联系：
+
+\[P(w_1,\ldots,w_n,\mathrm{EOS})=\prod_{t=1}^{n+1}P(w_t\mid w_{<t}),\qquad w_{n+1}=\mathrm{EOS}.\]
+其中 BOS 是提供起点的条件，EOS 是预测的结束词元；PAD 用于补齐，不应参与有效目标损失；UNK 表示未登录输入。词元可取字、词或子词，改变切分就改变预测单位。
+
+课件手算：$P(\text{我}\mid\mathrm{BOS})=0.5$，$P(\text{喜欢}\mid\mathrm{BOS},\text{我})=0.4$，$P(\text{读书}\mid\mathrm{BOS},\text{我喜欢})=0.25$，$P(\mathrm{EOS}\mid\mathrm{BOS},\text{我喜欢读书})=0.8$，序列概率为$0.04$。不能漏掉约定计分的 EOS。
+
+模型输出概率分布，解码策略决定怎样从分布中选词。概率评分与生成是同一概率模型的两种用法。
+
+\Needspace{6\baselineskip}
+\subsection{N元模型与平滑}
+\source{［05 p8-13］}
+N元模型采用有限历史假设，只保留前 $N-1$ 个词：一元不看历史，二元看前1词，三元看前2词。N越大通常越稀疏，存储压力也越大。
+
+\[P_{\mathrm{MLE}}(w\mid h)=\frac{C(h,w)}{C(h)},\quad C(h)=\sum_{w\in\mathcal V}C(h,w).\]
+历史 h 作预测前缀出现的次数为分母。未见组合会得到零概率；若整个历史未见、$C(h)=0$，普通计数比值无法直接计算；OOV 则是词根本不在词表。这是三种相关但不同的问题。
+
+加$\delta$平滑：
+
+\[P_\delta(w\mid h)=\frac{C(h,w)+\delta}{C(h)+\delta V},\quad\delta>0.\]
+V 为固定预测词表大小；分母必须加 $\delta V$。课件 h=“我 喜欢”，读书计3、音乐计1、另3项计0，$V=5$。$\delta=1$时概率为4/\allowbreak{}9、2/\allowbreak{}9、1/\allowbreak{}9、1/\allowbreak{}9、1/\allowbreak{}9；$\delta=0.5$时为7/\allowbreak{}13、3/\allowbreak{}13、1/\allowbreak{}13、1/\allowbreak{}13、1/\allowbreak{}13。$\delta$通过验证集选择。生成时循环取当前历史对应的分布，选出下一个词，滑动历史，遇 EOS 停止。
+
+\Needspace{6\baselineskip}
+\subsection{神经语言模型与训练}
+\source{［05 p14-27］}
+自监督信号来自文本本身：用已有词预测紧接的词。模型可采用不同历史表示：
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{38.43mm}|>{\raggedright\arraybackslash}p{58.93mm}|>{\raggedright\arraybackslash}p{61.49mm}|}
+\hline
+\rowcolor{TableHead}\textbf{模型} & \textbf{历史的处理} & \textbf{主要限制}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{模型} & \textbf{历史的处理} & \textbf{主要限制}\\\hline
+\endhead
+N元模型 & 统计最近$N-1$词 & 数据稀疏、未见组合\\\hline
+\rowcolor{TableAlt}
+FFNNLM & 词向量按顺序拼接后送入MLP & 固定历史窗口\\\hline
+RNN/\allowbreak{}LSTM & 隐状态逐时刻递推，参数共享 & 时间递推、有限维状态不保证保留全部历史\\*\hline
+\rowcolor{TableAlt}
+Transformer LM & 窗口内因果自注意力 & 上下文窗口与注意力开销\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+教师强制：训练使用真实上文，生成使用已生成的词。示例输入 \texttt{[BOS, 我, 喜欢, 读书]}，目标 \texttt{[我, 喜欢, 读书, EOS]}，即输入和目标相差一位。
+
+因果掩码允许读取当前输入位置及其过去，屏蔽未来；当前位置的表示用于预测下一词，因此“允许看自己”并不等于泄露下一词答案。可见矩阵为含对角线的下三角。课件 PyTorch \texttt{blocked=True} 表示屏蔽，赋值$-\infty$后再做每行Softmax。因果Mask、Padding Mask、目标PAD损失忽略承担不同职责，不能互相替代。
+
+输出 logits 形状 \texttt{[B,T,V]}，目标ID形状 \texttt{[B,T]}；每个有效目标是一次 $V$ 类分类。平均训练损失为：
+
+\[\mathcal L=-\frac1N\sum_{i=1}^{N}\ln P_\theta(w_i\mid w_{<i}).\]
+N只计有效目标，EOS按约定计入，PAD排除。PyTorch CrossEntropyLoss 输入原始logits，不先做Softmax。训练流程是清梯度\ensuremath{\rightarrow}前向\ensuremath{\rightarrow}损失\ensuremath{\rightarrow}反向\ensuremath{\rightarrow}（可选梯度裁剪）\ensuremath{\rightarrow}优化器更新。训练/\allowbreak{}验证/\allowbreak{}测试应先按原始文档划分，再切窗口；词表只由训练集建立，验证集调参，测试集最终评价，避免重叠窗口造成数据泄漏。
+
+\Needspace{6\baselineskip}
+\subsection{解码与生成}
+\source{［05 p28-34］}
+自回归生成循环：给定前缀\ensuremath{\rightarrow}取最后位置的logits\ensuremath{\rightarrow}选词\ensuremath{\rightarrow}追加至输入\ensuremath{\rightarrow}重复，直到EOS或最大长度。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{36.36mm}|>{\raggedright\arraybackslash}p{61.46mm}|>{\raggedright\arraybackslash}p{61.03mm}|}
+\hline
+\rowcolor{TableHead}\textbf{策略} & \textbf{定义} & \textbf{记忆要点}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{策略} & \textbf{定义} & \textbf{记忆要点}\\\hline
+\endhead
+贪心 & 每步选最大概率词 & 局部最佳未必是整句最佳\\\hline
+\rowcolor{TableAlt}
+随机采样 & 按预测分布抽取 & 保留多样性\\\hline
+温度 & $\mathrm{Softmax}(z/\tau)$，$\tau>0$ & $\tau$小更集中，$\tau$大更分散；排序不变\\\hline
+\rowcolor{TableAlt}
+Top-k & 保留概率最高k项后重新归一化采样 & 候选数固定\\\hline
+Top-p & 保留累积概率达到p的最小降序前缀，再归一化采样 & 候选数随分布改变；包含跨过阈值的那项\\*\hline
+\rowcolor{TableAlt}
+Beam Search & 每步保留若干高分候选前缀 & 有限束宽不保证全局最优\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+温度公式：$p_i(\tau)=e^{z_i/\tau}/\sum_j e^{z_j/\tau}$。不能直接把 $\tau=0$ 代入；贪心直接用argmax。
+
+课件分布0.4、0.3、0.2、0.1：Top-k（$k=2$）保留前2项；Top-p（$p=0.8$）需保留前3项，归一化为4/\allowbreak{}9、3/\allowbreak{}9、2/\allowbreak{}9。Beam示例中 $P(Aa)=0.6\times0.51=0.306$，$P(Bc)=0.4\times0.99=0.396$，说明先选0.6可能错过更优的完整序列。
+
+实现注意：上下文超窗时截取最近K词；批量生成分别维护结束标记；\texttt{eval()}控制Dropout等模块行为，\texttt{inference\_mode()}控制梯度相关开销，两者作用不同。
+
+\Needspace{6\baselineskip}
+\subsection{困惑度PPL}
+\source{［05 p35-39］}
+\[H=-\frac1N\sum_i\ln p_i,\qquad \mathrm{PPL}=e^H.\]
+若 $H$ 以$\log_2$计算，则 $\mathrm{PPL}=2^H$。$p_i$ 为模型给真实目标词的概率。在相同评价条件下PPL越低越好。
+
+手算：三个真实目标概率1/\allowbreak{}2、1/\allowbreak{}4、1/\allowbreak{}8，平均损失为2 bits，PPL=4。不同批次要累计总负对数似然和有效词元数，再统一除法与指数，不能平均各批PPL，也不能对不同有效长度的批均值直接取等权平均。课件 A批3词、平均$\ln2$；B批1词、平均$\ln16$，则 $\mathrm{PPL}=\exp[(3\ln2+\ln16)/4]\approx3.36$。
+
+比较条件：测试文本与清洗一致、词元化一致、上下文窗口/\allowbreak{}步长/\allowbreak{}计分规则一致、EOS和PAD处理一致、重叠目标不重复计分。字级、词级、子词级PPL不能直接比较；经典下一词PPL不能直接套用到BERT式MLM。低PPL不自动等于事实可靠或任务完成得好。
+
+\Needspace{6\baselineskip}
+\subsection{研究拓展：按课件内容了解}
+\source{［05 p40-42］}
+KV Cache复用已读位置Key/\allowbreak{}Value，减少自回归生成的重复计算。投机/\allowbreak{}推测解码由草稿模型先提多个词元，再让目标模型验证接受或校正，经典机制可保持目标采样分布，提速依赖接受率等条件。多词元预测是附加训练监督，也可提供草稿，需和推断策略区分。扩散语言模型通过多轮恢复掩码生成，需共同考察并行程度、迭代轮数、速度与质量。课件列举DeepSeek-V3、LLaDA、MRP等作为研究例子。
+
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{预训练词向量}
+\Needspace{6\baselineskip}
+\subsection{表示与查表}
+\source{［06 p3-5］}
+独热编码维度为$V$，稠密词向量维度为$D$，且通常$D\ll V$。Embedding表$E\in\mathbb R^{V\times D}$，输入词ID \texttt{[B,T]} 查表得到 \texttt{[B,T,D]}。同一静态词表中，同一ID查询的是同一向量。语言模型的训练误差也会更新输入词向量；学得的向量可迁移到其他任务。
+
+\Needspace{6\baselineskip}
+\subsection{CBOW、Skip-gram与负采样}
+\source{［06 p6-16］}
+CBOW：用左右上下文的平均向量预测中心词；平均池化不保留窗口内词序。课件四个上下文向量[1,0]、[0,1]、[1,1]、[2,0]，平均为[1,0.5]，预测“吃”。Skip-gram方向相反：给中心词，预测窗口内上下文，每个中心---上下文词对贡献一次损失。
+
+Skip-gram有输入表$E$和输出表$U$，两者均为$V\times D$。中心向量$v_w$、候选上下文向量$u_c$：
+
+\[s(w,c)=u_c^\top v_w,\qquad P(c\mid w)=\frac{e^{s(w,c)}}{\sum_{j\in\mathcal V}e^{s(w,j)}}.\]
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{46.21mm}|>{\raggedright\arraybackslash}p{46.21mm}|>{\raggedright\arraybackslash}p{66.43mm}|}
+\hline
+\rowcolor{TableHead}\textbf{训练方法} & \textbf{每词对主要代价} & \textbf{输出/\allowbreak{}目标含义}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{训练方法} & \textbf{每词对主要代价} & \textbf{输出/\allowbreak{}目标含义}\\\hline
+\endhead
+全Softmax & $O(VD)$ & 归一化上下文概率\\\hline
+\rowcolor{TableAlt}
+层次Softmax & 平衡树常见$O(D\log V)$ & 沿树路径分解概率\\*\hline
+SGNS负采样 & $O((K+1)D)$ & 数据词对与噪声词对二分类\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+K是每个正样本的负样本数，一般远小于V。负采样改变了优化目标，不能把其Sigmoid输出当完整词表上的归一化上下文分布。噪声分布课件采用$q(c)\propto\operatorname{freq}(c)^{0.75}$；高频词仍较常被抽到，但优势减弱。负样本标签表示本次样本来源，并不保证这个词对在语义上永远不可能出现。
+
+\[\mathcal L_{\mathrm{SGNS}}=-\log\sigma(u_c^\top v_w)-\sum_{i=1}^{K}\log\sigma(-u_{n_i}^\top v_w).\]
+优化方向：增大正词对分数，减小负词对分数。若正负分数全为0且$K=2$，损失为$3\ln2\approx2.079$。代码宜用logsigmoid稳定计算，负分数张量 \texttt{[B,K]}，PAD不参与噪声样本。
+
+\Needspace{6\baselineskip}
+\subsection{GloVe与统计统一视角}
+\source{［06 p17-22］}
+GloVe先遍历语料，累计全局共现矩阵M。课件窗口距离$d$的计数权为$1/d$，因此共现计数可为小数。其目标为加权拟合对数共现量：
+
+\[\mathcal L=\sum_{(w,c):M_{wc}>0}f(M_{wc})\,[v_w^\top u_c+b_w+b_c-\ln M_{wc}]^2.\]
+\[f(x)=\min\{(x/100)^{0.75},1\}.\]
+仅遍历$M>0$词对，不能计算$\ln0$；偏置吸收部分词频效应，权重调节不同计数的影响。CBOW直接优化中心词预测，SGNS优化正负词对分类，GloVe优化对数共现量回归，三者都能得到静态词类型表示。
+
+课件第21页给出经典联系 $v_w^\top u_c\approx\mathrm{PMI}(w,c)-\ln K$，说明预测法与矩阵分解都刻画词---上下文关联。$\mathrm{PMI}(w,c)=\ln\frac{P(w,c)}{P(w)P(c)}$，$\mathrm{PPMI}=\max(\mathrm{PMI},0)$。
+
+【易错提醒·理解补充】若对每个词对的分数独立求负采样期望目标最优值，有$s^*=\ln\frac{P(c\mid w)}{Kq(c)}$；当$q(c)=P(c)$时才化为$\mathrm{PMI}-\ln K$。第14页的0.75次幂噪声分布使严格公式多出与c有关的修正；有限维、有限训练也使等式仅近似。理解“都学习共现关联”即可，不宜无条件套等式。
+
+实践应控制领域、中文切分、窗口、向量维度、负样本数、高频词下采样与边界，并保存词表行序、参数和随机种子。
+
+\Needspace{6\baselineskip}
+\subsection{评价与迁移}
+\source{［06 p23-30］}
+余弦相似度$\cos(x,y)=\frac{x^\top y}{\lVert x\rVert_2\lVert y\rVert_2}$，度量方向。近邻检索前排除查询词自身、零向量，查询与结果ID必须对应同一向量表词序。分布相似可能让反义词接近，例如课件good的近邻有bad，不应把所有近邻理解为同义词。
+
+词类比：$q=v(\mathrm{king})+v(\mathrm{woman})-v(\mathrm{man})$，从排除man/\allowbreak{}woman/\allowbreak{}king及零向量的候选中找$\cos(q,v(w))$最大项。queen是理想示例，类比不是对所有关系都成立的定律。
+
+内在评价可比较相似度与人工评分的Spearman相关系数或类比准确率；二维可视化主要用于观察，不等于任务性能。下游评价应固定数据划分与模型结构，以目标任务验证集决定选择，测试集只做最终评价。
+
+迁移方式：冻结词表作固定特征，或以预训练向量初始化后继续更新。静态/\allowbreak{}上下文表示和冻结/\allowbreak{}微调是两条分类轴：“静态”说同一词是否依上下文改变表示，冻结说训练中参数是否更新。句子分类可有效词池化后分类；序列标注须保留每位置表示。池化分母不能计PAD。
+
+\Needspace{6\baselineskip}
+\subsection{上下文表示与ELMo}
+\source{［06 p31-42］}
+静态向量不能按句子区分“下场”的参与比赛/\allowbreak{}结局两种用法；上下文表示$h(\text{词},\text{句子})$随输入语境改变。普通推断时模型参数不变，变化的是计算出的表示。早期词义特定向量可用双语译词区分义项；CoVe迁移机器翻译编码器，需平行语料。
+
+ELMo流程：字符CNN生成词形表示\ensuremath{\rightarrow}深层双向语言模型\ensuremath{\rightarrow}按任务加权混合各层表示。字符CNN处理词内字符片段，此时尚未融合句子语境；语境信息由后续BiLM加入。
+
+BiLM的前向LSTM只用左侧，后向LSTM只用右侧，分别堆叠、互不读取对方隐状态，两项语言模型损失相加；字符CNN输入层与Softmax输出层共享。它与一个同层中双向交互的BERT不同。
+
+\[\mathrm{ELMo}_t=\gamma\sum_{j=0}^{L}s_jh_{t,j},\qquad s=\mathrm{softmax}(a).\]
+$h_0$为词形表示，后续层为不同深度的双向上下文表示，先统一维度；$s_j$是任务级的层权重，和为1，$\gamma$调整整体尺度，均可学习。冻结预训练编码器时，仍训练$a$、$\gamma$和下游任务模型。可在任务模型输入或输出处拼接ELMo；词元任务保留位置，句子任务再池化。课件示例低层对词性/\allowbreak{}句法更有效，高层对词义更有效，但不作为所有任务的硬性规律。
+
+三种粒度须分清：静态词向量输入词ID/\allowbreak{}词形，输出词类型向量；上下文词向量输入句子与位置，输出各位置向量；句子/\allowbreak{}文档嵌入输入整段，输出整段向量供检索。
+
+\Needspace{6\baselineskip}
+\subsection{研究补充：按课件了解}
+\source{［06 p43-45］}
+粒度从词、子词向字符、字节发展，涉及BPE、fastText字符n-gram、ELMo字符CNN、动态字节分块等。向量检索通常分别编码查询与候选，重排序则联合读二者进一步评分。大模型输入仍可由静态查表产生，Transformer再融合语境；部分模型输入/\allowbreak{}输出权重绑定。课件以多语言文本嵌入和多模态嵌入模型说明这些用途。
+
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{预训练语言模型}
+\Needspace{6\baselineskip}
+\subsection{目标与结构是两条轴}
+\source{［07 p3-5］}
+发展线索：静态词向量作特征\ensuremath{\rightarrow}ELMo上下文特征\ensuremath{\rightarrow}预训练整个模型并精调\ensuremath{\rightarrow}提示与语境学习。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{43.32mm}|>{\raggedright\arraybackslash}p{72.21mm}|>{\raggedright\arraybackslash}p{43.32mm}|}
+\hline
+\rowcolor{TableHead}\textbf{目标} & \textbf{输入与预测} & \textbf{代表}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{目标} & \textbf{输入与预测} & \textbf{代表}\\\hline
+\endhead
+自回归LM & 根据左侧上下文预测下一词 & GPT\\\hline
+\rowcolor{TableAlt}
+MLM & 遮蔽/\allowbreak{}替换部分输入，预测原词 & BERT\\*\hline
+去噪/\allowbreak{}片段还原 & 从破坏的输入重建目标 & T5、BART\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+标签都可由原文本自动构造，属于自监督学习。结构决定注意力可见性，目标决定预测什么及在哪里计算损失。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{35.63mm}|>{\raggedright\arraybackslash}p{76.46mm}|>{\raggedright\arraybackslash}p{46.77mm}|}
+\hline
+\rowcolor{TableHead}\textbf{结构} & \textbf{注意力可见范围} & \textbf{常见适用任务}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{结构} & \textbf{注意力可见范围} & \textbf{常见适用任务}\\\hline
+\endhead
+Decoder-only & 当前位置与过去位置 & 续写、通用生成\\\hline
+\rowcolor{TableAlt}
+Encoder-only & 双向读整个输入 & 分类、抽取、标注、检索\\*\hline
+Encoder-Decoder & 编码器双向读源文；解码器因果自注意力并交叉读取全部源文表示 & 翻译、摘要等条件生成\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+解码器读取完整源文，不等于读取目标序列的未来。不能仅凭“带预训练”判断模型是自回归或MLM，也不能说所有预训练模型都适合直接按标准下一词方式生成。
+
+\Needspace{6\baselineskip}
+\subsection{GPT系列}
+\source{［07 p6-12］}
+GPT采用从左到右的Transformer，生成式预训练后加简单任务头，并精调整个预训练模型。原始GPT约12层、768维、1.17亿参数、512上下文；知识重点是训练范式而非机械背所有规模。
+
+预训练最大化：
+
+\[\mathcal J_{PT}=\sum_i\log P(x_i\mid x_{i-k:i-1};\theta).\]
+若写成待最小化损失，需要加负号。输入词嵌入加位置向量，经过因果Transformer后投影到词表；原GPT输入/\allowbreak{}输出词向量共享。
+
+下游分类用最后位置表示，精调可保留部分语言模型目标：
+
+\[P(y\mid x)=\mathrm{Softmax}(h_nW_y),\qquad \mathcal J=\mathcal J_{FT}+\lambda\mathcal J_{PT}.\]
+这一联合目标用于缓解遗忘、改善通用性与收敛。$\lambda=0$表示只保留下游目标；“$\lambda=1$”仅指两项系数相同，实际数值贡献还与损失尺度有关。
+
+GPT-2扩展数据与规模，采用Pre-LN，并展示零样本任务能力。GPT-3语境学习在输入中放任务说明/\allowbreak{}示例，无需更新模型参数。精调通过梯度更新参数；语境学习通过改变输入上下文影响输出。
+
+\Needspace{6\baselineskip}
+\subsection{BERT预训练}
+\source{［07 p13-20］}
+BERT为深层双向Transformer编码器；base配置12层/\allowbreak{}768维/\allowbreak{}12头/\allowbreak{}约1.1亿参数，large为24层/\allowbreak{}1024维/\allowbreak{}16头/\allowbreak{}约3.4亿。输入表示由词元、块/\allowbreak{}句段、位置三种嵌入同维相加：
+
+\[V=V^{\mathrm{token}}+V^{\mathrm{segment}}+V^{\mathrm{position}}.\]
+[CLS]在开头，[SEP]用于分隔，BERT采用WordPiece。
+
+MLM处理：先选约15\%的非特殊词元，其中80\%换[MASK]、10\%换随机词、10\%保持原词，目标始终是原词，只在选中位置计算交叉熵。以全体合格词元为分母，对应期望比例约12\%/\allowbreak{}1.5\%/\allowbreak{}1.5\%；未选85\%不算MLM目标。混入原词与随机词用于缓解预训练与下游输入形式不一致。
+
+课件20词选3词为比例教学示例；第17页代码用Bernoulli逐词抽样，每条样本选中数并不固定为$\lfloor0.15n\rfloor$，15\%是期望比例。未选位置labels置-100，避免参与损失。
+
+双向直接预测原词容易从输入泄露答案，所以通过遮蔽/\allowbreak{}替换构造恢复任务。ELMo是两个方向独立语言模型的拼接，BERT是同一个深层网络中的双向上下文交互。
+
+NSP：输入[CLS] A [SEP] B [SEP]；正例B紧接A，负例B从语料随机抽取，正负各50\%，用[CLS]表示做二分类。后续RoBERTa表明NSP并非必要设计。
+
+WWM：以完整词确定选中的子词组；中文需分词确定词边界，选中后各子词仍按80/\allowbreak{}10/\allowbreak{}10处理。N-gram掩码扩大为相邻片段；课件给1---4gram概率40\%、30\%、20\%、10\%。这类改动影响预训练采样，不必改变下游精调接口。
+
+\Needspace{10\baselineskip}
+\subsection{BERT家族改进}
+\source{［07 p21-28］}
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{26.98mm}|>{\raggedright\arraybackslash}p{57.32mm}|>{\raggedright\arraybackslash}p{74.56mm}|}
+\hline
+\rowcolor{TableHead}\textbf{模型} & \textbf{主要改动} & \textbf{易混点}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{模型} & \textbf{主要改动} & \textbf{易混点}\\\hline
+\endhead
+RoBERTa & 动态掩码、移除NSP、更多数据/\allowbreak{}更大批次、字节级BPE & 去掉NSP不等于去掉MLM\\\hline
+\rowcolor{TableAlt}
+ALBERT & 嵌入因式分解、跨层共享、SOP & 参数共享节省参数存储，不按比例减少层计算或激活\\\hline
+ELECTRA & 小生成器填词，判别器判断原词/\allowbreak{}替换词 & 判别器多位置学习；最终通常保留判别器，非GAN式文本生成器使用\\\hline
+\rowcolor{TableAlt}
+MacBERT & 相似词替代MASK的纠错式目标、SOP & 80\%选中位换相似词，非所有位置都换MASK\\*\hline
+XLNet（课件对比表） & 排列语言模型 & 不能因与BERT并列就说它的目标也是MLM\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+ALBERT将词嵌入参数因式分解：
+
+\[VH\longrightarrow VE+EH,\qquad E\ll H.\]
+例$V=30000$、$H=1024$、$E=128$：30,720,000降为3,971,072，约1/\allowbreak{}8。注意$E$是嵌入维度，$H$是主干隐维度。
+
+SOP正例为相邻段正确顺序，负例为同两段交换顺序，尽量避免仅依主题判别。NSP负例随机抽第二段，可能靠主题区别完成。
+
+ELECTRA按词元是否实际改变标注：生成器填回原词记为原词，不能仅凭曾被掩码就标为替换。课件中the被掩码后仍生成为the，标签为0；cooked变成ate，标签为1。
+
+\Needspace{6\baselineskip}
+\subsection{T5与BART}
+\source{［07 p29-32］}
+T5为文本到文本统一接口，用任务前缀表达任务。片段破坏将若干连续片段删除，每段换一个不同哨兵；解码器按顺序生成哨兵及被删片段，不必重建全部原文。例如输入“Thank you <X> me to your party <Y> week”，目标“<X> for inviting <Y> last <Z>”。哨兵不是普通MASK逐词一一对应。
+
+BART由双向编码器读取带噪文本，自回归解码器重建完整原文；课件列单词掩码、删除、句子排列、文档旋转、文本填充等噪声。核心区别：T5常输出被删片段，BART重构整个原文。两者皆可用于条件生成，但目标形式不同。
+
+\Needspace{6\baselineskip}
+\subsection{下游使用}
+\source{［07 p33-39］}
+特征提取冻结预训练参数，只训练任务模型；精调让预训练参数参与更新，通常增加适配能力和计算开销。效果依任务和设置而定，不能认为精调必然更好。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{33.44mm}|>{\raggedright\arraybackslash}p{68.00mm}|>{\raggedright\arraybackslash}p{57.41mm}|}
+\hline
+\rowcolor{TableHead}\textbf{任务} & \textbf{输入/\allowbreak{}输出} & \textbf{损失与评价关注}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{任务} & \textbf{输入/\allowbreak{}输出} & \textbf{损失与评价关注}\\\hline
+\endhead
+单句分类 & [CLS] x [SEP]；取$h_0$输出$K$类 & 交叉熵\\\hline
+\rowcolor{TableAlt}
+句对分类 & [CLS] A [SEP] B [SEP]；取$h_0$ & 交叉熵\\\hline
+抽取式阅读理解 & 问题+篇章；预测答案起点与终点 & 两个位置交叉熵平均；答案是篇章连续片段\\*\hline
+\rowcolor{TableAlt}
+序列标注 & 每个位置输出BIO标签，可加CRF & 词/\allowbreak{}实体层面评价，不能直接用子词准确率替代\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+抽取式阅读理解：起止位置各得分，再在合法起点\ensuremath{\le}终点的片段中选高分答案；长篇章可滑窗，问题在前时仅截断篇章。序列标注需对齐词标签与子词：常见做法首子词计算损失，其余设-100，特殊词/\allowbreak{}PAD也忽略。课件另展示“子词继承原标签”的教学策略；如果把B标签复制给所有子词，需明确还原规则，不能直接视为标准BIO实体输出。
+
+GPT-2条件与目标通常拼成单序列；T5编码器读源文、解码器生成目标。生成任务用目标词交叉熵训练，可用PPL、BLEU和人工检查等与任务相符的评价。
+
+代码复习应读懂流程：加载数据\ensuremath{\rightarrow}分词与截断\ensuremath{\rightarrow}选择任务模型/\allowbreak{}输出头\ensuremath{\rightarrow}训练配置\ensuremath{\rightarrow}训练与验证\ensuremath{\rightarrow}任务评价。课件标注了其测试接口版本，这不等于对任何本地版本均兼容；资料无需把某一版本API当理论考点。
+
+\Needspace{6\baselineskip}
+\subsection{研究拓展：按课件了解}
+\source{［07 p40-43］}
+现代结构例子包含RoPE、Pre-RMSNorm、SwiGLU、GQA等；GQA可减小KV缓存。编码器仍用于检索、分类和嵌入，Decoder-only常用于生成和通用对话，结构优劣应结合任务、数据和训练方式比较。课件用ModernBERT等说明编码器发展，用LLaDA等说明掩码恢复可用于迭代生成。这些例子用于理解结构与训练目标的发展。
+
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{语言模型的微调}
+\Needspace{6\baselineskip}
+\subsection{从预训练到部署，以及四种使用方式}
+\source{［08 p3-5］}
+预训练用海量无标注文本学习通用能力；微调用较少任务数据适配；压缩让模型适应资源限制；部署把模型服务于用户。微调不是从随机参数重新训练，而是以预训练参数为初值：
+
+\[\theta^*=\arg\min_\theta\sum_{(x,y)\in\mathcal D}\mathcal L(f(x;\theta),y),\qquad\theta_{\mathrm{init}}=\theta_0.\]
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{35.68mm}|>{\raggedright\arraybackslash}p{38.65mm}|>{\raggedright\arraybackslash}p{35.68mm}|>{\raggedright\arraybackslash}p{45.19mm}|}
+\hline
+\rowcolor{TableHead}\textbf{方式} & \textbf{更新参数} & \textbf{每个任务需要保存} & \textbf{适用情形}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{方式} & \textbf{更新参数} & \textbf{每个任务需要保存} & \textbf{适用情形}\\\hline
+\endhead
+特征提取 & 仅任务输出层，主干冻结 & 任务层 & 快速基线、资源有限\\\hline
+\rowcolor{TableAlt}
+全参数微调 & 整个模型 & 完整模型副本 & 数据和资源充足\\\hline
+参数高效精调 PEFT & 少量新增或选定参数 & 小型增量 & 大模型、多任务\\*\hline
+\rowcolor{TableAlt}
+提示/\allowbreak{}语境学习 ICL & 不更新参数 & 提示和示例 & 零样本、小样本、任务变化快\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+\textbf{易混点：}“少样本”描述示例数量，“是否微调”描述参数更新，两者不是同一维度；推理时在提示里放示例通常属于 ICL。
+
+\Needspace{10\baselineskip}
+\subsection{BERT类模型的任务适配}
+\source{［08 p6-10］}
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{37.82mm}|>{\raggedright\arraybackslash}p{55.47mm}|>{\raggedright\arraybackslash}p{65.56mm}|}
+\hline
+\rowcolor{TableHead}\textbf{任务} & \textbf{输入} & \textbf{输出与损失}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{任务} & \textbf{输入} & \textbf{输出与损失}\\\hline
+\endhead
+单句分类 & \texttt{[CLS] x [SEP]} & $h_{\mathrm{CLS}}\to K$类 Softmax，交叉熵\\\hline
+\rowcolor{TableAlt}
+句对分类 & \texttt{[CLS] x1 [SEP] x2 [SEP]} & 同上\\\hline
+抽取式阅读理解 & \texttt{[CLS] 问题 [SEP] 篇章 [SEP]} & 每位置预测起点与终点，两个交叉熵取平均\\*\hline
+\rowcolor{TableAlt}
+序列标注 & \texttt{[CLS] x [SEP]} & 逐位置预测BIO等标签，逐位置交叉熵\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+分类概率为 $P=\operatorname{softmax}(h_0W_o+b_o)$，其中隐藏维度为 $d$，类别数为 $K$，$W_o\in\mathbb R^{d\times K}$。阅读理解须约束起点不晚于终点；课件对起止位置各取Top-k，按概率乘积挑选合法片段，超长篇章可滑窗处理（［08 p8］）。
+
+BIO 中 B 是实体起点、I 是实体内部、O 是非实体。分词器将一个词拆成多个子词时，标签必须对齐。课件 ［08 p9］ 展示“所有子词继承原标签”，同时列出常见方案“仅首子词算损失，其他子词设 -100”。\textbf{整理提醒：}如果把BIO标签扩展为完整子词序列，应说明后续子词转为 I 标签的规则；不能把课件中的简单复制误认为所有标注任务都适用的唯一方案。
+
+\Needspace{6\baselineskip}
+\subsection{优化、遗忘、不稳定与生成损失}
+\source{［08 p11-17］}
+\begin{enumerate}
+\item {}课件列出的 BERT 搜索范围：batch size 16/\allowbreak{}32，学习率 2e-5/\allowbreak{}3e-5/\allowbreak{}5e-5，2/\allowbreak{}3/\allowbreak{}4轮；前10\%步数预热，再线性衰减；AdamW，权重衰减0.01，bias与LayerNorm权重通常排除（［08 p11-12］）。这些是具体模型的参考，不是所有模型通用最优值。
+\item {}灾难性遗忘：窄任务训练使通用能力下降。可降低学习率、减少轮数、冻结主干、回放通用数据或加入预训练损失。课件公式：$\mathcal L=\mathcal L_{FT}+\lambda\mathcal L_{PT}$，GPT例子中 $\lambda=0.5$（［08 p13］）。
+\item {}小数据微调对随机种子敏感，任务头初始化与数据顺序都重要；检查偏差校正、训练步数和早期梯度。课件建议至少5个随机种子，报告均值与标准差，并在验证集选模型（［08 p17］）。
+\item {}GPT类生成SFT把提示与答案连为单序列，只让回答部分参加损失；提示、填充位置的标签设 -100，答案结束符保留监督。模型内部移位，用位置 t 的输出预测 t+1；注意不要重复移位（［08 p14-15］）。
+\item {}T5类编码器读条件，解码器读右移的目标；标签是目标词元，填充设 -100，末尾包含结束符。T5的解码器起始符为 \texttt{<pad>}（［08 p16］）。
+\end{enumerate}
+\textbf{易混点：}attention mask 控制“能看什么”；loss mask 控制“哪些位置贡献训练目标”，两者不能混为一谈。把提示标签设 -100 并不意味着模型看不到提示。
+
+\Needspace{6\baselineskip}
+\subsection{参数高效精调：LoRA、QLoRA、Adapter、Prefix、Prompt}
+\source{［08 p18-23］}
+LoRA 假设任务权重增量可低秩表示。对于冻结的 $W_0\in\mathbb R^{d\times k}$：
+
+\[h=W_0x+\frac{\alpha}{r}BAx,\quad A\in\mathbb R^{r\times k},\ B\in\mathbb R^{d\times r}.\]
+可训练参数为 $r(k+d)$，原矩阵为 $dk$。常用 B=0、A高斯初始化，初始增量为0，保证初始行为与基座一致。训练后可合并 $W=W_0+(\alpha/r)BA$，不额外增加线性层计算（［08 p19］）。例：d=4096、k=11008、r=64，原矩阵45,088,768参数，LoRA为966,656，约2.14\%。LoRA的“低秩”是增量低秩，不要求原权重低秩。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{29.48mm}|>{\raggedright\arraybackslash}p{51.18mm}|>{\raggedright\arraybackslash}p{29.48mm}|>{\raggedright\arraybackslash}p{45.04mm}|}
+\hline
+\rowcolor{TableHead}\textbf{方法} & \textbf{做法} & \textbf{可训练参数示意} & \textbf{主要代价/\allowbreak{}特点}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{方法} & \textbf{做法} & \textbf{可训练参数示意} & \textbf{主要代价/\allowbreak{}特点}\\\hline
+\endhead
+LoRA & 在线性权重旁加低秩增量 & $r(d+k)$/\allowbreak{}矩阵 & 可合并；基座冻结\\\hline
+\rowcolor{TableAlt}
+QLoRA & 低比特量化冻结基座，再训练LoRA & 增量与对应LoRA相同 & 降低基座显存；存在解量化开销\\\hline
+Adapter & 层中插入降维\ensuremath{\rightarrow}非线性\ensuremath{\rightarrow}升维\ensuremath{\rightarrow}残差 & $2md+d+m$/\allowbreak{}模块 & 增加计算层；m是瓶颈维度\\\hline
+\rowcolor{TableAlt}
+Prefix-tuning & 每层K、V前加可训练前缀 & $2Lnd$ & 增加序列与KV开销\\*\hline
+Prompt-tuning & 仅在输入层前加软提示 & $nd$ & 基座冻结，参数更少\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+L为层数，n为前缀/\allowbreak{}软提示长度，d为隐藏维度。课件［08 p18］还提到NF4及双重量化，实际平均位宽不恰等于4位。［08 p21］建议可在更多线性层、特别是MLP上加LoRA；r、学习率和目标层需结合任务验证。［08 p23］各论文“与全参相当”的结论来自不同任务，不能据此断言所有模型上方法效果相同。
+
+\textbf{易混点：}自然语言硬提示/\allowbreak{}ICL不训练参数；软提示属于可训练参数。QLoRA不是把LoRA参数也固定成4位，也不是一种不同的低秩分解公式。
+
+\Needspace{6\baselineskip}
+\subsection{继续预训练}
+\source{［08 p24］}
+DAPT使用领域无标注语料，TAPT使用任务文本的无标注部分；之后再用标注数据微调。它们仍沿用预训练目标，与SFT用任务标签的监督方式不同。领域偏移较大时收益通常更明显；是否值得做仍取决于数据、成本和验证结果。
+
+\Needspace{6\baselineskip}
+\subsection{压缩之一：知识蒸馏}
+\source{［08 p25-32］}
+教师模型把知识传给较小学生。硬标签只给正确类别，软标签保留类别相似性信息。温度分布：
+
+\[p_i^{(T)}=\frac{e^{z_i/T}}{\sum_j e^{z_j/T}},\quad \mathcal L=\alpha\,CE(y,s)+(1-\alpha)T^2 KL(p_t^{(T)}\Vert p_s^{(T)}).\]
+T越大分布越平，次要类别信息更显著；乘T\textsuperscript{2}补偿温度对梯度尺度的影响。t和s分别是教师、学生，不要颠倒KL方向（［08 p27-28］）。DistilBERT用蒸馏损失、MLM硬标签损失及隐状态余弦损失 $1-\cos(h^t,h^s)$；课件案例从12层减为6层（［08 p29-30］）。TextBrewer是蒸馏工具（［08 p31］）。
+
+大模型蒸馏的区别（［08 p32］）：黑盒/\allowbreak{}序列级蒸馏学习教师生成答案；白盒/\allowbreak{}词元级蒸馏拟合教师词元分布；在策略蒸馏由学生生成、教师在学生访问的分布上提供信号；预训练蒸馏贯穿预训练。蒸馏需要训练学生，不等于直接把权重位宽变小。
+
+\Needspace{6\baselineskip}
+\subsection{压缩之二：模型裁剪}
+\source{［08 p33-38］}
+步骤：评估重要性\ensuremath{\rightarrow}裁剪低重要部分\ensuremath{\rightarrow}必要时微调恢复，可迭代。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{39.92mm}|>{\raggedright\arraybackslash}p{45.74mm}|>{\raggedright\arraybackslash}p{73.19mm}|}
+\hline
+\rowcolor{TableHead}\textbf{类型} & \textbf{删除对象} & \textbf{硬件特点}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{类型} & \textbf{删除对象} & \textbf{硬件特点}\\\hline
+\endhead
+非结构化 & 单个权重置0 & 稀疏不规则，普通稠密计算未必更快\\\hline
+\rowcolor{TableAlt}
+结构化 & 神经元、注意力头、整层 & 直接改变稠密结构，更易实际加速\\*\hline
+半结构化2:4 & 每4个权重保留2个 & 依赖特定稀疏计算硬件\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+头重要性示意 $I_h=\mathbb E_x|\partial\mathcal L(x)/\partial\xi_h|$：门控 $\xi_h$ 影响越大，该头越重要（［08 p35］）。TextPruner支持词表裁剪、Transformer裁剪与流水线裁剪（［08 p36］）。SparseGPT用二阶信息补偿；Wanda按 $|W|\times\|X\|_2$ 评分（输入激活沿样本维计算范数）；Minitron结合结构裁剪与蒸馏（［08 p37-38］）。
+
+\Needspace{6\baselineskip}
+\subsection{压缩之三：量化}
+\source{［08 p39-45］}
+量化减少每参数比特数。只算权重，N参数、b位约需 $Nb/8$ 字节；7B用FP32/\allowbreak{}16位/\allowbreak{}8位/\allowbreak{}4位约28/\allowbreak{}14/\allowbreak{}7/\allowbreak{}3.5 GB。实际训练还需梯度、优化器状态和激活，实际推理还需KV缓存等。
+
+Absmax对称INT8量化：$s=127/\max|X|$，$X_q=\operatorname{round}(sX)$，反量化 $\hat X=X_q/s$（［08 p40］）。离群值扩大动态范围，使其余小值落在过粗的刻度上；按向量/\allowbreak{}通道分组以及混合精度可改善。对于全零组，实际实现还须避免除零。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{35.58mm}|>{\raggedright\arraybackslash}p{66.08mm}|>{\raggedright\arraybackslash}p{57.19mm}|}
+\hline
+\rowcolor{TableHead}\textbf{方法} & \textbf{核心思想} & \textbf{记忆点}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{方法} & \textbf{核心思想} & \textbf{记忆点}\\\hline
+\endhead
+PTQ & 训练完成后量化，常配少量校准数据 & 部署成本低\\\hline
+\rowcolor{TableAlt}
+QAT & 训练中模拟量化误差 & 需要训练资源\\\hline
+LLM.int8() & 普通部分INT8，离群部分FP16 & 向量级量化+混合精度分解（［08 p42］）\\\hline
+\rowcolor{TableAlt}
+GPTQ & 逐层最小化 $\|WX-\hat WX\|_2^2$，补偿量化误差 & 尽量保持层输出（［08 p43］）\\\hline
+SmoothQuant & 把激活离群幅度转移到权重 & 降低激活量化难度（［08 p44］）\\*\hline
+\rowcolor{TableAlt}
+AWQ & 用激活信息保护显著权重 & 低比特权重量化（［08 p44］）\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+选型（［08 p45］）：小显存部署可先看权重量化；真正减小通用模型结构可做结构裁剪+蒸馏；任务小模型可做任务蒸馏；多方法可叠加，最终在目标任务和硬件上测精度、时延、显存。
+
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{大语言模型的适配}
+\Needspace{6\baselineskip}
+\subsection{适配全景与提示}
+\source{［09 p3-11］}
+不改参数：提示、ICL、CoT、检索增强；改参数：SFT、偏好对齐及可验证奖励强化学习。提示包含指令、上下文、输入数据、输出要求（［09 p4］）。ICL在上下文给示例，推理中参数不更新（［09 p5］）。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{29.20mm}|>{\raggedright\arraybackslash}p{73.69mm}|>{\raggedright\arraybackslash}p{55.96mm}|}
+\hline
+\rowcolor{TableHead}\textbf{方法} & \textbf{核心步骤} & \textbf{主要边界}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{方法} & \textbf{核心步骤} & \textbf{主要边界}\\\hline
+\endhead
+ICL & 提供少量输入---输出示例\ensuremath{\rightarrow}处理新样例 & 受示例内容、顺序、标签比例影响\\\hline
+\rowcolor{TableAlt}
+CoT & 在提示中展示/\allowbreak{}要求中间推理，再回答 & 推理文本看似合理不保证结论正确\\\hline
+Self-consistency & 同题采样多条推理\ensuremath{\rightarrow}按最终答案多数投票 & 额外计算；路径高度相关会削弱收益\\\hline
+\rowcolor{TableAlt}
+Tree of Thoughts & 每步展开多个想法\ensuremath{\rightarrow}评价\ensuremath{\rightarrow}搜索/\allowbreak{}回溯 & 额外搜索成本\\\hline
+ReAct & Thought\ensuremath{\rightarrow}Action\ensuremath{\rightarrow}Observation循环 & 需外部工具与执行框架\\*\hline
+\rowcolor{TableAlt}
+RAG & 文档分块并索引\ensuremath{\rightarrow}编码查询\ensuremath{\rightarrow}检索/\allowbreak{}重排\ensuremath{\rightarrow}带证据生成 & 检索不到或取回错误资料时仍会失败\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+ICL偏置包括多数标签偏置、近期偏置、高频词偏置；上下文校准为 $q(y|x)\propto p(y|x)/p(y|N/A)$，除以无内容输入的先验偏向后再归一化（［09 p6］）。CoT与零样本“一步一步思考”见［09 p7］，自洽采样与思维树见［09 p8］，ReAct见［09 p9］。自动提示工程让模型生成候选提示、在标注集打分、迭代改写；推理模型不必总机械加入CoT口令；上下文工程组织系统提示、工具、检索结果和历史（［09 p10］）。
+
+RAG可引入新知识、私有知识并提供证据；它改变输入而非天然更新模型参数（［09 p11］）。\textbf{易混点：}CoT增加推理过程，RAG增加外部知识，ReAct增加环境行动；可以组合，不是互斥模型类型。
+
+\Needspace{6\baselineskip}
+\subsection{指令微调SFT}
+\source{［09 p12-19］}
+指令微调把多任务写成“指令+可选输入\ensuremath{\rightarrow}回答”，共享一个模型并提高新任务泛化。传统单任务微调通常针对固定任务；［09 p12］表中“不能处理新任务”应理解为缺少指令式零样本泛化机制，不应绝对化成任何迁移都不可能。
+
+数据来源：现有NLP数据集加人工模板（FLAN/\allowbreak{}P3）；模型根据种子合成（Self-Instruct/\allowbreak{}Alpaca）；人工对话；混合精选（［09 p13］）。
+
+需要理解的数据问题：
+
+\begin{itemize}
+\item {}格式、长度、对话风格会影响偏好胜率，风格提升不能直接等同事实知识提升（［09 p14］）。
+\item {}SFT可教模型提取已有知识；强迫拟合基座不知道的事实可能教会“自信编造”，需要核对知识来源和回答边界（［09 p15］）。
+\item {}少量安全示例可提升安全性，但比例过高可能造成正常请求也被拒绝；需边界样例与误拒评测（［09 p16］）。
+\item {}精选数据可很有效，但不能把个别千条数据实验推广成“所有任务只需1000条”（［09 p17］）。
+\item {}对话SFT必须正确套用聊天模板，只对助手回答部分计算损失，特殊词元与多轮边界需匹配（［09 p18］）。
+\item {}中期训练把指令、数学、代码等混入预训练退火阶段，随后短暂SFT学习对话格式（［09 p19］）。
+\end{itemize}
+\Needspace{6\baselineskip}
+\subsection{RLHF：SFT\ensuremath{\rightarrow}奖励模型\ensuremath{\rightarrow}PPO}
+\source{［09 p20-26］}
+SFT模仿示范回答；RLHF利用“哪个回答更好”的偏好，优化生成策略。流程：人工示范得到SFT\ensuremath{\rightarrow}同一问题生成多个回答并排序\ensuremath{\rightarrow}训练奖励模型RM\ensuremath{\rightarrow}用RM奖励进行PPO优化。
+
+偏好标注受事实核查能力、标注者群体与AI代写等因素影响。RLAIF用AI反馈替代部分人工偏好，仍继承评审模型偏置（［09 p21-22］）。
+
+奖励模型输出标量 $r_\theta(x,y)$，好/\allowbreak{}坏回复分别为 $y_w,y_l$：
+
+\[\mathcal L_{RM}=-\mathbb E\log\sigma(r_\theta(x,y_w)-r_\theta(x,y_l)).\]
+同一提示下K个排序回答可形成 $\binom K2$ 对；课件对这些对取平均。分差方向正确且越大，损失越小（［09 p23］）。
+
+PPO概念目标（［09 p24］）：
+
+\[\mathbb E_{y\sim\pi_\phi}[r_\theta(x,y)-\beta\log\frac{\pi_\phi(y|x)}{\pi_{SFT}(y|x)}] +\gamma\,\mathbb E_{x\sim\mathcal D_{PT}}\log\pi_\phi(x).\]
+第一项鼓励偏好；KL惩罚防止离参考SFT过远；预训练项缓解通用能力退化。注意KL是分布期望，单条样本的log概率比可以为负，不能据此认为KL本身为负。［09 p25］是特定教学实现，对逐词元log比作非负截断，不能把这一实现等同于KL的数学定义。
+
+训练时的四模型：策略（训练）、参考SFT（冻结）、奖励模型（冻结）、价值模型（训练，用于估计优势）。PPO用裁剪等机制限制策略步幅；计算与显存开销较大。GAE及课件示例奖励塑形见［09 p25］。课件［09 p26］展示较小的InstructGPT比更大的GPT-3更受偏好，说明对齐与单纯扩大参数量作用不同。
+
+\Needspace{6\baselineskip}
+\subsection{DPO：用偏好数据直接训练策略}
+\source{［09 p27-29］}
+从 $\max_\pi E[r]-\beta KL(\pi\Vert\pi_{ref})$ 得到 $\pi^*(y|x)\propto\pi_{ref}(y|x)e^{r(x,y)/\beta}$。反解奖励，代入好坏回答成对损失，归一化项Z(x)在分差中相消：
+
+\[\mathcal L_{DPO}=-\mathbb E\log\sigma\left(\beta\left[\log\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)}-\log\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}\right]\right).\]
+参考模型冻结；不需要单独训练显式RM和价值模型，典型DPO直接用离线偏好对。相比参考策略，提高偏好答案相对不偏好答案的概率。初始策略等于参考策略时括号为0，损失 $\log2\approx0.693$（［09 p28］）。不要简化成仅最小化好答案交叉熵：DPO还显式利用坏答案与参考模型。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{37.85mm}|>{\raggedright\arraybackslash}p{41.64mm}|>{\raggedright\arraybackslash}p{37.85mm}|>{\raggedright\arraybackslash}p{37.85mm}|}
+\hline
+\rowcolor{TableHead}\textbf{方法} & \textbf{数据/\allowbreak{}信号} & \textbf{是否需在线采样} & \textbf{显式RM/\allowbreak{}价值模型}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{方法} & \textbf{数据/\allowbreak{}信号} & \textbf{是否需在线采样} & \textbf{显式RM/\allowbreak{}价值模型}\\\hline
+\endhead
+SFT & 示范答案 & 通常不需 & 都不需\\\hline
+\rowcolor{TableAlt}
+典型RLHF-PPO & 偏好训练出的奖励 & 需要 & 都需要\\\hline
+典型离线DPO & 好/\allowbreak{}坏偏好对 & 不需要 & 都不需\\*\hline
+\rowcolor{TableAlt}
+GRPO+规则奖励 & 同题多答案的可验证奖励 & 需要 & 无需价值模型；规则奖励可免RM\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+\Needspace{6\baselineskip}
+\subsection{对齐副作用与可验证奖励}
+\source{［09 p30-40］}
+RLHF风险：回答变长、代理奖励过度优化、概率校准变差、输出多样性下降。代理奖励上升而真实质量先升后降，是奖励操纵/\allowbreak{}过度优化信号（［09 p30］）。数学答案、代码测试、形式证明等可以用可验证奖励RLVR；奖励验证器也可能有漏洞（［09 p31］）。
+
+GRPO对同一提示采样G条回答，按组内奖励构造优势：
+
+\[\hat A_i=\frac{r_i-\operatorname{mean}(r)}{\operatorname{std}(r)}.\]
+它以组内基线替代价值模型，减小开销；全对或全错时无相对奖励信号（实现需处理零方差）。示例G=8、3条正确时，正确回答优势约+1.29、错误约-0.775（使用总体标准差）；\textbf{课件［09 p32］数值为+1.21/\allowbreak{}-0.72，采用样本标准差，因此计算题必须说明标准差约定。}
+
+课件［09 p33］指出两个偏差：按 $1/|o_i|$ 平均使长错误回答每词元惩罚更小；除奖励标准差使接近全对/\allowbreak{}全错的问题产生较大权重。Dr. GRPO去掉标准差归一化，以 $r_i-\bar r$ 为优势，并使用常数长度归一化。不能把GRPO的组内奖励误当同一条回答的词元即时奖励。
+
+DeepSeek-R1-Zero直接RL；R1用“冷启动SFT\ensuremath{\rightarrow}推理RL\ensuremath{\rightarrow}拒绝采样SFT\ensuremath{\rightarrow}全场景RL”，再用生成数据蒸馏小模型（［09 p34-35］）。Kimi k1.5涉及课程学习、长回复处理；Qwen3将思考与非思考模式融合（［09 p36］）。在策略蒸馏让学生自己采样、教师给词元分布信号，减轻学生训练和推理访问分布不一致（［09 p37］）。智能体RL还涉及真实环境执行、稀疏奖励与长链信用分配，采样往往占大量成本（［09 p38-40］）。
+
+\Needspace{6\baselineskip}
+\Needspace{10\baselineskip}
+\subsection{适配选型}
+\source{［09 p41-42］}
+快速验证先看提示/\allowbreak{}ICL；补充经常变化的知识先考虑RAG；稳定格式和风格可用LoRA/\allowbreak{}QLoRA SFT；离线偏好可用DPO；数学、代码等可验证任务可考虑GRPO等RL。各路线可以组合，不能把“模型不会某个私有事实”与“模型不会按格式回答”当成同一个问题处理。
+
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{大语言模型的应用}
+\Needspace{6\baselineskip}
+\subsection{应用提示与生成数据}
+\source{［10 p3-11］}
+问答给充分背景、约束长度和来源；对话说明目的与风格；摘要说明篇幅、重点和视角；代码说明功能、语言、库、性能并测试。共同原则为意图清楚、背景充分、要求明确；生成代码需执行验证，不能只看解释是否流畅（［10 p4-5］）。
+
+直接使用模型的局限及对策：知识过时/\allowbreak{}私有资料\ensuremath{\rightarrow}RAG；显存/\allowbreak{}服务成本\ensuremath{\rightarrow}量化与高效推理；只能说不能执行\ensuremath{\rightarrow}工具调用与Agent（［10 p6］）。
+
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{25.33mm}|>{\raggedright\arraybackslash}p{97.64mm}|>{\raggedright\arraybackslash}p{35.89mm}|}
+\hline
+\rowcolor{TableHead}\textbf{合成指令方法} & \textbf{流程与特点} & \textbf{风险}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{合成指令方法} & \textbf{流程与特点} & \textbf{风险}\\\hline
+\endhead
+Self-Instruct & 种子任务\ensuremath{\rightarrow}生成指令\ensuremath{\rightarrow}识别分类任务\ensuremath{\rightarrow}生成实例\ensuremath{\rightarrow}去重与过滤（［10 p8］） & 生成数据可能有错，需抽检\\\hline
+\rowcolor{TableAlt}
+Alpaca & 用模型生成指令---输入---回答，微调开源基座（［10 p9］） & 数量/\allowbreak{}低成本不代表高质量\\*\hline
+Evol-Instruct & 深度进化加约束/\allowbreak{}步骤/\allowbreak{}复杂度，广度进化扩展新指令，再淘汰无效结果（［10 p10］） & 多轮成本与错误累积\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+课件提到Magpie、模型生成并评分数据、推理蒸馏等（［10 p11］）。反复仅用生成数据训练可能造成分布尾部丢失的模型崩溃；数据事实、偏差、重复和许可需单独检查。
+
+\Needspace{6\baselineskip}
+\subsection{量化部署与推理加速}
+\source{［10 p12-19］}
+llama.cpp面向个人电脑/\allowbreak{}端侧，支持CPU与GPU混合及GGUF；transformers适合研究原型；vLLM/\allowbreak{}SGLang面向高并发服务；Ollama等提供便捷封装。课件GGUF类型的“4位”通常是近似称呼，量化块元数据等导致实际平均比特不恰等于4（［10 p12-14］）。解码参数如温度、top-p、上下文长度、对话模板会影响结果（［10 p15］）。
+
+PagedAttention把KV缓存分页，逻辑连续但物理块不要求连续；可共享前缀，减少碎片。连续批处理允许请求完成后立即加入新请求，提高吞吐（［10 p17］）。区分单请求时延、首词元时延、词元生成速度和总吞吐，不能用单个“快”概括所有性能。
+
+推理加速（［10 p19］）：前缀缓存复用共享KV；推测解码由小模型草拟、大模型验证，按正确接受校正规则保持目标分布；预填充/\allowbreak{}解码分离分别优化两阶段；KV量化减少长上下文缓存显存。权重量化与KV量化压缩的对象不同。
+
+\Needspace{6\baselineskip}
+\subsection{本地文档应用与RAG}
+\source{［10 p20-24］}
+本地文档\ensuremath{\rightarrow}切块\ensuremath{\rightarrow}向量化\ensuremath{\rightarrow}向量库索引\ensuremath{\rightarrow}查询检索\ensuremath{\rightarrow}提供证据给本地模型\ensuremath{\rightarrow}附来源回答。LangChain/\allowbreak{}LlamaIndex用于连接模型、检索、提示与工具，本身不是语言模型。
+
+LCEL把提示、模型、输出解析器组合成可调用链（［10 p21］）。stuff摘要把所有块一次送入，简单但受上下文限制；refine先摘要第一块，再逐块更新，能处理更长文本但多次串行调用且更慢（［10 p22］）。PrivateGPT案例展示了本地RAG系统的分层，而不应只背旧教材安装脚本（［10 p23］）。
+
+RAG设计：块大小与上下文匹配，适当重叠；中文用适合的多语言/\allowbreak{}中文嵌入模型；检索块数平衡覆盖与噪声，可用混合检索及重排序；生成只根据资料并注明来源；分别评检索命中与回答忠实度（［10 p24］）。RAG失败排查至少区分“没检索到正确块”和“有正确证据却生成错误”。
+
+\Needspace{6\baselineskip}
+\subsection{智能体：模型、工具、环境和控制循环}
+\source{［10 p25-41］}
+Agent通过观察感知环境、采取行动并获得反馈。LLM Agent把推理和工具调用写成词元，由框架真正执行。一次工具调用：提供函数名/\allowbreak{}描述/\allowbreak{}参数schema\ensuremath{\rightarrow}模型生成结构化调用\ensuremath{\rightarrow}框架校验和执行\ensuremath{\rightarrow}工具结果追加为观察\ensuremath{\rightarrow}模型继续或输出最终回答（［10 p28］、［10 p30-32］）。模型输出“要调用计算器”不等于它自己已执行了计算。
+
+课件五组件：大模型核心、规划与推理、记忆、工具、环境（［10 p33］）。ReAct将Think/\allowbreak{}Act/\allowbreak{}Obs交替；自我反思将失败经验写入记忆；多智能体可辩论或分工，但也增加通信与协调成本（［10 p34］、［10 p37］）。
+
+三类记忆（［10 p35］）：情景记忆保存经历，语义记忆提炼知识，程序记忆保存可复用技能。MCP是接入工具的统一接口协议；函数调用是模型输出工具调用的机制。两者层次不同，MCP也不自动赋予模型正确判断或安全权限（［10 p36］）。
+
+模型训练与框架工程共同决定表现（［10 p39-41］）：训练提供能力，框架组织提示、权限、工具、记忆、任务分解、校验与重试。完整系统还包含沙箱、推理服务、训练系统、监控与可观测性。长程智能体RL难在奖励稀疏、执行成本高、错误链长。
+
+\Needspace{6\baselineskip}
+\subsection{可靠性与安全}
+\source{［10 p42-45］}
+在独立且每步成功率固定p的简化假设下，N步全对概率为 $p^N$。p=0.95时，10步约0.599、20步约0.358、50步约0.077（［10 p42］）。现实错误可相关，公式是解释误差累积的示意，不能直接当实测任务成功率。
+
+可靠性还看一致性、对提示/\allowbreak{}工具变化的鲁棒性、失败是否可解释与可恢复。完成任务和行为安全是两个维度，成功也可能越权或泄露隐私（［10 p43］）。课件风险包括谄媚、奖励篡改、多智能体不当协作（［10 p44］）。防护包括模型安全训练、最小权限、沙箱、监控与人在回路；不可逆操作由人批准（［10 p45］）。
+
+\Needspace{6\baselineskip}
+\Needspace{8\baselineskip}
+\section{大语言模型的能力评估}
+\Needspace{6\baselineskip}
+\subsection{先固定评测协议}
+\source{［11 p3-4］}
+题目\ensuremath{\rightarrow}任务适配/\allowbreak{}提示\ensuremath{\rightarrow}解码与采样\ensuremath{\rightarrow}答案抽取\ensuremath{\rightarrow}指标与置信区间。必须交代提示、示例、CoT设置、温度、采样数、抽取规则、工具/\allowbreak{}框架与成本。只比较一个分数可能把模型、提示、框架、预算的差异混在一起。
+
+\Needspace{6\baselineskip}
+\subsection{困惑度与选择题}
+\source{［11 p5-7］}
+\[PPL=\exp\left(-\frac1N\sum_{i=1}^N\log p(x_i\mid x_{<i})\right).\]
+平均负对数似然越小，PPL越低；需在相同数据、分词与计分协议下比较。PPL测预测文本能力，不能直接等同事实性或下游完成任务能力。
+
+条件困惑度只对给定问题后的答案词元计分：
+
+\[PPL(y\mid x)=\exp\left(-\frac1{|y|}\log p(y\mid x)\right)=p(y\mid x)^{-1/|y|}.\]
+\textbf{校正提醒：}课件［11 p6］写 $p(\text{回答}\mid\text{问题})^{1/|\text{回答}|}$，是几何平均概率，标准条件PPL需要负指数；几何平均概率越大越好，困惑度越小越好。
+
+选择题三种方式：比较每个选项续写对数似然；只比较A/\allowbreak{}B/\allowbreak{}C/\allowbreak{}D的概率；生成答案后解析。完整续写总对数概率可能偏向短选项；长度归一化可减轻但不保证正确，协议需一致（［11 p7］）。
+
+\Needspace{6\baselineskip}
+\subsection{理解与生成指标}
+\source{［11 p8-10］}
+Accuracy=正确数/\allowbreak{}总数；Precision=TP/\allowbreak{}(TP+FP)；Recall=TP/\allowbreak{}(TP+FN)；$F_1=2PR/(P+R)$。分类常用准确率，抽取和问答常用F1；类别不平衡应关注不同类或阈值下表现。文本蕴含判断前提能否推出假设，不能仅看关键词共现（［11 p8］）。
+
+BLEU：
+
+\[BLEU=BP\exp\left(\sum_{n=1}^{N}w_n\log p_n\right),\quad BP=\begin{cases}1&c>r\\e^{1-r/c}&c\le r.\end{cases}\]
+$p_n$为N元组精确率（通常采用裁剪计数），c、r为候选/\allowbreak{}参考长度；BP惩罚过短输出。ROUGE-N以参考N元组为分母，偏召回；ROUGE-L用最长公共子序列计算F值。补充展开：LCS长度为L时，$R=L/r,P=L/c$，再算相应F值（［11 p9］）。N元组重叠不等于语义正确：同义改写可能得低分，主体客体颠倒仍可能高分。
+
+BERTScore用上下文词向量逐词贪心相似匹配，再算P/\allowbreak{}R/\allowbreak{}F1，可用IDF加权；GPTScore以评价角度提示下的条件生成概率打分。模型指标仍有模型能力与偏置，需要和人工判断校准（［11 p10］）。\textbf{易混点：}GPTScore的概率评分不等于让GPT口头给1---10分的LLM评审。
+
+\Needspace{10\baselineskip}
+\Needspace{10\baselineskip}
+\subsection{主要基准按能力归类}
+\source{［11 p11-16］}
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{25.47mm}|>{\raggedright\arraybackslash}p{38.20mm}|>{\raggedright\arraybackslash}p{95.19mm}|}
+\hline
+\rowcolor{TableHead}\textbf{类别} & \textbf{代表} & \textbf{要理解的差别}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{类别} & \textbf{代表} & \textbf{要理解的差别}\\\hline
+\endhead
+知识考试 & MMLU、MMLU-Pro、GPQA、HLE & 学科覆盖、选项数、专家难度、是否包含图像，不是同一难度（［11 p11-12］）\\\hline
+\rowcolor{TableAlt}
+中文知识 & C-Eval、CMMLU & 学科与题量不同；中文基准不等于所有中文交互能力（［11 p13］）\\\hline
+常识 & HellaSwag、WinoGrande、Social IQa、PIQA & 续写、指代、社会/\allowbreak{}物理常识等（［11 p14］）\\\hline
+\rowcolor{TableAlt}
+符号/\allowbreak{}逻辑 & Dyck、bAbI、StrategyQA & 结构依赖、规则推出结论、多跳常识推理（［11 p14］）\\\hline
+数学 & GSM8K、MATH、AIME、GSM1k & 小学应用、多领域竞赛、少题高方差、新题防污染（［11 p15］）\\*\hline
+\rowcolor{TableAlt}
+抽象/\allowbreak{}交互 & ARC-AGI系列 & 从新示例归纳规则与交互探索；框架/\allowbreak{}成本影响结果（［11 p16］）\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+HELM侧重多场景、多指标；lm-evaluation-harness/\allowbreak{}OpenCompass/\allowbreak{}Inspect帮助统一与复现（［11 p13］）。复习应能说明每类基准测什么、如何判分、有何局限；不必把课件榜单历史百分比当恒定结论。
+
+\Needspace{6\baselineskip}
+\subsection{代码与Agent指标：pass@k、$\mathrm{pass}^{k}$}
+\source{［11 p17-24］}
+HumanEval用代码单元测试判断正确，MBPP侧重较入门编程；看似合理的代码也可能边界错误（［11 p17-18］）。Text2SQL常用执行准确率，比较查询结果，因为语义相同的SQL可有不同写法；仍需注意测试数据库覆盖（［11 p19］）。SWE-bench是给仓库与问题、提交补丁再测试；Terminal-Bench等测终端任务，Cybench测CTF，MLE-bench测机器学习工程（［11 p20-21］）。
+
+每题采样n次，c次成功，从中无放回抽k个：
+
+\[pass@k=\mathbb E\left[1-\frac{\binom{n-c}{k}}{\binom nk}\right],\qquad pass^k=\mathbb E\left[\frac{\binom ck}{\binom nk}\right].\]
+前者至少一次成功，后者全部成功；期望通常是跨任务平均。$k\le n$，不足k个失败时pass@k=1，不足k个成功时$\mathrm{pass}^{k}$=0。理想独立单次成功率p时可直观写 $1-(1-p)^k$ 与 $p^k$；它们不替代有限n样本的组合数估计（［11 p17］、［11 p22］）。例：n=8,c=6，k=2：pass@2=27/\allowbreak{}28\ensuremath{\approx}0.964，$\mathrm{pass}^{2}$=15/\allowbreak{}28\ensuremath{\approx}0.536。多次尝试可挑正确答案的任务关注pass@k；反复服务的可靠性关注$\mathrm{pass}^{k}$。
+
+METR时间跨度指“人类需某时长完成的任务，模型成功率达到50\%”，不是模型可无人监督持续运行的时间（［11 p23］）。Agent评测需检查任务能否完成、测试覆盖、是否泄题、是否可绕过、框架差异及任务预算；不能把模型+框架得分归因于模型本体（［11 p24］）。
+
+\Needspace{6\baselineskip}
+\subsection{开放式生成：评审与排名}
+\source{［11 p25-33］}
+AlpacaEval比较待测与基线的回复并算胜率，容易受长度影响，长度控制版旨在降低该偏置；MT-Bench包含多轮任务，Arena-Hard/\allowbreak{}WildBench使用更难或更贴近真实的提示及评分清单（［11 p25-26］）。IFEval用规则检查可验证格式约束，如段落数、字数；格式满足不等于内容正确（［11 p27］）。
+
+LLM-as-a-judge可成对比较、直接评分、或对照参考答案评分。常见偏差：位置偏差、偏好冗长、自我偏好；缓解：交换顺序评两次、控制长度、提供评分细则/\allowbreak{}参考答案、人工抽检（［11 p28-29］）。
+
+Elo预测与更新（［11 p30］）：
+
+\[E_A=\frac1{1+10^{(R_B-R_A)/400}},\quad R'_A=R_A+K(S_A-E_A)\]
+$S_A$胜/\allowbreak{}平/\allowbreak{}负为1/\allowbreak{}0.5/\allowbreak{}0，K控制步幅。在线Elo受对战顺序和K影响；Bradley--Terry用所有对战作最大似然拟合，顺序无关，并可估计置信区间（［11 p31］）。Chatbot Arena从匿名用户偏好统计排名，不等于所有客观能力的总分（［11 p32］）。选择性提交、私有试榜和针对榜单训练会影响排名解释（［11 p33］）。
+
+\Needspace{10\baselineskip}
+\subsection{对齐、多维质量与评测陷阱}
+\source{［11 p34-43］}
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{38.09mm}|>{\raggedright\arraybackslash}p{124.43mm}|}
+\hline
+\rowcolor{TableHead}\textbf{维度} & \textbf{含义/\allowbreak{}典型评价}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{维度} & \textbf{含义/\allowbreak{}典型评价}\\\hline
+\endhead
+有用性 & 理解并完成指令，偏好与任务质量\\\hline
+\rowcolor{TableAlt}
+无害性 & 偏见、毒性；BBQ、ToxiGen（［11 p35］）\\\hline
+安全性 & 隐私、有害行为拒绝、不过度拒绝；HarmBench、AIR-Bench、XSTest（［11 p36］）\\*\hline
+\rowcolor{TableAlt}
+真实性 & 事实知识与内容忠实；TruthfulQA、FActScore、SimpleQA（［11 p38］）\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+红队主动寻找可诱导的不安全行为，结果可用于修复和再训练（［11 p37］）。FActScore把长回答拆成原子事实逐条检索核查；SimpleQA区分正确、错误和未回答。课件把事实性与输入/\allowbreak{}指令一致性区分讲解；实际文献中“幻觉”有更宽用法，术语需说明口径。
+
+只按对错0/\allowbreak{}1计分会鼓励猜测，因为弃答0分、猜对有收益。课件给定阈值t时，答对+1、答错 $-t/(1-t)$、弃答0，则当相信正确概率q>t时回答才有正期望（［11 p39］；由期望得分可自行推导）。
+
+污染是训练数据与测试内容重叠；可用新题/\allowbreak{}私有题、重叠披露、似然/\allowbreak{}顺序检测等检查，但单项检测不能绝对证明没污染（［11 p40］）。题目与标准答案也可能有错，测试过窄可能误拒正确解，测试过宽可能放过错解（［11 p41］）。生态效度要求评测贴近真实职业、临床或使用场景；先说明评测是用于选型、测能力、研究影响还是定位改进（［11 p42-43］）。
+
+\Needspace{6\baselineskip}
+\unnumsection{第五至七讲自测问答}
+\Needspace{6\baselineskip}
+\subsection*{语言模型}
+\begin{enumerate}
+\item {}为什么序列概率与下一词条件概率两种LM定义等价？------链式法则；完整句子结束还须按约定计EOS。
+\item {}三元模型保留几个历史词？------2个；不要把N和历史数混同。
+\item {}C(h)=4、V=5、\ensuremath{\delta}=0.5，未见词概率多少？------0.5/\allowbreak{}(4+2.5)=1/\allowbreak{}13。
+\item {}为什么输入与目标要错开一位？------当前位置利用已经可见的输入预测紧接的词，否则可能直接复制当前输入。
+\item {}一个4\ensuremath{\times}4因果可见矩阵的第三行是什么？------[1,1,1,0]；若问代码blocked矩阵则为[0,0,0,1]。
+\item {}PAD不算目标损失，是否就无需Padding Mask？------否；两者分别控制目标计分与输入注意力可见性。
+\item {}[0.4,0.3,0.2,0.1]在Top-p=0.8下保留什么？------前三项，再归一化为[4/\allowbreak{}9,3/\allowbreak{}9,2/\allowbreak{}9]。
+\item {}\ensuremath{\tau}增大是否改变词概率排序？------正温度缩放不改变logit顺序，但使分布更平缓。
+\item {}概率1/\allowbreak{}2、1/\allowbreak{}4、1/\allowbreak{}8的PPL？------4。
+\item {}为什么不能平均批次PPL？------指数非线性，且各批有效目标数不同，应累计总NLL/\allowbreak{}总词元再取指数。
+\end{enumerate}
+\Needspace{6\baselineskip}
+\subsection*{预训练词向量}
+\begin{enumerate}
+\setcounter{enumi}{10}
+\item {}CBOW与Skip-gram输入输出方向？------前者上下文预测中心，后者中心预测上下文。
+\item {}输入表与输出表的形状？------均[V,D]；中心词查输入表，上下文查输出表。
+\item {}K=2且各点积为0，SGNS单正词对损失？------3ln2。
+\item {}负采样Sigmoid是否构成整个词表概率分布？------否，表示词对来源判别目标，未要求对c归一化。
+\item {}GloVe为什么不能遍历零共现项直接套公式？------ln0无定义；课件目标仅在M>0词对累加。
+\item {}预训练静态词向量微调后是否就变成上下文词向量？------否；同一表同一ID仍查同一向量，上下文相关性取决于后续表示计算。
+\item {}ELMo如何用各层表示？------任务学习Softmax层权重s与缩放\ensuremath{\gamma}，加权融合词形/\allowbreak{}不同深度上下文表示。
+\item {}ELMo模型冻结时向量为何仍会随句子改变？------参数不变，但函数输入变了，输出表示随上下文变化。
+\end{enumerate}
+\Needspace{6\baselineskip}
+\subsection*{预训练语言模型}
+\begin{enumerate}
+\setcounter{enumi}{18}
+\item {}BERT中80/\allowbreak{}10/\allowbreak{}10的分母是什么？------选中的约15\%词元，而非全体词元。
+\item {}200个合格词元大约多少换[MASK]？------期望200\ensuremath{\times}0.15\ensuremath{\times}0.8=24；不是固定每条样本必有24个。
+\item {}NSP与SOP的负样本差别？------随机其他第二段，对比同两段交换顺序。
+\item {}ALBERT共享层参数后计算量是否只剩一层？------否，仍逐层前向计算且需各层激活。
+\item {}ELECTRA生成器填回原词，判别器标原词还是替换词？------原词，判断实际是否改变。
+\item {}T5哨兵为什么不同于每个被掩词一个[MASK]？------一个独立哨兵标一个删除片段，解码器生成该片段多个词。
+\item {}怎样把BERT改为句对分类模型？------拼[CLS]A[SEP]B[SEP]，取[CLS]最终表示接分类头，交叉熵训练。
+\item {}抽取式阅读理解输出一个自由生成答案吗？------否，预测篇章内连续片段起止位置。
+\item {}为什么词级NER分词为子词后要对齐标签？------输出粒度不同，需定义每个子词的目标及忽略位，最终还原词/\allowbreak{}实体评价。
+\item {}GPT-3输入few-shot示例是否属于精调？------标准语境学习不更新参数，因此不能与梯度精调混称。
+\end{enumerate}
+\Needspace{6\baselineskip}
+\unnumsection{第八至十一讲自测问答}
+\begin{enumerate}
+\item {}\textbf{提示位置标签设为-100后，模型还能读提示吗？} 能。它忽略这些位置的损失，注意力是否能看由attention mask等控制。
+\item {}\textbf{LoRA的r增大会怎样？} 参数量按r线性增加，表达增量能力可能提高，也提高显存/\allowbreak{}计算和过拟合风险；不保证效果单调。
+\item {}\textbf{为什么初始化B=0而不是A、B都为0？} 初始增量为0且A非零可使B获得梯度；两个都为0可能导致二者初始梯度都为0。
+\item {}\textbf{为什么4位7B不能断言只要3.5GB显存就能训练？} 3.5GB只是理想权重存储，还需量化元数据、梯度/\allowbreak{}优化器/\allowbreak{}激活等；实际QLoRA也有额外占用。
+\item {}\textbf{非结构化裁剪50\%为何未必快一倍？} 稀疏位置不规则，硬件/\allowbreak{}算子未利用稀疏时仍进行稠密计算，存储格式也有开销。
+\item {}\textbf{蒸馏温度增大，为什么乘T\textsuperscript{2}？} 温度使分布更平并减小相应梯度，T\textsuperscript{2}用来补偿梯度量级。
+\item {}\textbf{一个公司每周更新规章，RAG还是SFT更直接？} RAG便于更新外部知识并给出处；若还要求稳定输出格式，可再配SFT。
+\item {}\textbf{ICL的例子换顺序就变答案，原因可能是什么？} 近期偏置、标签比例及词频先验；可平衡/\allowbreak{}打乱示例并做上下文校准。
+\item {}\textbf{自洽采样为何有时没用？} 多路径可能共享同一种错误，或错误答案不分散；多数票也可能稳定选错。
+\item {}\textbf{奖励模型训练为何只关心好坏分差？} 偏好监督提供相对排序，成对损失基于r\_w-r\_l，公共偏移不影响比较。
+\item {}\textbf{PPO参考模型与价值模型有何不同？} 参考模型冻结提供KL基准；价值模型学习回报预测以估计优势。
+\item {}\textbf{DPO初始策略等于参考策略时损失多少？} $-\log\sigma(0)=\log2$。
+\item {}\textbf{GRPO同组全部奖励相等会怎样？} 缺少组内相对优势，产生不了区分信号；实现需处理std=0。
+\item {}\textbf{Agent工具调用由谁真正执行？} 模型输出结构化调用，框架校验并调用工具，结果回传给模型。
+\item {}\textbf{stuff与refine怎样选？} 文本能放入上下文时stuff简单一次调用；长文本可refine但串行更慢且应检查累积信息遗漏。
+\item {}\textbf{每步成功率0.95，20步全对多少？} 在独立同概率简化假设下 $0.95^{20}\approx0.358$。
+\item {}\textbf{PPL低是否能保证模型知识问答正确？} 不能。文本预测分布、分词、样式与事实正确性不同，错误事实也可能有高概率。
+\item {}\textbf{BLEU高是否表示语义正确？} 不一定，重叠不能可靠捕获同义和关系颠倒，需语义/\allowbreak{}人工评价补充。
+\item {}\textbf{n=8,c=6，pass@2和$\mathrm{pass}^{2}$？} 分别为27/\allowbreak{}28和15/\allowbreak{}28；前者至少一次对，后者两次都对。
+\item {}\textbf{如何降低模型评审位置和长度偏差？} 交换顺序复评、控制长度、给细则/\allowbreak{}参考、人工抽检。
+\item {}\textbf{为什么模型+框架分数不能当模型本体能力？} 工具、提示、执行重试、搜索预算都会改变成功率。
+\item {}\textbf{事实题应鼓励模型永远作答吗？} 不应只看覆盖率，也应测错误率、弃答与校准；可按风险定义答错惩罚。
+\end{enumerate}
+\unnumsection{跨章节综合复习}
+\Needspace{10\baselineskip}
+\subsection*{方法选择与容易混淆的关系}
+\begingroup\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{23.11mm}|>{\raggedright\arraybackslash}p{35.81mm}|>{\raggedright\arraybackslash}p{23.11mm}|>{\raggedright\arraybackslash}p{73.17mm}|}
+\hline
+\rowcolor{TableHead}\textbf{方法} & \textbf{主要改变的内容} & \textbf{需要训练吗} & \textbf{典型用途与边界}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{方法} & \textbf{主要改变的内容} & \textbf{需要训练吗} & \textbf{典型用途与边界}\\\hline
+\endhead
+继续预训练 & 模型参数与领域分布适应 & 需要 & 用领域语料补充语言和知识分布；仍需任务验证\\\hline
+\rowcolor{TableAlt}
+SFT & 指令条件下的回答行为 & 需要 & 学习任务格式和回答方式；取决于数据质量\\\hline
+LoRA & 权重更新的低秩参数化 & 需要 & 降低可训练参数与相关资源；基础权重仍占内存\\\hline
+\rowcolor{TableAlt}
+提示与 ICL & 当前上下文 & 通常不需要 & 快速说明任务和给示例；受上下文与示例质量影响\\\hline
+RAG & 检索后送入模型的外部证据 & 生成模型可冻结 & 适合可更新知识与来源追溯；效果受检索和生成共同制约\\\hline
+\rowcolor{TableAlt}
+RLHF 或 DPO & 模型对回答的偏好 & 需要 & 使输出更符合反馈目标；偏好符合度不等于事实正确\\\hline
+蒸馏 & 学生模型及其学习目标 & 需要 & 把教师的分布、输出或行为迁移给学生\\\hline
+\rowcolor{TableAlt}
+量化 & 参数等数值的表示精度 & 视方案而定 & 节省存储和部分计算；加速依赖实现与硬件\\*\hline
+Agent & 模型与工具的执行流程 & 可不训练基础模型 & 多步行动、观察与验证；必须评价最终任务成功\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+本表综合第 07--11 讲，用于比较方法作用的层面。它们可以组合，例如量化基础模型加 LoRA 微调，再接入 RAG 和工具。
+
+\Needspace{6\baselineskip}
+\subsection*{公式计算与分析练习}
+以下题目由整理者编写，数值不来自考试。
+
+\Needspace{6\baselineskip}
+\subsubsection*{练习一 分类指标}
+某实体识别系统预测 30 个实体，其中 24 个边界和类型都正确；金标准有 40 个实体。计算实体级精确率、召回率、F1。
+
+答案：P = 24/\allowbreak{}30 = 0.80，R = 24/\allowbreak{}40 = 0.60，F1 = 2PR/\allowbreak{}(P+R) \ensuremath{\approx} 0.686。实体级评价不能把“部分字符重合”直接算成一个正确实体。对应［02 p35］。
+
+\Needspace{6\baselineskip}
+\subsubsection*{练习二 困惑度与对数底数}
+模型在一段文本上的平均负对数似然为 1.5，使用自然对数，求 PPL；若用以 2 为底的对数，平均交叉熵为 2，PPL 是多少？
+
+答案：前者为 exp(1.5) \ensuremath{\approx} 4.482，后者为 2\textsuperscript{2} = 4。指数底数须与对数底数一致。比较 PPL 还要求相同数据、分词方式和计分规则，并统一有效目标、EOS 和 PAD 的处理。对应［05 p35--38］。
+
+\Needspace{6\baselineskip}
+\subsubsection*{练习三 LoRA 参数量}
+一个线性层权重形状为 4096 \ensuremath{\times} 4096，LoRA 秩 r = 8。忽略偏置，比较全量更新与 LoRA 的可训练参数数目。
+
+答案：全量更新有 4096\textsuperscript{2} = 16,777,216 个参数；LoRA 两个矩阵共有 8 \ensuremath{\times} (4096 + 4096) = 65,536 个，为原矩阵参数数的 0.390625\%，即约 1/\allowbreak{}256。此比例仅针对该矩阵，不能直接当作整个模型训练显存的下降比例。对应［08 p19］。
+
+\Needspace{6\baselineskip}
+\subsubsection*{练习四 模型权重存储}
+一个 7B 参数模型以 FP16 保存权重，忽略元数据和其他开销，约需多少十进制 GB？改为 4 bit 呢？
+
+答案：FP16 每参数 2 byte，约 14 GB；4 bit 每参数 0.5 byte，约 3.5 GB。这里仅计算权重，未计量化元数据、梯度、优化器状态、激活、KV cache 等。GB 与 GiB 的换算也会造成数值差异。对应［08 p39；10 p12］。
+
+\Needspace{6\baselineskip}
+\subsubsection*{练习五 注意力维度与遮罩}
+设输入有 128 个 token，单个注意力头的 Q、K 维度都是 64，V 维度也是 64。QK 转置的形状是什么？为什么除以根号 64？因果遮罩与 padding 遮罩各排除什么？
+
+答案：分数矩阵为 128 \ensuremath{\times} 128，输出形状为 128 \ensuremath{\times} 64。对应［04 p23--25］。机制解释：缩放有助于控制点积分数尺度，避免维度较大时 softmax 过度饱和。因果遮罩排除当前位置的未来 token；padding 遮罩排除为组批而填入的无效位置。对应［05 p21--23；04 p29、31］。
+
+\Needspace{6\baselineskip}
+\subsubsection*{练习六 BPE 的训练与使用}
+训练语料的当前符号序列中，“a b”相邻对出现最多。BPE 本轮如何更新？推断时能否针对每条新句子重新统计全语料频次学习新的合并顺序？
+
+答案：将当前最高频相邻符号对合并为新符号，记录合并规则，再更新相邻对统计，迭代到停止条件。推断使用训练得到的词表和合并规则，不为每条输入重新训练 tokenizer。字符级、字节级等基础单元与具体实现须区分。对应［02 p15--16；03 p3--5］。
+
+\Needspace{6\baselineskip}
+\subsubsection*{练习七 pass 指标}
+一道题独立采样 10 次，其中 3 个答案通过测试。用课件给出的估计式计算 pass@2。它与要求两次均成功的 $\mathrm{pass}^{2}$ 有何区别？
+
+答案：pass@2 = 1 - C(7,2)/\allowbreak{}C(10,2) = 1 - 21/\allowbreak{}45 \ensuremath{\approx} 0.533。它衡量两个候选中至少一个正确；$\mathrm{pass}^{2}$ 关注重复两次都成功的可靠性。同一有限样本下，$\mathrm{pass}^{2}$ 的组合数估计为 C(3,2)/\allowbreak{}C(10,2) = 1/\allowbreak{}15 \ensuremath{\approx} 0.0667。若另外作独立、同分布且单次成功率恒定的简化模型，后者可写为 p\textsuperscript{2}；直接把样本成功率 0.3 代入得到 0.09，与无放回组合数估计不相同。对应［11 p17、22］。
+
+\Needspace{6\baselineskip}
+\subsection*{综合简答与参考要点}
+\Needspace{6\baselineskip}
+\subsubsection*{问题一 预训练为何能帮助多个下游任务}
+自监督目标从大量文本中产生训练信号，模型学习可复用的语言表示与条件生成规律。下游任务通过任务头、微调或提示使用这些能力。它降低对每个任务从头学习的依赖，但迁移效果仍受预训练分布、任务数据和模型结构影响。应同时说明“训练信号”“可迁移表示”“任务适配”三个环节。［01 p25--27；07 p3--7、33--39］
+
+\Needspace{6\baselineskip}
+\subsubsection*{问题二 静态词向量与上下文表示有什么区别}
+静态词向量通常为每个词型分配一个向量，同一词在不同语境仍查同一表项；上下文表示由当前句子计算，同一词的向量随上下文变化。Word2Vec 和 GloVe 属于前者，ELMo 和 BERT 的上下文输出属于后者。BERT 的输入词元嵌入仍可由查表产生，后续网络才融合上下文，不能仅理解为“换了一张词向量表”。“静态”与训练时是否冻结参数也是两回事。［06 p3--4、28、31--42；07 p13--21］
+
+\Needspace{6\baselineskip}
+\subsubsection*{问题三 BERT 的掩码目标与 GPT 的因果遮罩有什么区别}
+BERT 的双向自注意力可读取输入两侧；MLM 的“掩码”主要指遮蔽或替换部分输入词元，并在选中位置恢复原词，不等于屏蔽所有未来注意力。GPT 的因果遮罩则限制注意力只能读取当前输入位置及过去，再用该位置表示预测下一词；输入与目标需错开一位。若自回归训练允许读取未来目标，会发生信息泄漏。应分别讨论输入破坏方式、注意力可见范围和预测目标。［05 p19--23；07 p4--8、14--21］
+
+\Needspace{6\baselineskip}
+\subsubsection*{问题四 领域知识过时应选择 RAG 还是微调}
+若需求主要是查询经常更新、需引用的事实，优先分析 RAG：更新知识库与索引即可改变可用证据。若主要是稳定地遵守格式、术语、流程或偏好，可分析 SFT 或其他适配。二者可以结合。设计答案时还应说明检索召回、证据冲突、回答忠实度及独立测试集，而不能宣称某一种方法必然解决幻觉。［08--10］
+
+\Needspace{6\baselineskip}
+\subsubsection*{问题五 设计课程问答系统并说明如何验证}
+先整理课件与通知，保留讲次、页码和更新时间；切分文档、建索引并检索相关片段；让模型基于证据回答并标明出处。遇到缺少证据的问题应表达不确定性。需要执行任务时调用受约束的工具并检查执行结果。评价应分别覆盖检索是否找到正确材料、答案是否正确且有依据、引用能否支撑结论，以及工具任务最终是否完成。训练、验证、测试材料应避免泄漏。［09--11］
+
+\Needspace{6\baselineskip}
+\subsubsection*{问题六 LoRA 量化 蒸馏与裁剪能否互相替代}
+它们处理不同对象：LoRA 参数化权重更新，量化改变数值精度，蒸馏改变学生的学习信号，裁剪删去部分权重或结构。可以组合，但组合后的准确率、内存与延迟需要实测。非结构化稀疏或低位权重是否加速取决于计算内核与硬件，不能只看文件体积。［08］
+
+\Needspace{6\baselineskip}
+\subsubsection*{问题七 偏好优化后的模型为什么仍可能答错}
+偏好信号描述回答之间的相对偏好，与事实正确性并不完全等同。奖励模型或偏好数据可能有偏差，优化过程还可能利用奖励漏洞。应同时进行知识、推理、忠实度、安全等多维评价，必要时结合外部证据与工具验证。［09；11］
+
+\Needspace{6\baselineskip}
+\subsubsection*{问题八 模型在一个榜单上领先意味着什么}
+只能说明它在给定数据集、版本、提示、采样设置和评分规则下的表现。不能直接推广为所有任务更优；还须检查训练污染、样本规模、评价器偏好、成本、稳定性和目标场景的代表性。课件中的排行榜与商业模型数据应作为当时案例理解。［11］
+
+\Needspace{6\baselineskip}
+\Needspace{10\baselineskip}
+\subsection*{考前核对清单}
+\begin{enumerate}
+\item {}能解释八大难点、任务层级、输入输出类型与四个语言分析层次。
+\item {}能比较独热、共现、PPMI、SVD、静态嵌入和上下文表示。
+\item {}能手工说明最大匹配与 BPE 一轮操作，理解 token 不等于汉字或词。
+\item {}能为分类、NER、依存分析、翻译、摘要选择合理指标并说明局限。
+\item {}能画出 MLP、CNN、RNN、LSTM 与 Transformer 的信息流。
+\item {}能解释 Q、K、V、缩放点积、多头注意力、位置编码与两类遮罩。
+\item {}能写出语言模型链式分解、n-gram 近似、交叉熵与 PPL 的关系。
+\item {}能比较贪心、beam search、温度、top-k、top-p，区分训练与生成。
+\item {}能说明 CBOW、SGNS、GloVe、ELMo 的训练信号和表示差异。
+\item {}能比较 GPT、BERT、T5、BART 的结构、可见上下文与预训练目标。
+\item {}能说明分类、序列标注、抽取式问答和生成任务如何微调。
+\item {}能解释 LoRA 参数量、QLoRA、蒸馏、裁剪、量化各自改变什么。
+\item {}能区分离散提示、软提示、ICL、CoT、ReAct 与 RAG。
+\item {}能说明 SFT、奖励模型、PPO、DPO、GRPO 的角色和训练信号。
+\item {}能画出 RAG 与 Agent 的流程，并指出错误可能出现在哪些环节。
+\item {}能比较 BLEU、ROUGE、PPL、语义指标、pass@k 与 $\mathrm{pass}^{k}$。
+\item {}能识别数据泄漏、模型评审偏差、格式影响、随机性与基准失真。
+\end{enumerate}
+\Needspace{6\baselineskip}
+\subsection*{复习顺序建议}
+时间较充足时，按第一至第十一讲顺序复习。第一轮只检查每章定义与比较表；第二轮默写关键公式、画流程并做计算；第三轮合上资料完成自测，答不出的题回到引用页补齐。
+
+只有三天时，第一天复习第 01--05 讲，完成分词、指标、注意力与 PPL 计算；第二天复习第 06--09 讲，重点比较预训练目标、微调、参数高效方法与偏好优化；第三天复习第 10--11 讲，完成系统设计与综合自测，再回看错误项。这是复习安排建议，不代表考试分值分配。
+
+\Needspace{10\baselineskip}
+\subsection*{原课件索引}
+\begingroup\footnotesize\renewcommand{\arraystretch}{1.05}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{41.74mm}|>{\raggedright\arraybackslash}p{75.37mm}|>{\raggedright\arraybackslash}p{41.74mm}|}
+\hline
+\rowcolor{TableHead}\textbf{编号} & \textbf{文件} & \textbf{PDF 页数}\\\hline
+\endfirsthead
+\rowcolor{TableHead}\textbf{编号} & \textbf{文件} & \textbf{PDF 页数}\\\hline
+\endhead
+01 & 01-绪论.pdf & 32\\\hline
+\rowcolor{TableAlt}
+02 & 02-自然语言处理基础(1).pdf & 42\\\hline
+03 & 03-基础工具集与常用数据集.pdf & 41\\\hline
+\rowcolor{TableAlt}
+04 & 04-自然语言处理中的深度学习基础.pdf & 34\\\hline
+05 & 05-语言模型.pdf & 44\\\hline
+\rowcolor{TableAlt}
+06 & 06-预训练词向量(1).pdf & 47\\\hline
+07 & 07-预训练语言模型(1).pdf & 45\\\hline
+\rowcolor{TableAlt}
+08 & 08-语言模型的微调.pdf & 47\\\hline
+09 & 09-大语言模型的适配.pdf & 43\\\hline
+\rowcolor{TableAlt}
+10 & 10-大语言模型的应用.pdf & 47\\*\hline
+11 & 11-大语言模型的能力评估.pdf & 47\\*\noalign{\nobreak{\color{TableRule}\hrule height 0.4pt}\nobreak}
+\end{longtable}
+\endgroup
+\end{document}
