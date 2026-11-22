@@ -1,0 +1,1159 @@
+% !TeX program = xelatex
+% XeLaTeX 编译两遍更新目录。此文件可独立编译。
+\documentclass[UTF8,a4paper,zihao=-4,fontset=fandol]{ctexart}
+\usepackage[left=21mm,right=21mm,top=22mm,bottom=23mm,headheight=15pt,headsep=6mm,footskip=11mm]{geometry}
+\usepackage{amsmath,amssymb,bm,booktabs,tabularx,longtable,array,multirow,enumitem}
+\usepackage{xcolor,fancyhdr,needspace,newunicodechar,tocloft}
+\usepackage[unicode,colorlinks,linkcolor=navy,urlcolor=navy]{hyperref}
+\usepackage{bookmark}
+\definecolor{navy}{HTML}{193D53}
+\definecolor{muted}{HTML}{4C6069}
+\newunicodechar{★}{\texorpdfstring{\ensuremath{\bigstar}}{★}}
+\newunicodechar{→}{\ensuremath{\to}}
+\newunicodechar{①}{\textup{（1）}}
+\newunicodechar{②}{\textup{（2）}}
+\newunicodechar{③}{\textup{（3）}}
+\newunicodechar{④}{\textup{（4）}}
+\newunicodechar{⑤}{\textup{（5）}}
+\hypersetup{pdftitle={模式识别与机器学习 A 期末复习手册（精简版）},bookmarksdepth=2,pdfdisplaydoctitle=true}
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{1}
+\ctexset{
+  section={format=\LARGE\bfseries\color{navy}, name={第,章}, number=\arabic{section}, beforeskip=1.6em plus .18em, afterskip=.65em},
+  subsection={format=\large\bfseries\color{navy}, beforeskip=.85em plus .12em, afterskip=.25em},
+  subsubsection={format=\normalsize\bfseries\color{navy}, beforeskip=.72em plus .1em, afterskip=.25em},
+  paragraph={format=\normalsize\bfseries\color{navy}, beforeskip=.6em, afterskip=.6em, runin=true}
+}
+\setlength{\cftbeforesecskip}{.19em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{.25em plus .05em minus .03em}
+\setlength{\emergencystretch}{2em}
+\setlength{\abovedisplayskip}{.55em plus .15em minus .15em}
+\setlength{\belowdisplayskip}{.55em plus .15em minus .15em}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt plus 1fill}
+\setlength{\LTpre}{.35em}
+\setlength{\LTpost}{.45em}
+\renewcommand{\arraystretch}{1.10}
+\allowdisplaybreaks[1]
+\setlist[itemize]{leftmargin=1.65em,topsep=.22em,itemsep=.24em,parsep=.07em}
+\setlist[enumerate]{leftmargin=1.85em,topsep=.22em,itemsep=.25em,parsep=.07em}
+\setlist[description]{leftmargin=0pt,labelindent=0pt,itemsep=.3em,style=nextline}
+\clubpenalty=10000
+\widowpenalty=10000
+\raggedbottom
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{muted}{模式识别与机器学习 A}}
+\fancyhead[R]{\small\textcolor{muted}{期末复习 · 精简版}}
+\fancyfoot[C]{\small\textcolor{muted}{\thepage}}
+\renewcommand{\headrulewidth}{.36pt}
+
+\begin{document}
+\vspace*{1.4em}
+{\normalsize\color{muted}哈尔滨工业大学\par}
+\vspace{.6em}
+{\Huge\bfseries\color{navy}模式识别与机器学习 A\par}
+\vspace{.32em}
+{\huge\bfseries\color{navy}期末复习手册\quad 精简版\par}
+\vspace{.68em}
+{\small 两版课件与往年题定位、常考公式、典型手算题及自测。课件 p 是 PDF 物理页。\par}
+\renewcommand{\contentsname}{目录}
+\tableofcontents
+\clearpage
+\setcounter{section}{-1}
+
+\Needspace{10\baselineskip}
+\section{总览与复习顺序}
+
+\subsection{考点、概念与出处}
+机器学习（machine learning）从数据估计模型，在新数据上衡量性能。模式识别（pattern recognition）包括表示、分类和决策。以 Mitchell 的记号，$T$ 是任务、$E$ 是训练经验、$P$ 是表现度量。深度学习（deep learning）用多层表示完成任务。【刘远超·1 引论 p5–10】【刘扬·1 决策树 p7】
+
+\smallskip
+\begin{tabularx}{\linewidth}{@{}p{.19\linewidth}X@{}}
+\toprule
+复习顺序 & 应能独立完成的步骤\\
+\midrule
+★★★ 先手算 & 贝叶斯和 KL（第2、4、6章），回归与 SVM（第7、9章），聚类与 EM（第10章），HMM（第12章），BP、CNN、RNN 与 VAE（第13、15–17章）。\\
+★★ 再以题检验 & 评价与拆分、决策树、窗口与近邻、感知机、PCA、优化器。把实验结果写成有对照的论证（第1、3、5、8、11、14、18章）。\\
+★ 最后一遍 & 用第19章公式表和一页纸闭卷复述，回查每个错题的章节与出处。\\
+\bottomrule
+\end{tabularx}
+
+\subsection{公式与推导}
+\textbf{先认任务，再写式子。} $P(y\mid x)\propto p(x\mid y)P(y)$ 来自联合概率。用后验算风险才加入损失。对 $J=n^{-1}\sum_iL_i+\lambda\Omega$ 求导，梯度写清平均的分母和惩罚对象。隐变量模型遇到 $\ln\sum_z p(x,z)$，先区分 EM 的旧后验与 VAE 的近似后验，再看可优化目标。【刘扬·3 贝叶斯判别】【刘扬·8GMM-EM p19–33】【刘扬·14VAE】
+
+\subsection{手算题型}
+答主观题用四行：\textbf{题设与记号 → 公式 → 中间量 → 结果与单位}。如 $P(A)=1/4,P(B)=3/4$，密度为 $.6,.2$，两项先验乘密度均为 $.15$，得到后验各 $1/2$。若漏判 $A$ 损失 4、漏判 $B$ 损失 1，判 $A$ 风险 $1/2$、判 $B$ 风险 2，故判 $A$。
+
+\subsection{辨析与陷阱}
+★★★ 表示明确考过或多次复现，★★ 表示常见配套，★ 表示掌握用途和条件。课件 p 是 PDF 物理页。2024 秋大题按回忆 DOCX 编号。第一套模拟主观题用 21–28，后三套按各卷题面。未留存的题干或参数不能用解答里另举的数值反填。
+
+\subsection{真题与自测}
+2020 春 A 卷完整 4 页、100 分，含选答，常问实际方案及验证。2024 秋回忆卷 60 分，5 选、10 判、9 道计算分析，尤其是 MSE、SVM、KL、AE、逆向 RNN 和 EM。2025 秋补缓考回忆卷 100 分，选择 10、判断 10、简答 80，简答5缺题干。刘远超范本 p2 可核的三题是底 10 的 KL、RNN 整句分类、Iris 高斯朴素贝叶斯。
+
+\textbf{五问五答。} ① 题给底 10？用 $\log_{10}$。② 标签只作聚类评价？训练不使用。③ 求零一损失类别？可比较未归一分数。④ 查回忆题数据不全？写符号解并标缺项。⑤ CNN 参数先数什么？核面积、输入和输出通道、偏置。
+
+\Needspace{10\baselineskip}
+\section{机器学习概述与性能评价}
+\subsection{考点、概念与出处}
+监督学习（supervised learning）从带标签样本学习预测函数，分类输出类别，回归输出数值。无监督学习（unsupervised learning）从无标签样本寻找结构，如聚类、PCA 和密度估计。半监督学习（semi-supervised learning）同时利用有标签和无标签样本，自训练可给高置信样本加伪标签。弱监督使用较粗或不完备的标注，自监督从数据构造训练目标，小样本学习强调目标任务标注少。【刘远超·2 机器学习概述 p17--20、p37--46】【2022春真题 八(1)】【2022秋真题 第1题】【2023真题 第10题】
+ 
+训练集（training set）拟合参数和预处理统计量。验证集（validation set）选超参数、阈值和停止轮次。测试集（test set）在确认模型后独立评估。留出法只拆一次。分层 \(K\) 折保持各折类别比例，每轮留一折验证，其余训练，每组超参数按折汇总。选定后可在全部非测试数据上重拟合。数据泄露（data leakage）包括全量拟合缩放参数、同一对象跨集以及用测试分数选模型。【刘远超·2 p28--34】【模拟卷一 判断11、大题27(3)】【模拟卷三 单选1】【模拟卷四 判断12】
+ 
+学习曲线（learning curve）按训练样本量比较训练与验证误差。两误差高而接近，先查未收敛、噪声或欠拟合（underfitting）。训练好而验证差，先查过拟合（overfitting）及样本分布差异。表示能力不足可增加特征或容量，方差较大可增数据、减容量或正则化。【刘远超·7 网络优化 p62--65】【刘扬·1 决策树 p17、p54、p70--80】【2022春真题 三(1)--(2)】【2024秋真题 单选1】【模拟卷四 单选8】
+ 
+分类读混淆矩阵（confusion matrix）、精确率（precision）、召回率（recall）、\(F_1\)、ROC 和 AUC。回归用均方误差（MSE）和平均绝对误差（MAE）。【刘远超·3 分类及回归问题 p9--18、p53--58】【模拟卷一 填空4】【模拟卷三 单选2--3】【模拟卷四 单选2、9】
+
+\subsection{公式与推导}
+\textbf{缩放与验证。} 标准化 \(z=(x-\mu_{\rm tr})/s_{\rm tr}\)，最小最大缩放 \(m=(x-x_{\min,\rm tr})/(x_{\max,\rm tr}-x_{\min,\rm tr})\)。每折分别拟合，测试点可落在 \([0,1]\) 外。等大折的样本平均损失取 \(\sum_k L_k/K\)，不等大折按折样本数加权。非线性指标如 \(F_1\) 须区分平均折指标和合并预测后计算。【补充】
+ 
+\textbf{偏差、方差与噪声。} 固定输入 \(x\)，令 \(f=\mathbb E[Y\mid x]\)、\(m=\mathbb E_D\hat f_D(x)\)。将误差写成 \((Y-f)+(f-m)+(m-\hat f_D)\)，前后两项均值为零且条件独立，展开后交叉项期望为零，得
+\[
+ \mathbb E[(Y-\hat f_D)^2\mid x]=(m-f)^2+\operatorname{Var}_D(\hat f_D)+\operatorname{Var}(Y\mid x).
+\]
+ 
+\textbf{混淆矩阵。} 指定正类后，真实类作行、预测类作列，正类行记 \((TP,FN)\)，负类行记 \((FP,TN)\)。
+\[
+ \mathrm{Acc}=\frac{TP+TN}{n},\quad P=\frac{TP}{TP+FP},\quad R=\frac{TP}{TP+FN},
+ \quad F_1=\frac{2PR}{P+R}=\frac{2TP}{2TP+FP+FN}.
+\]
+多类用一对其余。宏平均（macro-average）先逐类算指标再等权平均，微平均（micro-average）合并计数再计算。单标签多类中错分同时贡献一个 \(FP\) 和一个 \(FN\)，故微 \(P,R,F_1\) 均等于准确率。
+ 
+\textbf{ROC 与误差指标。} ROC 横轴 \(FPR=FP/(FP+TN)\)，纵轴 \(TPR=R\)。按分数扫阈值，同分一起进入，补 \((0,0),(1,1)\)。AUC 用梯形面积，等于正负样本对中正分数胜出的比例，同分计半胜。令 \(e_i=\hat y_i-y_i\)，MSE 为 \(\sum_i e_i^2/n\)，MAE 为 \(\sum_i|e_i|/n\)。只用常数预测时，平方损失最优为均值，绝对损失最优为中位数。
+
+\subsection{手算题型}
+\textbf{缩放。} 训练特征 \(1,5,9,13\)，验证点 15。先在训练集求 \(\mu=7,s^2=20\)（分母 4），得 \(z=4/\sqrt5\)，最小最大值为 \(7/6\)。用同一组训练统计量变换验证点。
+ 
+\textbf{混淆计数。} \((TP,FP,FN,TN)=(18,6,2,14)\)。各分母依次为 \(40,24,20,44\)，故准确率 \(0.8\)、精确率 \(0.75\)、召回率 \(0.9\)、\(F_1=36/44=9/11\)。误报率为 \(6/(6+14)=0.3\)。
+ 
+\textbf{AUC。} 正例分数为 \(0.87\)、\(0.64\)、\(0.41\)，负例为 \(0.72\)、\(0.64\)、\(0.23\)。三个正例分别胜 \(3\)、\(1.5\)、\(1\) 次，AUC 为 \(5.5/9=11/18\)。若要求折线，合并排序、按同分组更新 \(TPR,FPR\)，积分给相同结果。
+
+\subsection{辨析与陷阱}
+\begin{itemize}[nosep,leftmargin=*]
+\item 精确率分母是预测正，召回率分母是真正例。宏 \(F_1\) 先逐类计算，分母为零时用题设约定。
+\item 只用训练段求缩放、填补和特征选择参数。同一患者或同一原图的变体按组切分，趋势预测按时间切分。
+\item 降低阈值通常增加真阳性和假阳性。单调变换保持排序与整条 ROC，固定同一数值阈值的分类仍可能改变。
+\item MSE 平方后平均，MAE 对大误差较不敏感。训练目标用半平方和时，报告 MSE 仍按 \(1/n\)。
+\end{itemize}
+
+\subsection{真题与自测}
+\textbf{真题答法。} 2022 春三(1)--(2) 先说明按人群全拆分会混入域差异，且同身份不能跨集，再按目标人群分层。图仅回忆为高方差，答减容量、加正则或增代表性样本。2022 秋第 4 题可用 lab1 正弦拟合说明高阶追随噪声，验证选低阶或加岭。2024 秋判断 1 考验证集的用途，大题 2 给 \(\hat y=0.8x^2\)，两点误差绝对值均为 2，故 MSE 为 4。2025 秋补缓考单选 3 考归一化，简答 4(1) 缺原数据，简答 8(3) 为多项式过拟合。
+\begin{enumerate}[nosep,leftmargin=*]
+\item 先全量标准化再交叉验证安全吗？\textbf{答} 会泄露验证信息，各折需独立拟合变换。
+\item 训练值 \(3,7,11\)，新值 1 的 min-max？\textbf{答} \(-1/4\)。
+\item 混淆计数 \(8,5,2,15\) 按 \(TP,FP,FN,TN\) 排，求 \(F_1\)。\textbf{答} \(16/23\)。
+\item 正例分数 \(0.3,0.9\)，负例 \(0.4,0.6\)，求 AUC。\textbf{答} \(2/4=1/2\)。
+\item 误差绝对值 \(2,2,5,7\)，MSE 与 MAE？\textbf{答} \(20.5,4\)。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{概率论与信息论}
+\subsection{考点、概念与出处}
+概率质量（PMF）给离散点的概率，连续密度（PDF）由区间积分给概率，密度可超过 1。联合分布描述共现，边缘分布对其他变量求和或积分。独立是联合等于边缘的乘积，条件独立要注明给定量。【刘扬·2 概率论速通 p13--42】【模拟卷三 判断20】
+ 
+先验（prior）描述见数据前的类或参数分布，似然（likelihood）固定数据、比较不同参数对数据的支持，后验（posterior）由二者乘积归一。极大似然（MLE）最大化似然，最大后验（MAP）最大化后验。课件里的类 \(y\) 与 \(\omega_i\) 同义，贝叶斯分类比较 \(P(y)p(x\mid y)\)。【刘扬·2 p24--58】【2021深度真题 第1--2题】【模拟卷一 填空1】【模拟卷四 大题7(2)--(3)】
+ 
+信息熵（entropy）是自信息 \(-\log p\) 的期望，交叉熵（cross-entropy）是用 \(Q\) 描述 \(P\) 的平均代价，KL（Kullback--Leibler divergence）扣去真实熵。条件熵（conditional entropy）量化已知另一个变量后还剩的不确定性，互信息（mutual information）是减少量。【刘远超·7 网络优化 p4--17】【刘扬·1 决策树 p45--49】【2024秋真题 大题6】【模拟卷一 填空2--3】【模拟卷三 单选4】【模拟卷四 单选10】
+
+\subsection{公式与推导}
+\textbf{贝叶斯公式。} 互斥穷尽的 \(A_i\) 给 \(P(B)=\sum_iP(B\mid A_i)P(A_i)\)。从两种写法 \(P(A_i,B)=P(B\mid A_i)P(A_i)=P(A_i\mid B)P(B)\) 得
+\(P(A_i\mid B)=P(B\mid A_i)P(A_i)/P(B)\)，要求分母为正。
+ 
+\textbf{常见分布。} 伯努利 \(\operatorname{Ber}(p)\) 质量为 \(p^x(1-p)^{1-x}\)，均值 \(p\)，方差 \(p(1-p)\)。\(n\) 次独立相加得二项分布，质量乘组合数 \(\binom nk\)。一类标签按 \(\theta_j\) 抽样为分类分布，其重复计数为多项分布，质量 \(n!\prod_j(\theta_j^{n_j}/n_j!)\)。均匀分布在 \([a,b]\) 内密度 \(1/(b-a)\)。正态为 \(\exp[-(x-\mu)^2/(2\sigma^2)]/(\sqrt{2\pi}\sigma)\)，\(\sigma^2\) 是方差。Beta 密度正比于 \(p^{a-1}(1-p)^{b-1}\)，Dirichlet 在概率单纯形上正比于 \(\prod_j\theta_j^{a_j-1}\)。【刘扬·2 p13--23、p47--54】
+ 
+\textbf{MLE、MAP 与共轭。} 独立样本的 \(\ell(\theta)=\sum_i\ln p(x_i\mid\theta)\)。MAP 最大化 \(\ell+\ln p(\theta)\)，取负号后负对数先验是惩罚。适当尺度下，零均值高斯先验给 \(L_2\)，拉普拉斯先验给 \(L_1\)。伯努利有 \(s\) 次成功时，\(\ell'=s/p-(n-s)/(1-p)\)，故 \(\hat p=s/n\)，全成功或全失败时查端点。Beta\((a,b)\) 后验为 Beta\((a+s,b+n-s)\)，若后验形状 \(A,B>1\)，MAP 为 \((A-1)/(A+B-2)\)，预测为 \(A/(A+B)\)。Dirichlet 后验参数按类加计数。高斯负对数似然去常数为
+\[
+ n\ln v/2+\sum_i(x_i-\mu)^2/(2v),\quad v=\sigma^2.
+\]
+对 \(\mu\) 求导得 \(\hat\mu=\bar x\)，代回对 \(v\) 求导得 \(\hat v=\sum_i(x_i-\bar x)^2/n\)（离差平方和非零）。固定方差的回归同理得到最小二乘。
+ 
+\textbf{信息量。} 同一对数底 \(b>1\) 下，
+\[
+\begin{aligned}
+H(P)&=-\sum_i p_i\log_b p_i,\\
+H(P,Q)&=-\sum_i p_i\log_b q_i,\\
+D_{\rm KL}(P\Vert Q)&=\sum_i p_i\log_b(p_i/q_i)=H(P,Q)-H(P).
+\end{aligned}
+\]
+由 \(-\ln(q_i/p_i)\ge1-q_i/p_i\) 对 \(p_i>0\) 求和，KL 非负，等号当且仅当 \(P=Q\)。约定 \(0\log 0=0\)，若 \(p_i>0,q_i=0\) 则 KL 为无穷。把 \(p(x,y)=p(y)p(x\mid y)\) 代入联合熵，得 \(H(X,Y)=H(Y)+H(X\mid Y)\)，其中 \(H(X\mid Y)=\sum_y p(y)H(X\mid y)\)。因此
+\[
+ I(X;Y)=H(X)-H(X\mid Y)=H(X)+H(Y)-H(X,Y)
+       =D_{\rm KL}(p(x,y)\Vert p(x)p(y)).
+\]
+互信息对称且独立时为零。决策树的增益就是标签与切分变量的互信息。
+
+\subsection{手算题型}
+\textbf{先验到后验。} 两设备 A、B 的来源概率为 \(3/20,17/20\)，报警率为 \(4/5,1/10\)。先乘得 \(24/200,17/200\)，报警后属 A 的概率为 \(24/41\)。
+ 
+\textbf{估参。} 9 次有 7 次成功，Beta\((2,4)\) 先验。MLE \(7/9\)，累计计数得 Beta\((9,6)\)，因此 MAP \(8/13\)，下一次成功的后验预测 \(3/5\)。
+ 
+\textbf{两种对数底。} 取 \(P=(1/2,3/8,1/8)\)，\(Q=(1/4,1/2,1/4)\)。底 2 时 \(H(P)\approx1.4056\)、\(H(Q)=1.5\)、\(H(P,Q)=1+3/8+1/4=1.625\)、KL \(\approx0.2194\)。另取 \(P=(0.6,0.3,0.1)\)、\(Q=(0.3,0.3,0.4)\)，以 10 为底，KL 为 \(0.6\log_{10}2+0.1\log_{10}(1/4)=0.4\log_{10}2\approx0.1204\)。
+
+\subsection{辨析与陷阱}
+\begin{itemize}[nosep,leftmargin=*]
+\item 似然是参数的函数，通常不按参数积分归一。MAP 的众数与后验预测均值不同。高斯 MLE 的方差分母为 \(n\)，全同样本时正方差 MLE 可能不存在。
+\item 交换 \(P,Q\) 一般改变交叉熵及 KL。统一对数底，最后才舍入。\(P=Q\) 令 KL 为零，熵一般仍有正值。
+\item 联合熵来自一个联合分布，交叉熵比较同一取值表上的两个分布。条件熵先求条件分布，再按条件发生的概率加权。
+\end{itemize}
+
+\subsection{真题与自测}
+\textbf{真题答法。} 2019 秋第 1 题按子节点比例加权求信息增益。2021 秋第 2 题写分组熵及其在树切分中的用途，2022 秋第 2 题缺两属性的原分类结果。2024 秋大题 6 给 \(P=(0.1,0.3,0.6)\)、\(Q=(0.1,0.2,0.7)\)，以 2 为底求得 \(H(P),H(Q),D_{\rm KL}(P\Vert Q)\) 分别为 \(1.30,1.16,0.04\)。本次范本 p2 计算 1 用底 10，KL 为 \(0.7\log_{10}8\approx0.63\)。
+\begin{enumerate}[nosep,leftmargin=*]
+\item \(P(A)=1/5\)，事件在 A、非 A 下概率为 \(3/4,1/8\)，求后验。\textbf{答} \(3/5\)。
+\item 12 次有 3 次成功，Beta\((3,2)\) 先验。MAP？\textbf{答} Beta\((6,11)\) 众数 \(1/3\)。
+\item 高斯样本 \(1,2,6\)，求均值和方差 MLE。\textbf{答} \(3,14/3\)。
+\item \(X\) 公平二值且 \(Y=1-X\)，条件熵及互信息？\textbf{答} 两个条件熵均为 0，互信息 1 bit。
+\item \(P=(0.4,0.6)\)，\(Q=(1,0)\)，哪个方向 KL 无穷？\textbf{答} \(D_{\rm KL}(P\Vert Q)\)。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{决策树}
+\label{ch:prml-tree}
+
+\subsection{考点、概念与出处}
+决策树（decision tree）在内部节点测试特征，在叶节点输出类别或数值。一次贪心切分只比较当前候选。名义特征可按取值分路，连续特征通常用 \(x_j\le t\) 二分。单变量测试的边界轴对齐，整树可形成阶梯或分块边界。【刘扬·1机器学习（1）决策树 p23–42、57】【2019秋真题 第1题】【模拟卷四 判断11】
+
+\textbf{优先} 信息增益、阈值、剪枝。ID3 取最大信息增益。C4.5 用增益率，若题目规定先筛信息增益，按筛选后的候选比较。分类 CART 按二叉切分最小化加权基尼，回归 CART 比较平方残差和。【刘扬·1机器学习（1）决策树 p44–56、60–68】【补充·李航教材笔记“五、决策树”】【模拟卷一 填空3】【模拟卷二 选择6】【模拟卷三 选择5】【模拟卷四 选择3】
+
+\subsection{公式与推导}
+设父节点 \(n\) 个样本，\(n_c\) 为第 \(c\) 类计数，\(n_v\) 为候选切分 \(A\) 的分支人数，\(n_{vc}\) 是分支内的类计数。用以 2 为底的对数，约定 \(0\log_2 0=0\)。令 \(p_c=n_c/n,\ p_v=n_v/n\)，则
+\[
+ H(Y)=-\sum_c p_c\log_2 p_c,\qquad
+ H(Y\mid A)=\sum_v p_vH(Y\mid A=v).
+\]
+算子节点熵时类比例用 \(n_{vc}/n_v\)。由 \(p(c,v)=p_vp(c\mid v)\) 展开联合熵得 \(H(Y,A)=H(A)+H(Y\mid A)\)，故
+\[
+ \operatorname{Gain}(D,A)=H(Y)-H(Y\mid A)=I(Y;A),\qquad
+ \operatorname{GR}(D,A)=\operatorname{Gain}(D,A)/H(A).
+\]
+分支熵 \(H(A)=-\sum_vp_v\log_2p_v\)，为零则没有有效切分。编号类多值属性可能把训练样本分成纯叶，增益很大但泛化未必好。
+
+基尼不纯度 \(G(D)=1-\sum_c p_c^2\)，因为按类频率独立抽两次、同类概率为 \(\sum_c p_c^2\)。树比较 \(\sum_vp_vG(D_v)\)。回归叶的平方残差 \(\sum_i(y_i-u)^2\) 对 \(u\) 求导并置零得 \(u=\bar y\)。
+
+预剪枝限深、设最小样本量或增益阈值。后剪枝先长树，再比较子树与替成单叶的表现。代价复杂度取 \(R(T)+\alpha|L(T)|\)，令子树有 \(m>1\) 个叶，求两方案成本差，剪枝的临界值为
+\[
+ \alpha_{\mathrm{crit}}=\frac{R(\text{单叶})-R(\text{子树})}{m-1}.
+\]
+训练风险使用计数或错误率时，\(\alpha\) 的单位随之改变。【刘扬·1机器学习（1）决策树 p60–64】【补充·李航教材笔记“五、决策树”】
+
+\subsection{手算题型}
+\textbf{比较切分。} 父节点 \(6+\)、\(6-\)，属性 \(A\) 的分支为 \((5,1),(1,5)\)，属性 \(B\) 的取值分组为 \((3,0),(0,2),(3,4)\)。先算父熵 1，再算加权子熵。记二元熵为 \(h\)，则 \(A\) 的增益 \(1-h(5/6)\approx0.3500\)，分支熵 1。\(B\) 的增益 \(1-(7/12)h(3/7)\approx0.4253\)，分支熵约 \(1.3844\)。不先筛候选时，增益选 \(B\)，增益率比较 \(0.3500>0.3072\) 则选 \(A\)。分类 CART 要对 \(B\) 枚举三种取值二分，最小加权基尼为 \(1/3\)，大于 \(A\) 的 \(5/18\)。
+
+\textbf{枚举阈值。} 记录 \((1,-),(2,-),(4,+),(6,+),(8,-)\) 排序后取相邻不同值的中点 \(1.5,3,5,7\)，增益依次为 \(0.1710,0.4200,0.01997,0.1710\)。以 \(t=3\) 为例，左纯，右计数 \((2,1)\)，增益 \(h(2/5)-(3/5)h(2/3)\)。
+
+\textbf{剪枝。} 子树 3 叶、错 2 条，单叶错 6 条。比较 \(2+3\alpha\) 与 \(6+\alpha\)，临界 \(\alpha=2\)，大于 2 时剪。若按独立验证集剪枝，使用验证集上的错误数比较。
+
+\subsection{辨析与陷阱}
+\begin{itemize}[nosep]
+\item 子节点内部归一化后再按规模加权。分支熵使用分支人数，类别熵使用类别人数。
+\item 重复特征值必须进同一侧。用单变量切分可组合出 XOR，但两条轴平行线的组合不等价于单一超平面。
+\item 缺失值可按观测到的分支比例分配权重，预测缺值时聚合多支结果。MDL 比较模型编码与已知模型后的数据编码之和。【刘扬·1机器学习（1）决策树 p62、65–68】
+\end{itemize}
+
+\subsection{真题与自测}
+\textbf{真题要点} 2019 秋第 1 题定义信息增益、举例并解释轴对齐边界。第 3 题用限深、最小叶样本数或验证剪枝缓解过拟合。2021 秋第 2 题用树举例解释条件熵。2022 秋第 2 题比较两个属性，回忆未保留计数，写同父节点选最小加权条件熵即可。
+
+\begin{enumerate}[nosep]
+\item 父节点 \(5+\)、\(5-\)，子节点 \((4,0),(1,5)\) 的增益？\textbf{答} \(1-\frac6{10}h(1/6)\)。
+\item 三类比例 \(1/2,1/4,1/4\) 的基尼？\textbf{答} \(5/8\)。
+\item 候选属性只有一个取值，能否用增益率？\textbf{答} 分支熵为零，跳过。
+\item XOR 如何生长深度 2 的树？\textbf{答} 先分 \(x_1\)，再分 \(x_2\)，两侧分别输出 \(x_2,1-x_2\)。
+\item 4 叶错 4 个，单叶错 6 个，临界剪枝系数？\textbf{答} \(2/3\)。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{贝叶斯决策}
+\label{ch:prml-bayes}
+
+\subsection{考点、概念与出处}
+\textbf{优先} 从先验（prior）和类条件概率得到后验（posterior），证明最小错误率决策。能按损失矩阵求最小条件风险，推导高斯类条件的等后验边界。【刘扬·2机器学习（2）概率论速通 p26–42】【刘扬·3机器学习（3）贝叶斯判别+KNN分类器（非参数估计） p4–12】【2019秋真题 第2、4题】【2022秋真题 第5题】【模拟卷一 填空6】【模拟卷二 选择3】【模拟卷三 选择6】【模拟卷四 选择4、大题6(6、8)】
+
+\subsection{公式与推导}
+对类 \(k\)，先验 \(\pi_k=P(Y=k)\)，后验
+\[
+ \eta_k(x)=P(Y=k\mid x)=
+ \frac{\pi_kp(x\mid k)}{\sum_j\pi_jp(x\mid j)}.
+\]
+连续特征使用密度。只判类别时共享分母可消去，求后验概率时必须归一化。刘扬用 \(P(Y\mid X)\)、\(P(X\mid Y)\)。刘远超在朴素贝叶斯中写 \(P(y)\prod_iP(x_i\mid y)\)，这是类条件分解后的未归一化分子。【刘远超·3 分类及回归问题 p39】
+
+\textbf{最小错误率。} 在 \(0\)--\(1\) 损失下，给定 \(x\) 判为类 \(a\) 的错误率是 \(1-\eta_a(x)\)。逐点选最大后验即可最小化这个值，再对 \(X\) 取期望，得到总体最优 \(R^*=\mathbb E[1-\max_k\eta_k(X)]\)。
+
+\textbf{最小风险。} 【补充】损失矩阵的行为决策、列是真实类。选最小 \(R(a\mid x)=\sum_k\lambda_{ak}\eta_k(x)\) 的一行。二分类中，只有误报代价 \(c_{10}>0\)、漏报代价 \(c_{01}>0\) 时，判 1 当且仅当 \(c_{10}(1-\eta_1)<c_{01}\eta_1\)，即
+\[
+ \eta_1>\frac{c_{10}}{c_{10}+c_{01}}
+ \quad\Longleftrightarrow\quad
+ \frac{p(x\mid1)}{p(x\mid0)}>\frac{c_{10}\pi_0}{c_{01}\pi_1}.
+\]
+似然比写法要求分母为正。等号时两类风险相同。代价相等时阈值为 \(1/2\)。
+
+\textbf{高斯判别。} 去掉共用常数，取
+\[
+ g_k(x)=\ln\pi_k-\tfrac12\ln|\Sigma_k|
+             -\tfrac12(x-\mu_k)^\top\Sigma_k^{-1}(x-\mu_k).
+\]
+展开后，依次是二次项 \(-x^\top\Sigma_k^{-1}x/2\)、一次项 \(\mu_k^\top\Sigma_k^{-1}x\) 和常数。协方差矩阵相同则二次项与行列式项抵消。写
+\[
+ \Delta=g_1-g_0=(\mu_1-\mu_0)^\top\Sigma^{-1}x
+ -\tfrac12(\mu_1^\top\Sigma^{-1}\mu_1-\mu_0^\top\Sigma^{-1}\mu_0)
+ +\ln(\pi_1/\pi_0).
+\]
+在 \(0\)--\(1\) 损失下 \(\Delta=0\) 给出边界。若两类协方差不等，保留二次项 \(-x^\top(\Sigma_1^{-1}-\Sigma_0^{-1})x/2\)。两类后验均可用 \(\eta_1=1/(1+e^{-\Delta})\) 恢复。
+
+\subsection{手算题型}
+\textbf{离散决策。} 先验为 \((1/2,3/10,1/5)\)，类条件值为 \((1/4,1/2,1/4)\)。先乘得 \((5,6,2)/40\)，再归一化得后验 \((5,6,2)/13\)，最小错误率判第 2 类。若三个动作的损失行是 \((0,1,5)\)、\((2,0,5)\)、\((1,1,0)\)，逐行点乘得风险 \((16,20,11)/13\)，改选动作 3。
+
+\textbf{等协方差。} \(\mu_0=(0,0)^\top,\mu_1=(2,1)^\top\)，共享协方差 \(\left(\begin{smallmatrix}2&1\\1&2\end{smallmatrix}\right)\)，先验 \(\pi_0=3/4,\pi_1=1/4\)。先解 \(\Sigma^{-1}\mu_1=(1,0)^\top\)，再算二类差 \(\Delta=x_1-1-\ln3\)。边界 \(x_1=1+\ln3\)，点 \((2,-1)\) 的类 1 后验为 \(e/(3+e)\approx0.4754\)。
+
+\textbf{异协方差。} 一维均值同为 0，方差 1 与 4，等先验。保留归一化常数，得 \(\Delta=-\ln2+3x^2/8\)。故 \(|x|>\sqrt{(8/3)\ln2}\) 判类 1，\(x=2\) 时后验 \(e^{3/2}/(e^{3/2}+2)\approx0.6914\)。
+
+\subsection{辨析与陷阱}
+误报与漏报的代价方向先写清。等协方差可以是非对角矩阵。先验只影响高斯对数判别的常数，方差不同时仅比较马氏距离会漏掉行列式。最小错误率需要真实后验，有限样本的估计性能未必等于贝叶斯错误率。
+
+\subsection{真题与自测}
+\textbf{真题要点} 2019 秋第 2 题用条件风险加全期望证明最优，第 4 题写共协方差边界和 Sigmoid 后验。2022 秋第 5 题解释二次项抵消。2021 深度第 1 题癌症案例、2022 春一(1)、2023 第 1 题均考贝叶斯判别，回忆缺原数据，能确认的答法是先验乘似然、归一化后再按题定风险规则判别。
+
+\begin{enumerate}[nosep]
+\item 先验 \(P(1)=1/5\)，两似然 \(p(x\mid1)=4/5,\ p(x\mid0)=1/10\)。\textbf{答} \(\eta_1=2/3\)，误报代价 3、漏报 1 时判 0。
+\item 后验 \((0.2,0.5,0.3)\) 的最优条件错误率？\textbf{答} \(0.5\)。
+\item 一维均值 \(-1,3\)，同方差同先验，边界何在？\textbf{答} \(x=1\)。
+\item 一维均值 \(0,2\)，方差均为 1，先验 \(3/4,1/4\)。\textbf{答} 分界 \(1+\tfrac12\ln3\)。
+\item 整列损失加同一常数会改变最优动作吗？\textbf{答} 不会，各动作风险都增加同一个加权常数。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{非参数估计与 KNN}
+\label{ch:prml-knn}
+
+\subsection{考点、概念与出处}
+非参数估计直接利用数据附近的样本，不预设固定的有限维分布族。Parzen 窗固定带宽，KNN 密度估计固定近邻数 \(k\)，KNN 分类保存标签并对近邻投票。重点是窗口体积、距离排序、\(k\) 与偏差方差、维数灾难和 1-NN 渐近上界。【刘扬·3机器学习（3）贝叶斯判别+KNN分类器（非参数估计） p13–35】【2025秋补缓考 真题单选1、判断3】【模拟卷一 大题23(1)】【模拟卷二 大题3(1–3)】【模拟卷三 选择7、大题3(1–3)】【模拟卷四 选择5、8、大题3(1)】
+
+\subsection{公式与推导}
+含 \(k_R\) 条样本的局部窗 \(R\) 体积为 \(V\)。经验上 \(P(X\in R)\approx k_R/n\)，密度在窗内变化不大时又近似为 \(p(x)V\)，故 \(\hat p(x)=k_R/(nV)\)。固定 \(V\) 就是矩形窗，固定 \(k_R=k\) 并让 \(V\) 随第 \(k\) 近邻变化就是 KNN 密度。一维半宽 \(r\) 对应窗长 \(2r\)，二维圆窗对应 \(\pi r^2\)。
+
+对积分为 1 的基核 \(K\)，\(u=(x-x_i)/h\) 的变量代换给出归一化因子 \(h^{-d}\)：
+\[
+ \widehat p_h(x)=\frac1{nh^d}\sum_i K((x-x_i)/h),\qquad
+ K_{\mathrm G}(u)=(2\pi)^{-d/2}\exp(-\|u\|^2/2).
+\]
+用 \(K=\mathbf1\{\|u\|_\infty\le1/2\}\) 时退化为边长 \(h\) 的矩形核。固定共用的整体近邻窗，类 \(c\) 有 \(n_c\) 个训练点，窗内有 \(k_c\) 个，则
+\[
+ \hat p(x\mid c)\hat P(c)=\frac{k_c}{n_cV}\frac{n_c}{n}
+ =\frac{k_c}{nV},\qquad \hat P(c\mid x)=k_c/k.
+\]
+等权取最大票即比较此局部后验。加权时先找邻居，再按给定规则累加同类票重。
+
+Minkowski 距离为 \((\sum_j|u_j-v_j|^p)^{1/p}\)。\(p=1,2,\infty\) 分别对应曼哈顿、欧氏和最大坐标差。汉明距离计不同位置数。马氏距离平方为 \((u-v)^\top\Sigma^{-1}(u-v)\)（\(\Sigma\) 正定）。单位长度向量的欧氏距离平方为 \(2(1-\cos\theta)\)，因此与按余弦相似度排序等价。【刘扬·3机器学习（3）贝叶斯判别+KNN分类器（非参数估计） p14、22–23】
+
+\textbf{复杂度趋势。} \(k\) 或带宽过小容易追随噪声，方差大。过大则会抹平局部差异，偏差大。均匀数据的完整 \(d\) 维立方窗若要覆盖固定比例 \(q\)，其边长 \(q^{1/d}\) 随维数升高趋近 1，收集足够邻居往往会牺牲局部性。【刘扬·3机器学习（3）贝叶斯判别+KNN分类器（非参数估计） p34】【补充·单位立方体例】
+
+\textbf{1-NN 上界。} 若样本独立同分布、近邻趋近查询点且后验连续，两标签给定 \(x\) 时渐近独立同分布。记 \(m=\max_c\eta_c(x)\)，条件错误率 \(1-\sum_c\eta_c(x)^2\le1-m^2\le2(1-m)\)。对 \(X\) 取期望得 \(R_{1\mathrm{NN}}\le 2R^*\)，结论不保证任意有限训练集。【刘扬·3机器学习（3）贝叶斯判别+KNN分类器（非参数估计） p18】
+
+\subsection{手算题型}
+\textbf{矩形窗与近邻密度。} 对 \(\{-3,-1,0,2,5\}\) 在 \(x=1/4\) 查询。半宽 2 的固定窗有 3 条记录，密度 \(3/(5\cdot4)=3/20\)。第 2 近邻半径为 \(5/4\)，密度 \(2/[5(5/2)]=4/25\)。
+
+\textbf{高斯 Parzen。} 一维样本 \(-2,0,3\)，查询 1，取 \(h=1\)。平方距离为 \(9,1,4\)，结果 \((e^{-9/2}+e^{-1/2}+e^{-2})/(3\sqrt{2\pi})\approx0.1001\)。
+
+\textbf{分类投票。} 查询 \((1,1)\)，训练点 \((1,2),(3,1),(1,4),(5,2)\) 的标签依次 \(+,-,-,+\)。欧氏距离平方为 \(1,4,9,17\)，\(k=3\) 取前三点，多数票判负。用 \(1/d^2\) 加权，正票为 1、负票为 \(1/4+1/9\)，改判正。
+
+\subsection{辨析与陷阱}
+窗半宽和窗长差一倍。近邻密度要除总样本数与体积，分类票数则用 \(k\) 归一化。标准化统计量只能来自训练数据。边界并列或加权遇零距离，应先说明规则。奇数 \(k\) 不能消除多分类票数平局。留一验证时不要把查询样本本身放回索引。
+
+\subsection{真题与自测}
+\textbf{真题要点} 2025 秋补缓考单选第 1 题只保留一条选项：典型情况下 \(k\) 小更易追随训练噪声。判断第 3 题把增大 \(k\) 时的偏差、方差方向写反。两题按平滑程度解释即可。2020 春 A 卷 1.1(2) 可自行选 KNN，需交代特征、投票和查询成本。
+
+\begin{enumerate}[nosep]
+\item 二维第 3 近邻距离 2，训练集 8 条。密度？\textbf{答} \(3/(32\pi)\)。
+\item 一维固定窗长为 3、命中 2 条，总数 9。密度？\textbf{答} \(2/27\)。
+\item \(R^*=0.14\)，给出 1-NN 渐近二倍上界。\textbf{答} \(0.28\)。
+\item 坐标差为 2、4，训练标准差为 \(1/2,4\)。标准化后欧氏距离平方？\textbf{答} 17。
+\item 近邻有两个同类零距离点，如何用距离权重？\textbf{答} 规定只在零距离点间投票。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{朴素贝叶斯}
+\label{ch:prml-nb}
+
+\subsection{考点、概念与出处}
+\textbf{优先} 联合条件独立、离散平滑和多特征高斯估计。多项式、伯努利和高斯模型分别使用词元次数、含词文档数、类内每维高斯密度。可按特征混合使用。会计算对数得分、归一化后验和判别边界。【刘远超·3 分类及回归问题 p39–50】【刘扬·4机器学习（4）朴素贝叶斯 p2–18、19–28、34】【2021秋机器学习真题 第3题】【模拟试题范本 2026-11-3 p2 第三部分第3题】【模拟卷一 大题26】【模拟卷二 大题6】【模拟卷三、四 大题6】
+
+\subsection{公式与推导}
+给定类别 \(c\)，朴素贝叶斯（naive Bayes, NB）假设 \(p(x\mid c)=\prod_jp(x_j\mid c)\)。离散联合表的自由参数从 \(\prod_jm_j-1\) 减为 \(\sum_j(m_j-1)\)，\(m_j\) 为第 \(j\) 列可能水平数。类先验通常按样本数 \(P(c)=N_c/N\) 估计。比较类别用
+\[
+ s_c=\ln P(c)+\sum_j\ln p(x_j\mid c),\qquad
+ P(c\mid x)=\frac{e^{s_c-M}}{\sum_{c'}e^{s_{c'}-M}},\quad M=\max_c s_c .
+\]
+取对数防止连乘下溢。减最大分数后，最大的指数项为 1。
+
+对事件计数 \(n_v\)，约束 \(\sum_v\theta_v=1\)，令 \(\sum_vn_v\ln\theta_v-\lambda(\sum_v\theta_v-1)\) 的导数为零，得 \(n_v/\theta_v=\lambda\)，求和后 \(\theta_v=n_v/n\)。加对称 Dirichlet 先验后，后验预测 \((n_v+\alpha)/(n+\alpha m)\)。\(\alpha=1\) 是 Laplace 平滑，\(0<\alpha<1\) 常称 Lidstone 平滑。某属性的分母使用 \(N_c+\alpha m_j\)。该后验预测与同先验下的 MAP 不同。
+
+\begin{itemize}[nosep]
+\item \textbf{多项式。} 刘远超记 \(N_{yi}\) 为词 \(i\) 在类 \(y\) 的总次数，\(N_y\) 为该类总词元数，\(n\) 为词表大小。条件概率 \(\theta_{yi}=(N_{yi}+\alpha)/(N_y+\alpha n)\)。测试词频为 \(t_i\)，加 \(t_i\ln\theta_{yi}\)。多项式计数组合系数各类相同，可消去。
+\item \textbf{伯努利。} 类 \(y\) 有 \(D_y\) 篇文档，其中 \(D_{yi}\) 篇含词 \(i\)。加一出现率 \(q_{yi}=(D_{yi}+1)/(D_y+2)\)。按出现指示 \(z_i\in\{0,1\}\)，加 \(z_i\ln q_{yi}+(1-z_i)\ln(1-q_{yi})\)。每篇的重复词不增加指示。
+\item \textbf{高斯。} 一维 \(m\) 个值 \(u_i\)，对数似然为 \(-m\ln(2\pi v)/2-\sum_i(u_i-\mu)^2/(2v)\)。先对 \(\mu\) 求导得 \(\hat\mu=\bar u\)，代回再对 \(v\) 求导得 \(\hat v=\sum_i(u_i-\bar u)^2/m\)。各维分别代入对数密度 \(-\tfrac12[\ln(2\pi v)+(x_j-\mu)^2/v]\)。若同一维跨类共享 \(v_j\)，对数赔率的 \(x_j^2\) 项消去，一次项系数是 \((\mu_{1j}-\mu_{0j})/v_j\)。
+\end{itemize}
+
+\subsection{手算题型}
+\textbf{表格平滑。} 两类各 4 条，两个类别属性各 3 种可能水平。待测两取值在 A 类下的计数是 \(3,0\)，B 类为 \(1,2\)。取 \(\alpha=1/2\)，两类先验相同。先平滑，A 类两因子为 \(7/11,1/11\)，B 类为 \(3/11,5/11\)。相乘并归一化，B 后验为 \(15/22\)。
+
+\textbf{多项式与伯努利。} 词表“水、温、阀、泵”。A、B 各有 3、2 篇，词频为 \((6,2,0,2),(1,3,3,1)\)，含词文档数为 \((3,2,0,1),(1,2,2,1)\)。测试“水、水、阀”，加一平滑。多项式 A、B 得分是 \(\frac35(7/14)^2(1/14)=3/280\)、\(\frac25(2/12)^2(4/12)=1/270\)，判 A。伯努利用存在向量 \((1,0,1,0)\)，两类的因子分别为 \((4,2,1,3)/5\)、\((2,1,3,2)/4\)。乘先验得 \(72/3125,3/160\)，也判 A。
+
+\textbf{高斯。} A 类 \((0,1)\)、\((2,1)\)、\((1,-1)\)、\((1,3)\)，均值 \((1,1)\)、方差 \((1/2,2)\)。B 类 \((2,2)\)、\((4,2)\)、\((2,4)\)、\((4,4)\)，均值 \((3,3)\)、方差 \((1,1)\)。等先验，测试 \((2,2)\)。两类方差乘积相同，标准化平方残差和分别 \(5/2,2\)。故 B 类对数优势 \(1/4\)，后验 \(1/(1+e^{-1/4})\approx0.5622\)。
+
+\subsection{辨析与陷阱}
+先验分母用样本数。多项式分母用词元数。伯努利分母用文档数。伯努利缺词乘 \(1-q\)，多项式缺词不贡献。高斯方差 MLE 除 \(m\)，零方差需另作下限处理。NB 拟合 \(P(Y)\)、\(p(X\mid Y)\)，逻辑回归直接拟合 \(P(Y\mid X)\)。重复的相关特征会放大证据，分类正确时后验也未必校准。【刘扬·4机器学习（4）朴素贝叶斯 p18】【刘扬·5机器学习（5）逻辑回归+SVM p2–7】
+
+\subsection{真题与自测}
+\textbf{真题要点} 2021 秋第 3 题写联合条件独立，说明参数量下降。仅当假设成立且使用真实或一致估计的分布时，最大后验才达到贝叶斯最优或渐近最优。2026-11-3 范本第三部分第 3 题：鸢尾花每类 50 条，先验均 \(1/3\)。对给定的第 3 维 \(2.5\)，写 \(p(2.5\mid Y=2)\) 的一维高斯密度，均值与方差用类 2 的该维数据估计。
+
+\begin{enumerate}[nosep]
+\item 类内 20 个词元，词表 5 词，缺词加一概率？\textbf{答} \(1/25\)。
+\item 6 篇中 2 篇含词，加一伯努利缺席因子？\textbf{答} \(5/8\)。
+\item 两类对数得分 \(-103,-105\)，第二类后验？\textbf{答} \(1/(1+e^2)\)。
+\item 类内连续值 \(-2,0,2\)，高斯 MLE？\textbf{答} 均值 0、方差 \(8/3\)。
+\item 两类同维方差为 2，均值 3 和 1。对数赔率中该维一次、二次项系数？\textbf{答} 1、0。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{线性回归、多项式回归与逻辑回归}
+\subsection{考点、概念与出处}
+线性回归（linear regression）以 \(\hat y=\bm w^\top\bm x+b\) 预测实数。多项式回归（polynomial regression）将输入改为 \(1,x,\ldots,x^m\)，预测关于输入可非线性，关于系数仍线性。训练拟合后用验证集选阶数。岭回归（ridge regression）用平方范数收缩系数，Lasso 用绝对值和并可得到精确零值。【刘远超·3 分类及回归问题 p59--80】【刘扬·1 决策树 p70--80】【实验 lab1】【2024秋真题 大题1--2】【模拟卷一 大题27】【模拟卷三 大题7(1)--(7)】【模拟卷四 大题7(1)--(5)】
+ 
+逻辑回归（logistic regression）把线性分数送入 Sigmoid，得到类别条件概率。互斥多类用 softmax 回归（softmax regression），按交叉熵（cross-entropy）估参。刘远超常将截距并入 \(\bm\theta\)，刘扬用条件对数似然（MCLE）描述同一拟合，最大化它等于最小化交叉熵和。【刘远超·3 p83--85、7 网络优化 p24--25】【刘扬·5 逻辑回归+SVM p1--18】【刘扬·10 前馈神经网 p17--18、p26】【实验 lab2】【2019秋真题 第5题】【2021秋真题 第7题】【2024秋真题 大题3】【模拟卷二 大题7(6)--(8)】【模拟卷四 大题7(6)--(10)】
+
+\subsection{公式与推导}
+\textbf{最小二乘。} \(X\) 每行一个样本，含截距时加常数列。半平方和
+\[
+ J=\tfrac12\|X\bm\theta-\bm y\|^2,\quad
+ \nabla J=X^\top(X\bm\theta-\bm y),\quad X^\top X\widehat{\bm\theta}=X^\top\bm y .
+\]
+梯度来自展开为 \(\bm\theta^\top X^\top X\bm\theta/2-\bm y^\top X\bm\theta+\bm y^\top\bm y/2\)。对任意 \(\bm h\)，Hessian 的二次型是 \(\|X\bm h\|^2\ge0\)，故驻点全局最优。满列秩时解唯一，秩亏时可用广义逆。若 \(y_i\) 的独立高斯噪声为 \(\mathcal N(0,\sigma^2)\)，负对数似然是常数加 \(\mathrm{SSE}/(2\sigma^2)\)，故 MLE 等价于最小二乘。
+ 
+\textbf{正则与先验。} 岭的目标加 \(\lambda\bm\theta^\top R\bm\theta/2\)，导数加 \(\lambda R\bm\theta\)，故解 \((X^\top X+\lambda R)\widehat{\bm\theta}=X^\top\bm y\)。\(R=I\) 为全罚，截距不罚时将首对角元改零。高斯先验方差 \(\tau^2\) 的负对数罚平方，乘数据噪声方差后 \(\lambda=\sigma^2/\tau^2\)。尺度 \(s\) 的拉普拉斯先验罚绝对值，对应 \(\mathrm{SSE}/2+\lambda\|\bm w\|_1\) 中的 \(\lambda=\sigma^2/s\)。若数据项再除 \(n\)，保持原目标的解需惩罚系数同除 \(n\)。
+ 
+对标量 \(\tfrac a2(w-z)^2+\lambda|w|\)，\(a>0\)，在两半轴令导数 \(a(w-z)\pm\lambda=0\)，在零点检查 \(-az+\lambda[-1,1]\) 是否含零，得软阈值 \(w^\star=\operatorname{sign}(z)\max(|z|-\lambda/a,0)\)。【补充】
+ 
+\textbf{二类梯度。} \(a=\bm w^\top\bm x+b,\ p=(1+e^{-a})^{-1}\)。二元交叉熵（BCE）为 \(L=-y\ln p-(1-y)\ln(1-p)\)，将 \(-y/p+(1-y)/(1-p)\) 乘 \(p(1-p)\) 得 \(\partial L/\partial a=p-y\)。权重梯度 \((p-y)\bm x\)，偏置梯度 \(p-y\)。批量归约按题设。以概率 \(t\) 判正，边界为 \(a=\ln(t/(1-t))\)。
+ 
+严格线性可分时，若某组参数的有符号间隔 \(m_i>0\)，沿该方向放大 \(c>0\) 得 \(L(c)=\sum_i\ln(1+e^{-cm_i})\downarrow0\)，有限参数的损失始终大于零，故未正则 MLE 不存在有限解。【补充】【模拟卷三 大题7(9)--(10)】
+ 
+\textbf{多类梯度。} 若类别对应 \(W\) 的行，\(\bm a=W\bm x+\bm b\)，\(p_k=e^{a_k}/\sum_j e^{a_j}\)。由 one-hot 标签和为 1，
+\[
+ L=\ln\sum_j e^{a_j}-\sum_k y_ka_k,\qquad
+ \nabla_{\bm a} L=\bm p-\bm y,\qquad \nabla_W L=(\bm p-\bm y)\bm x^\top .
+\]
+偏置梯度为 \(\bm p-\bm y\)。所有分数同加常数时因公因子抵消，概率不变。可先减最大 logit 防溢出。\(\ln(p_j/p_k)=a_j-a_k\)。
+
+\subsection{手算题型}
+\textbf{正规方程。} 样本 \((-2,0)\)、\((0,1)\)、\((1,5)\)。加常数列后，\(X^\top X\) 的两行为 \((3,-1),(-1,5)\)，右侧为 \((6,5)^\top\)。解得 \(b=5/2,w=3/2\)，残差为 \(-1/2,3/2,-1\)，MSE 为 \(7/6\)。
+ 
+\textbf{岭与 Lasso。} 截距固定为零，\(X^\top X=\operatorname{diag}(2,4)\)，\(X^\top\bm y=(2,12)^\top\)。最小二乘解为 \((1,3)\)。岭 \(\lambda=2\) 得 \((1/2,2)\)。Lasso \(\lambda=5/2\) 时曲率为 \(2,4\)，阈值为 \(5/4,5/8\)，故 \((0,19/8)\)。
+ 
+\textbf{Softmax。} 分数为 \((\ln2,\ln5,\ln3)\)，真实类 1，输入 \((-1,4)^\top\)。概率为 \((1/5,1/2,3/10)\)，损失 \(\ln5\)，分数梯度为 \((-4/5,1/2,3/10)\)。如需第 3 行权重梯度，将 \(3/10\) 乘输入转置，得 \((-3/10,6/5)\)。
+
+\subsection{辨析与陷阱}
+\begin{itemize}[nosep,leftmargin=*]
+\item 多项式高阶可使最优训练误差不增，泛化仍靠独立验证。含截距的设计矩阵不重复加偏置。
+\item SSE、半平方和与 MSE 的梯度倍数不同。岭闭式解检查矩阵可逆性。一般相关特征下，Lasso 不能独立对 OLS 每个坐标套同一阈值。
+\item 逻辑回归的概率非线性，固定阈值在输入特征空间仍给仿射边界。Sigmoid+BCE 的 \(p-y\) 不能直接用于 Sigmoid+MSE。
+\end{itemize}
+
+\subsection{真题与自测}
+\textbf{真题答法。} 2019 秋第 5 题写逻辑回归目标，交叉熵的两个分布是 \((1-y,y)\) 与 \((1-p,p)\)。2021 秋第 1、7 题说明负对数先验变惩罚，以及 \(p\ge1/2\Leftrightarrow a\ge0\)。2022 秋第 6 题对照逻辑回归 log 损失和 SVM 合页损失。2024 秋大题 1 若采用 SSE，梯度为 \(2X^\top(X\theta-y)\)，大题 2 的两点测试 MSE 为 4，大题 3 比较实数与概率输出。2025 秋补缓考简答 4 的原 MSE 数据缺失，简答 8 写 \(2n^{-1}\sum_i(\hat y_i-y_i)\nabla\hat y_i\)，用对噪声的高阶拟合解释过拟合。
+\begin{enumerate}[nosep,leftmargin=*]
+\item \((1,2),(2,6)\) 的最小二乘直线？\textbf{答} \(y=4x-2\)。
+\item \(X^\top X\) 何时不可逆？\textbf{答} \(X\) 列秩不足。
+\item 目标 \(2(w-1/3)^2+2|w|\) 的最优 \(w\)？\textbf{答} 阈值 \(1/2\)，故为零。
+\item 某点 logit \(\ln4\)、\(y=0,x=2\)，求 BCE 权重梯度。\textbf{答} \(8/5\)。
+\item 三类指数分数 \(1,2,7\)，真实类第三，交叉熵？\textbf{答} \(\ln(10/7)\)。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{感知机}
+\subsection{考点、概念与出处}
+感知机（perceptron）用仿射得分 \(f(\bm x)=\bm w^\top\bm x+b\) 的符号判二类，通常标签为 \(\pm1\)。函数间隔是 \(y_if(\bm x_i)\)，带符号几何间隔再除以 \(\|\bm w\|\)。刘远超课件中零分可判 \(+1\)，本章训练在 \(y_if(\bm x_i)\le0\) 时更新，预测零分规则和训练触发须分别确认。电路题常改用 \(H(s)=[s\ge0]\) 给 \(0,1\) 输出。【刘远超·6 感知机模型 p5、p8--19】【刘扬·10 前馈神经网 p4--14】【2025秋补缓考真题 判断1、简答1】【模拟卷二 大题7(9)】
+ 
+原始形式维护权重和偏置。对偶形式（dual form）维护样本更新次数，以 Gram 内积算得分。可分数据在正间隔、有界输入等条件下满足 Novikoff 收敛界。感知机只能给线性分界，异或（XOR）需先构造非线性表示或使用多层阈值网络。【李航教材笔记·二 感知机】【刘远超·6 p12--13】【模拟卷三 单选10】【模拟卷四 大题2(1)--(2)】误分界完整证明【补充】。
+
+\subsection{公式与推导}
+\textbf{原始更新。} 对 \(y_if_i<0\)，误分侧损失 \(-y_if_i\) 关于 \((\bm w,b)\) 的梯度是 \((-y_i\bm x_i,-y_i)\)。用次梯度约定零间隔也更新，则
+\[
+ \bm w\gets\bm w+\eta y_i\bm x_i,\qquad b\gets b+\eta y_i.
+\]
+更新使当前样本间隔增加 \(\eta(\|\bm x_i\|^2+1)\)。这条目标由函数间隔定义，没有几何距离中的范数分母。
+ 
+\textbf{对偶展开。} 零初值、固定 \(\eta\) 下，若样本 \(j\) 被更新 \(m_j\) 次，令 \(\alpha_j=\eta m_j\)，就有
+\[
+ \bm w=\sum_j\alpha_jy_j\bm x_j,\quad b=\sum_j\alpha_jy_j,\quad
+ f(\bm x_i)=\sum_j\alpha_jy_j G_{ji}+b,\quad G_{ji}=\bm x_j^\top\bm x_i.
+\]
+触发更新时只加 \(\alpha_i\) 与 \(b\)。如果内积表已用增广向量 \(\tilde{\bm x}_i=(\bm x_i^\top,1)^\top\)，每格已加 \(1\)，直接用扩展内积并省去单独偏置项。
+ 
+\textbf{收敛。} 用增广向量，把偏置并入 \(\bm u\)，从零开始。假设 \(\|\tilde{\bm x}_i\|\le R\)，存在单位分离向量 \(\bm u_\star\) 使 \(y_i\bm u_\star^\top\tilde{\bm x}_i\ge\gamma>0\)。每次更新 \(\bm u^\top\bm u_\star\) 至少加 \(\eta\gamma\)。由于仅在当前有符号间隔非正时更新，
+\[
+ \|\bm u^+\|^2=\|\bm u\|^2+2\eta y_i\bm u^\top\tilde{\bm x}_i+\eta^2\|\tilde{\bm x}_i\|^2
+ \le\|\bm u\|^2+\eta^2R^2.
+\]
+\(M\) 次后，柯西--施瓦茨给 \(M\eta\gamma\le\|\bm u_M\|\le\eta R\sqrt M\)，故 \(M\le(R/\gamma)^2\)。
+ 
+\textbf{异或。} 正类 \((1,0),(0,1)\) 与负类 \((0,0),(1,1)\) 的中点相同，仿射得分在中点是两个端点均值，不可能同时给正、负号。令 \(h_1=H(r_1+r_2-0.5)\)、\(h_2=H(r_1+r_2-1.5)\) 分别为或、与，\(H(h_1-h_2-0.5)\) 当且仅当一个输入为 1 时输出 1。
+
+\subsection{手算题型}
+\textbf{逐点原始更新。} 依序用负类 \(A=(-1,0)\)，正类 \(B=(1,2),C=(2,-1)\)，步长 \(1/2\)，零初值。A 触发后为 \((\bm w,b)=((1/2,0),-1/2)\)，B 得分 0，更新成 \(((1,1),0)\)，C 得分 1 不更新。三点最终有符号间隔 \(1,3,1\)，下一整轮无需更新。对偶记 \(\alpha=(1/2,1/2,0)\)，代回给同一参数。
+ 
+\textbf{收敛界。} \((-3,1)\) 为负类，\((2,0),(1,2)\) 为正类。取增广单位向量 \((1,0,0)^\top\)，三点间隔 \(3,2,1\)，故 \(\gamma=1\)。增广范数平方为 \(11,5,6\)，总更新次数至多 \(11\)。
+
+\subsection{辨析与陷阱}
+\begin{itemize}[nosep,leftmargin=*]
+\item 感知机纠正误分，逻辑回归拟合条件概率，硬间隔 SVM 显式选择最大几何间隔。收敛界不意味着解唯一或间隔最大。
+\item 更新中标签必须用 \(\pm1\)，直接把负类编码为 \(0\) 会令它不更新。若改用 \(0,1\) 阈值网络，先按真值表检查四组输入。
+\item 分离点顺序可能改变中间值和最终参数。Novikoff 的 \(R,\gamma\) 须使用同一个空间及同一单位向量约束，不可混用普通和增广范数。
+\end{itemize}
+
+\subsection{真题与自测}
+\textbf{真题答法。} 2022 春四(1) 问浅层到深层，写多层非线性增加表示能力，再给三项能缓解训练困难的手段，例如 ReLU、方差匹配的初始化和残差路径。2025 秋补缓考判断 1 可用 XOR 否定单感知机能拟合所有非线性数据。简答 1(1) 比较仿射打分、符号与概率及训练目标，1(2) 的标准最大间隔规划由硬间隔 SVM 给出。
+\begin{enumerate}[nosep,leftmargin=*]
+\item \(\bm w=(0,1),b=0\)，输入 \((2,3)\) 标签为 \(-1\)，步长 \(1/3\)。\textbf{答} \(\bm w^+=(-2/3,0),b^+=-1/3\)。
+\item 正样本 \((2,-1)\) 更新 3 次，步长 \(1/4\)。\textbf{答} \(\alpha=3/4\)，权重贡献 \((3/2,-3/4)\)。
+\item \(R=3,\gamma=3/4\) 的上界？\textbf{答} 16 次更新。
+\item \(H(-r_1-r_2+1.5)\) 是何门？\textbf{答} 与非（NAND）。
+\item 增广内积为 7，原输入内积？\textbf{答} 6。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{支持向量机}
+\label{ch:prml-svm}
+
+\subsection{考点、概念与出处}
+\textbf{优先} 支持向量机（support vector machine, SVM）的硬间隔、软间隔、对偶与 KKT、合页损失和核技巧。标签 \(y_i\in\{-1,+1\}\)，得分 \(f(x)=w^\top x+b\)，中心超平面 \(f=0\)。函数间隔 \(m_i=y_if(x_i)\)，带符号的几何间隔 \(m_i/\|w\|\)。刘远超 p24 先介绍无符号点线距离 \(|f(x_i)|/\|w\|\)，训练仍用带标签的量。【刘远超·3 分类及回归问题 p22–35】【刘扬·5机器学习（5）逻辑回归+SVM p23–57】【2021秋真题 第5题】【2024秋真题 大题4–5】【2025秋补缓考 真题简答3】【模拟卷一 大题22】【模拟卷二、三、四 大题2】
+
+\subsection{公式与推导}
+\textbf{硬间隔。} 沿 \(w\) 从 \(x\) 移到 \(x-\lambda w\)，令后者得分为零，得 \(\lambda=f(x)/\|w\|^2\)，点线距离即 \(|f(x)|/\|w\|\)。严格线性可分时，同除 \(w,b\) 以最小正函数间隔，将其规范为 1。两条间隔边界 \(f=\pm1\)，总宽 \(2/\|w\|\)，故原问题为
+\[
+ \min_{w,b}\tfrac12\|w\|^2,\qquad m_i\ge1.
+\]
+对 \(1-m_i\le0\) 加 \(\alpha_i\ge0\)。拉格朗日函数 \(L=\|w\|^2/2+\sum_i\alpha_i(1-m_i)\)，对 \(w\) 驻点给 \(w=\sum_i\alpha_i y_i x_i\)。因 \(b\) 无惩罚，关于 \(b\) 的下确界有限要求 \(\sum_i\alpha_i y_i=0\)。把 \(w\) 的表达式代回，平方项合为 \(-\|w\|^2/2\)，得
+\[
+ \max_\alpha\ \sum_i\alpha_i-\tfrac12\sum_{ij}
+   \alpha_i\alpha_jy_iy_jx_i^\top x_j,\qquad
+ \alpha_i\ge0,\quad \sum_i\alpha_i y_i=0.
+\]
+严格可行的凸问题有强对偶。硬间隔互补松弛是 \(\alpha_i(m_i-1)=0\)，非零乘子的样本参与决策，且贴在间隔边界上。退化时贴边点可以有零乘子。
+
+\textbf{软间隔。} 目标 \(\|w\|^2/2+C\sum_i\xi_i\)，约束 \(m_i\ge1-\xi_i,\ \xi_i\ge0\)。固定 \(w,b\) 时最优 \(\xi_i=\max(0,1-m_i)\)，代回得合页损失加平方范数。再对 \(-\xi_i\le0\) 加 \(\beta_i\ge0\)。拉格朗日函数中的 \(\xi_i\) 系数是 \(C-\alpha_i-\beta_i\)，令它为零得 \(0\le\alpha_i\le C\)，对偶目标和等式不变。两条互补松弛为
+\[
+ \alpha_i(m_i-1+\xi_i)=0,\qquad (C-\alpha_i)\xi_i=0.
+\]
+\(0<\alpha_i<C\) 给 \(m_i=1\)，用 \(b=y_i-w^\top x_i\) 恢复偏置。\(\alpha_i=C\) 给 \(m_i\le1\)。\(\alpha_i=0\) 给 \(m_i\ge1\)。全在盒边界时，由这些等式、不等式求 \(b\) 的可行区间。
+
+\textbf{核技巧。} \(x_i^\top x_j\) 换为 \(K(x_i,x_j)=\langle\phi(x_i),\phi(x_j)\rangle\)，分类得分为 \(\sum_i\alpha_i y_iK(x_i,x)+b\)。核矩阵应半正定，因为 \(a^\top G a=\|\sum_i a_i\phi(x_i)\|^2\ge0\)。常用线性核 \(x^\top z\)，多项式核 \((1+x^\top z)^p\)，RBF 核 \(\exp[-\|x-z\|^2/(2\sigma^2)]\)。刘扬 p56 的高斯核是 \(\sigma=1\) 的特例，刘远超 p35 保留 \(\sigma\)。
+
+\subsection{手算题型}
+\textbf{硬间隔与对偶。} 负点 \((-1,0),(-3,-2)\)，正点 \((2,1),(4,2)\)。取最近候选对之差 \(u=(3,1)\)。任何可行解都有 \(w^\top u\ge2\)，故 \(\|w\|\ge2/\sqrt{10}\)。取 \(w=2u/\|u\|^2=(3/5,1/5),b=-2/5\)。四点间隔依次 \(1,13/5,1,12/5\)，可行并达到下界。第一、第三点的乘子同为 \(1/5\)，其余为零。原始与对偶目标均 \(1/5\)。
+
+\textbf{软间隔核验。} 数据为 \((-3,-1),(0,+1),(2,-1)\)，\(C=2/5\)。令两端负例贴边，得 \(w=0,b=-1,\xi=(0,2,0)\)。中点有松弛，\(\alpha_2=C\)。等式约束给 \(\alpha_1+\alpha_3=C\)，驻点给 \(3\alpha_1-2\alpha_3=0\)，解得 \((4/25,2/5,6/25)\)。原始、对偶均可行且目标同为 \(4/5\)，故最优。
+
+\textbf{核分类。} 输入 \(-2,0,2\) 的标签 \(+,-,+\)，核 \(K(x,z)=(xz)^2\)。在映射 \(\phi(x)=x^2\) 中，训练坐标为 \(4,0,4\)。约束给 \(b\le-1,4w+b\ge1\)，取最小范数 \(w=1/2,b=-1\)。在原空间 \(f(x)=x^2/2-1\)，测试 \(1,\sqrt3\) 分别判负、正。
+
+\subsection{辨析与陷阱}
+\(1/\|w\|\) 是单侧间隔，\(2/\|w\|\) 才是总宽。\(0<\xi_i<1\) 仍分对，\(\xi_i=1\) 在决策面，\(\xi_i>1\) 才在错误一侧。盒上界乘子不必对应误分或贴边。增大 \(C\) 通常更重视违反量，不能据此断定误分个数必然单调。核改变特征，软间隔放松约束。感知机按误分更新，逻辑回归拟合后验，标准硬间隔 SVM 显式最大化几何间隔。
+
+\subsection{真题与自测}
+\textbf{真题要点} 2019 秋第 3、8、9 题分别问过拟合、升维可分、内积用途，可答选 \(C/\sigma\)、举 \(\phi(x)=x^2\)、用内积算投影与核。2021 秋第 5 题写硬间隔原/对偶、解的展开及核化理由。2022 秋第 6 题比较合页与逻辑损失。2024 秋大题 4–5 写几何量、软间隔约束、核内积，单选 2 考升维识别。2025 秋补缓考判断 6、简答 1(2)、3 考核、最大间隔与软间隔。
+
+\begin{enumerate}[nosep]
+\item \(w=(2,-1),b=-1,x=(2,1),y=-1\)。\textbf{答} 得分 2、函数间隔 \(-2\)、几何间隔 \(-2/\sqrt5\)、松弛量 3。
+\item 规范硬间隔 \(\|w\|=3\)。\textbf{答} 单侧 \(1/3\)、总宽 \(2/3\)。
+\item 软间隔中 \(\alpha=C,m=0.7\)。\textbf{答} \(\xi=0.3\)，正确但入带。
+\item \(K=(1+x^\top z)^2,\ x=(1,1),z=(1,2)\)。\textbf{答} \(16\)。
+\item 为何对偶需要 \(\sum_i\alpha_i y_i=0\)？\textbf{答} 否则 \(-b\sum_i\alpha_i y_i\) 的下确界为负无穷。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{聚类}
+
+\subsection{考点、概念与出处}
+\begin{itemize}
+\item ★★★ $K$ 均值（$K$-means）硬分配，交替最小化簇内平方误差。$K$-means++ 只改初始化，小批量版改中心更新。 【刘远超·4 聚类问题 p18–22】【刘扬·7 K-means p2–7】【2022秋真题 第3题】【2025秋补缓考 简答2】【模拟卷三 大题3(4–6)】
+\item ★★★ 高斯混合模型（Gaussian Mixture Model, GMM）用责任度软分配，期望最大化（Expectation–Maximization, EM）估计混合权重、均值和协方差。 【刘远超·4 聚类问题 p36–46】【刘扬·8GMM-EM p9–40】【2019秋真题 第7题】【2024秋真题 大题9】【模拟卷四 大题3(3–5)】
+\item ★★★ DBSCAN 用邻域中点数判核心、边界、噪声。★★ 单／全／平均链及树状图。纯度、兰德、配对 $F_1$、互信息、轮廓、同质性、完整性和 V-measure。 【刘远超·4 聚类问题 p8–15、p25】【刘扬·6 层次聚类 p21–29】【2025秋补缓考 简答2】【模拟卷一 大题23】【模拟卷四 大题3(6–10)】
+\item ★ 均值偏移（mean shift）走向邻域加权中心，SOM（Self-Organizing Map）更新优胜原型及拓扑邻居。谱聚类先做图嵌入再分组。 【刘远超·4 聚类问题 p28、p32–33】【2021深度真题 第4题】【模拟卷四 大题3(11)】
+\end{itemize}
+
+\subsection{公式与推导}
+\textbf{$K$ 均值与链接。} 单点指示 $r_{ik}\in\{0,1\}$ 且 $\sum_k r_{ik}=1$。$J=\sum_{ik}r_{ik}\|x_i-\mu_k\|^2$。固定中心，各点独立取最近中心。固定分配，
+$\nabla_{\mu_k}J=2\sum_i r_{ik}(\mu_k-x_i)=0$ 给出簇均值。两步都不增 $J$。$K$-means++ 首点均匀抽，后续按\textbf{到最近已选中心的平方距离}成比例抽。小批量累计均值为 $(m\mu+\sum_{i\in\text{批}}x_i)/(m+b)$，$m$ 为旧累计数，$b$ 为本批分入数。
+层次聚类比较跨簇点对的最小、最大、平均值。并 $A,B$ 后到 $C$ 的平均链为 $(|A|d_{AC}+|B|d_{BC})/(|A|+|B|)$。树的纵轴是合并距离。
+
+\textbf{EM。} 写 $p(x_i)=\sum_k\pi_k\mathcal N(x_i\mid\mu_k,\Sigma_k)$。完全资料对数似然是 $\sum_{ik}z_{ik}(\ln\pi_k+\ln\mathcal N_k(x_i))$。刘远超的 $\alpha_k,\widehat\gamma_{ik}$ 对应刘扬的 $\pi_k,\gamma(z_{ik})$。E 步用旧参数归一化。M 步固定所算 $\gamma$。
+\[
+\gamma_{ik}=\frac{\pi_k\mathcal N_k(x_i)}{\sum_j\pi_j\mathcal N_j(x_i)},\quad
+Q=\sum_{i,k}\gamma_{ik}(\ln\pi_k+\ln\mathcal N_k(x_i)),\quad N_k=\sum_i\gamma_{ik}.
+\]
+权重项加约束 $\sum\pi_k=1$，得 $N_k/\pi_k=\nu$，求和得 $\nu=N$。均值梯度 $\Sigma_k^{-1}(\sum_i\gamma_{ik}x_i-N_k\mu_k)$ 置零。协方差令 $R_k=\Sigma_k^{-1}$，$S_k=\sum_i\gamma_{ik}(x_i-\mu_k')(x_i-\mu_k')^\top$，子目标 $\tfrac12(N_k\ln|R_k|-\operatorname{tr}R_kS_k)$ 的梯度置零，得 $N_k R_k^{-1}=S_k$。
+\[
+\pi_k'=N_k/N,\qquad\mu'_k=\frac{\sum_i\gamma_{ik}x_i}{N_k},\qquad\Sigma_k'=S_k/N_k.
+\]
+观察似然 $\ell=\mathcal F(q,\theta)+D_{\rm KL}(q\|p(Z\mid X,\theta))$。E 步取旧后验使旧处等号成立。M 步固定 $q$ 抬高下界，故 $\ell_{\rm new}\ge\mathcal F_{\rm new}\ge\mathcal F_{\rm old}=\ell_{\rm old}$。共享球形方差趋向 0 且最近中心唯一时，非最近成分责任度比包含趋于 0 的指数，均值更新趋向硬分配。GMM 的 AIC、BIC 分别为 $2d_f-2\hat\ell$、$d_f\ln N-2\hat\ell$，取小者。【刘远超·4 聚类问题 p39–49】【刘扬·8GMM-EM p19–40】
+
+\textbf{评价。} 列联表 $n_{ck}$ 以真实类作行、簇作列。令 $B(z)=\binom z2$。$TP=\sum_{ck}B(n_{ck})$，$FP=\sum_k B(n_{\cdot k})-TP$，$FN=\sum_c B(n_{c\cdot})-TP$，$TN=B(N)-TP-FP-FN$。纯度 $\sum_k\max_c n_{ck}/N$，$\mathrm{RI}=(TP+TN)/B(N)$，$F_1=2TP/(2TP+FP+FN)$。$I=\sum p_{ck}\log[p_{ck}/(p_cp_k)]$，同质性 $h=I/H(\text{类})$、完整性 $c=I/H(\text{簇})$，等权 $V=2hc/(h+c)$。轮廓 $s=(b-a)/\max(a,b)$，$a$ 为同簇其他点均距、$b$ 为各异簇均距的最小值。
+
+\textbf{延伸。} DBSCAN 先判核心再判边界，按核心点连通性扩展。均值偏移 $x'\!=\sum_iw_ix_i/\sum_iw_i$。SOM 原型 $w_j'\!=w_j+\eta H_{j,j_*}(x-w_j)$。谱聚类中对称非负 $W$ 有 $f^\top(D-W)f=\tfrac12\sum_{ij}W_{ij}(f_i-f_j)^2$，故半正定。谱特征以对应特征向量的行表示。
+
+\subsection{手算题型}
+\textbf{中心与轮廓。} $X=\{0,2,3,11,14\}$，初始 0、11，分成 $\{0,2,3\},\{11,14\}$。旧 SSE 为 22，新中心 $5/3,25/2$，新 SSE $14/3+9/2=55/6$。点 2 的 $a=3/2,b=21/2,s=6/7$。若首中心指定 2，14 被 $K$-means++ 抽中概率为 $144/(4+1+81+144)=72/115$。
+
+\textbf{GMM 一轮。} $x=(-2,0,2)$，均值 $\pm1$，等权，同方差 $2/\ln2$。比较两高斯的平方距离，正成分的赔率为 $2^x$，责任度 $(1/5,1/2,4/5)$，负成分为余量。两 $N_k$ 均为 $3/2$，新权重各 $1/2$，新均值 $\pm4/5$，新方差 $8/3-(4/5)^2=152/75$。
+
+\textbf{树与密度。} $A,B,C,D$ 位于 $1,3,6.5,11.5$，首并 $AB$ 于高度 2。单链随后 $AB$ 并 $C$ 于 3.5，再并 $D$ 于 5。全链另并 $CD$ 于 5，再合两个簇于 10.5。平均链依次并 $C,D$，高度 4.5、8。画图时在相应高度连枝。若 DBSCAN 输入 $\{0,1,2,3.5,10\}$、$\varepsilon=1.5$、MinPts=3 含自身，核心 1、2，边界 0、3.5，噪声 10。
+
+\textbf{指标。} 列联表 $\bigl(\begin{smallmatrix}5&1&0\\1&2&2\end{smallmatrix}\bigr)$，$N=11$。逐格算 $\binom{n_{ck}}2$ 得 $TP=12$，按列、行分别得同簇 19 对、同类 25 对，故 $FP=7,FN=13$，$TN=23$。$\mathrm{RI}=35/55$，$F_1=24/44$，纯度 $9/11$。以 2 为底，$I\approx.3890$、$h\approx.3914$、$c\approx.2710$、$V\approx.3203$。
+
+\subsection{辨析与陷阱}
+GMM 中协方差奇异常来自有效维数低或成分坍缩，检查有效计数与最小特征值，必要时加 $\epsilon I$。似然不减不能推出全局最优。纯度会奖励拆成很多簇，轮廓不需真标签。平均链按跨簇点对计数，不能对不同大小旧簇等权。DBSCAN 的边界点不继续扩展，题设若指定半径端点、是否含自己要照用。
+
+\subsection{真题与自测}
+2019 第7、2021 秋第4、6、2024 大题9：写完整资料、E 步责任度、M 步三组量，若问奇异再给原因与修正。2025 简答2：紧凑且需指定四组可考虑 $K$ 均值。噪声点与不规则簇可用 DBSCAN，说明核心到边界的扩展。2021 深度第4、2022 春二(3)：建图、拉普拉斯特征、谱嵌入、$K$ 均值。
+
+\textbf{五问五答。} ① 权重 $1/4,3/4$ 且密度相同？责任度同权重。② 同质性看什么？簇内类别是否单一。③ 单链易受什么影响？近邻桥接。④ 增大 MinPts？核心条件严格。⑤ 3 维 2 成分全协方差 GMM 有多少参数？$1+6+12=19$。
+
+\Needspace{10\baselineskip}
+\section{PCA 与 Fisher 判别降维}
+\subsection{考点、概念与出处}
+主成分分析（principal component analysis, PCA）使用无标签的总体方差选正交方向。\(X\) 每行是中心化样本 \(\bm z_i=\bm x_i-\bar{\bm x}\)，\(S=X^\top X/n\)。保留单位主轴 \(U\) 后，得分为 \(U^\top\bm z_i\)，重构为 \(\bar{\bm x}+UU^\top\bm z_i\)。Fisher 判别分析（FDA／LDA）利用标签，以类间与类内散布之比选方向。【刘扬·9PCA p5--15】【刘远超·4 聚类问题 p19】【2019秋真题 第6题】【2021深度真题 第3题】【2022春真题 二(2)】【2023真题 第6题】【模拟卷一 填空5】【模拟卷二 单选7】【模拟卷三 大题2(1)--(3)、判断12】【模拟卷四 判断13、大题4(2)--(3)】
+
+\subsection{公式与推导}
+\textbf{最大投影方差。} 单位方向 \(\bm u\) 的得分均值为零，方差为
+\[
+ \frac1n\sum_i(\bm u^\top\bm z_i)^2=\bm u^\top S\bm u .
+\]
+在 \(\bm u^\top\bm u=1\) 下，对 \(\bm u^\top S\bm u-\lambda(\bm u^\top\bm u-1)\) 求导，得 \(S\bm u=\lambda\bm u\)。在特征基展开 \(\bm u=\sum_j a_j\bm e_j\)，目标是 \(\sum_j\lambda_ja_j^2\le\lambda_{\max}\)（\(\sum_j a_j^2=1\)），故选最大特征方向。对 \(m\) 个正交方向，令 \(\omega_j=\|U^\top\bm e_j\|^2\in[0,1]\)，总方差为 \(\sum_j\lambda_j\omega_j\) 且 \(\sum_j\omega_j=m\)。对降序特征值，把后 \(d-m\) 项的权重移到前 \(m\) 项只会增大目标，最优取前 \(m\) 个特征向量。
+ 
+\textbf{最小重构误差。} 展开 \(\|\bm z-U\bm t\|^2=\|\bm z\|^2-2\bm t^\top U^\top\bm z+\|\bm t\|^2\)，求导得最佳 \(\bm t=U^\top\bm z\)。记 \(P=UU^\top=P^\top=P^2\)，正交投影后的平均残差平方为
+\[
+ \frac1n\sum_i\|(I-P)\bm z_i\|^2=\operatorname{tr}(S)-\operatorname{tr}(U^\top SU).
+\]
+因此最优解与最大方差一致。最小误差是丢弃特征值之和，解释方差比是保留特征值之和除总和。
+ 
+\textbf{Gram 谱。} \(G=XX^\top/n\)。若 \(S\bm u=\lambda\bm u,\lambda>0\)，则 \(G(X\bm u)=X(S\bm u)=\lambda X\bm u\)。反向用 \(X^\top\) 同理，非零谱及重数相同，零谱数由矩阵尺寸决定。若 \(G\) 的单位特征向量为 \(\bm v\)，原空间主轴为 \(X^\top\bm v/\sqrt{n\lambda}\)。中心化使秩至多 \(\min(d,n-1)\)。
+ 
+\textbf{Fisher。} 类内散布 \(S_W=\sum_{k}\sum_{i:y_i=k}(x_i-\mu_k)(x_i-\mu_k)^\top\)，类间散布 \(S_B=\sum_k n_k(\mu_k-\mu)(\mu_k-\mu)^\top\)。逐类展开 \(x_i-\mu=(x_i-\mu_k)+(\mu_k-\mu)\)，交叉项逐类和为零，故 \(S_T=S_W+S_B\)。投影后的散布为 \(\bm u^\top S_{W,B}\bm u\)。二类设 \(\bm d=\bm\mu_2-\bm\mu_1\)，\(S_W\succ0\) 时
+\[
+ J(\bm u)=\frac{(\bm u^\top\bm d)^2}{\bm u^\top S_W\bm u},
+ \qquad \bm u\propto S_W^{-1}\bm d .
+\]
+证明可令 \(\bm v=S_W^{1/2}\bm u\)，用柯西--施瓦茨，等号在 \(\bm v\) 与 \(S_W^{-1/2}\bm d\) 共线时达到。多类通过约束 \(\bm u^\top S_W\bm u=1\) 得广义特征方程 \(S_B\bm u=\lambda S_W\bm u\)，有效维数至多类别数减一。【刘扬·9PCA p13】【补充：散布推导】
+ 
+概率 PCA 将观测写成 \(\bm\mu+W\bm z+\bm\epsilon\)，标准正态潜变量与球形高斯噪声独立，边缘协方差为 \(WW^\top+\sigma^2I\)。线性自编码器在平方重构且全局最优时可获得 PCA 子空间，隐坐标未必等同于逐轴主成分。【刘扬·9PCA p16--30、p44--45】
+
+\subsection{手算题型}
+\textbf{二维 PCA。} 样本是 \((5,-4)\)、\((-1,2)\)、\((3,0)\)、\((1,-2)\)。均值为 \((2,-1)\)，中心化点为 \(\pm(3,-3)\) 和 \(\pm(1,1)\)。协方差及主轴为
+\[
+ S=\begin{pmatrix}5&-4\\-4&5\end{pmatrix},
+ \qquad \lambda_1=9,\ \lambda_2=1,\quad
+ \bm u_1=(1,-1)^\top/\sqrt 2 .
+\]
+按主轴内积，四分数为 \(3\sqrt2,-3\sqrt2,0,0\)，方差比例 \(9/10\)，平均重构平方误差 1。新点 \((5,0)\) 得分 \(\sqrt2\)，加回均值后重构 \((3,-2)\)。
+ 
+\textbf{Fisher 方向。} 两类中心为 \((-2,0),(2,1)\)，各类偏移 \(\pm(1,1),\pm(0,2)\)。合计 \(S_W\) 两行是 \((4,4),(4,20)\)。解 \(S_W\bm u=(4,1)^\top\)，得 \(\bm u=(19/16,-3/16)\)，取等比例方向 \((19,-3)\)。中心得分 \(-38,35\)，若题设用投影中点为阈值，阈值为 \(-3/2\)，新点 \((1,2)\) 得分 13，判第 2 类。
+
+\subsection{辨析与陷阱}
+\begin{itemize}[nosep,leftmargin=*]
+\item PCA 不读类标，方差最大的轴可能混合类别。LDA 看类间和类内散布，求方向后分类阈值由题设或额外模型决定。
+\item 样本协方差若改用 \(1/(n-1)\)，特征方向和比例保持，特征值按比例变化，平均重构损失仍按规定分母。
+\item 特征向量变号时投影得分同变号，重构不变。特征根重合时基向量可能不唯一。新点须用训练均值和坐标轴。
+\item Gram 计算要对齐中心化和分母。白化令保留坐标的协方差为单位阵，二阶去相关一般不能推出统计独立。
+\end{itemize}
+
+\subsection{真题与自测}
+\textbf{真题答法。} 2019 秋第 6 题先用单位约束推主方向，再给压缩和可视化两例。2021 深度第 3 题证明 Gram 与协方差的非零谱关系，说明缩放和零谱差异。2022 春二(2) 可从全点对或同类点对解释两法区别：\(S_T=(2n)^{-1}\sum_{ij}(x_i-x_j)(x_i-x_j)^\top\)，类内散布在各类内求同类点对后相加。2023 第 6 题能确认比较 PCA/FDA，是否要求相似图未确认。
+\begin{enumerate}[nosep,leftmargin=*]
+\item 特征值 \(7,2,0\)，保留 1 维，求比例与平均平方误差。\textbf{答} \(7/9,2\)。
+\item 第二主轴改成其相反数，该主成分重构变吗？\textbf{答} 不变，坐标与主轴同时变号。
+\item \(n=3,d=12\) 的中心化样本至多有几个正特征值？\textbf{答} 2。
+\item \(S_W=\operatorname{diag}(2,8),\bm d=(2,4)\)，Fisher 方向？\textbf{答} \((1,1/2)\) 的任意非零倍数。
+\item \(S=\operatorname{diag}(4,4,1)\) 只保留一维，最优轴唯一吗？\textbf{答} 前两坐标张成平面内任一单位方向均可。
+\end{enumerate}
+
+\Needspace{10\baselineskip}
+\section{隐马尔可夫模型}
+
+\subsection{考点、概念与出处}
+★★★ HMM（Hidden Markov Model）$\lambda=(A,B,\pi)$：$a_{ij}=P(S_{t+1}=j\mid S_t=i)$，$b_j(o)=P(o_t=o\mid S_t=j)$，$\pi_i=P(S_1=i)$。状态是一阶齐次链。给定状态路径，观测彼此条件独立且每项只依赖当前状态。刘扬的 one-hot $\bm z_t$ 表示刘远超的 $i_t=q_i$，$\bm x_t$ 对应 $o_t$。三问题：算似然用前向，学习用 Baum–Welch，解码用 Viterbi。★★ 后向、平滑、缩放、预测。 【刘远超·5 隐马尔科夫模型 p5–12、p17–20】【刘扬·12HMM p8–34】【2022春真题 一(2)】【2023真题 第2题】【2024秋真题 单选4、判断2】【模拟卷一 大题28】【模拟卷二至四 大题8】
+
+\subsection{公式与推导}
+路径联合概率为 $\pi_{s_1}b_{s_1}(o_1)\prod_{t<T}a_{s_t s_{t+1}}b_{s_{t+1}}(o_{t+1})$。按前一状态对路径分组，由全概率乘转移、乘到达态发射，前向时间 $O(TN^2)$。后向按下一状态分组，末步空后缀概率 1：
+\[
+\begin{aligned}
+\alpha_t(i)&=P(o_{1:t},S_t=i),\quad \alpha_1(i)=\pi_i b_i(o_1),\\
+\alpha_{t+1}(j)&=b_j(o_{t+1})\sum_i\alpha_t(i)a_{ij},\quad P(O)=\sum_j\alpha_T(j),\\
+\beta_t(i)&=P(o_{t+1:T}\mid S_t=i),\quad \beta_T(i)=1,\\
+\beta_t(i)&=\sum_j a_{ij}b_j(o_{t+1})\beta_{t+1}(j).
+\end{aligned}
+\]
+给定当前态，前缀和后缀条件独立。于是 $\gamma_t(i)=P(S_t=i\mid O)=\alpha_t(i)\beta_t(i)/P(O)$。相邻后验 $\xi_t(i,j)=\alpha_t(i)a_{ij}b_j(o_{t+1})\beta_{t+1}(j)/P(O)$。滤波只归一前向，预测下一读数用该分布乘 $A$ 和对应 $B$ 列。维特比换求和为 $\max_i$，保存 $\psi_{t+1}(j)=\arg\max_i\delta_t(i)a_{ij}$，从 $\arg\max_j\delta_T(j)$ 向前回溯。
+
+\textbf{重估。} 完全资料的对数项是初始、转移、发射计数各乘 $\ln$ 参数。取条件期望，计数变成 $\gamma_1(i),\sum_{t<T}\xi_t(i,j),\sum_t\gamma_t(i)[o_t=v]$。固定这些计数，最大化 $\sum_j n_j\ln q_j$ 且 $\sum q_j=1$，得 $n_j/q_j=\nu=\sum n_j$，因此
+\[
+\pi_i'=\gamma_1(i),\quad
+a_{ij}'=\frac{\sum_{t<T}\xi_t(i,j)}{\sum_{t<T}\gamma_t(i)},\quad
+b_i'(v)=\frac{\sum_t\gamma_t(i)[o_t=v]}{\sum_t\gamma_t(i)}.
+\]
+\textbf{缩放。} 以归一前向做下一步，令 $c_t$ 为未归一行和，除 $c_t$ 后得到 $\hat\alpha_t=\alpha_t/P(o_{1:t})$。归纳可知 $c_t=P(o_t\mid o_{1:t-1})$，故 $\ln P(O)=\sum_t\ln c_t$。缩放后向同式另除 $c_{t+1}$，$\gamma_t=\hat\alpha_t\odot\hat\beta_t$。
+
+\subsection{手算题型}
+取 $\pi=(2/3,1/3)$，$A=\bigl(\begin{smallmatrix}.7&.3\\.2&.8\end{smallmatrix}\bigr)$，$B=\bigl(\begin{smallmatrix}3/4&1/4\\1/3&2/3\end{smallmatrix}\bigr)$，读数 $U,U,V$。
+
+\begin{tabularx}{\linewidth}{@{}p{.16\linewidth}X@{}}
+\toprule
+求什么 & 步骤与结果\\
+\midrule
+前向似然 & $\alpha_1=(1/2,1/9)$。如 $\alpha_2(1)=[.7/2+.2/9](3/4)=67/240$。$\alpha_2=(67/240,43/540)$，$\alpha_3=(913/17280,637/6480)$，两分量和 $1567/10368$。\\
+平滑与重估 & $\beta_3=(1,1)$，$\beta_2=(3/8,7/12)$，$\beta_1=(49/192,61/288)$。$\gamma_2=(5427,2408)/7835$。$\xi_2(1,2)=(67/240)\cdot.3\cdot(2/3)/P(O)=14472/39175$。将两步 $\xi(1,2)$ 相加除两步 $\gamma(1)$，得 $a'_{12}=408/1115$。\\
+解码 & $\delta_2=(21/80,1/20)$，$\delta_3=(147/3200,21/400)$。两步的两个父节点均为 1，从末步状态 2 回溯得到 $(1,1,2)$，联合概率 $21/400$。\\
+\bottomrule
+\end{tabularx}
+
+\subsection{辨析与陷阱}
+前向求和，Viterbi 取最大并回溯，逐时刻最大后验可以不同于整体最佳路径。后向发射用 $o_{t+1}$。转移重估只求和到 $T-1$。HMM 隐状态离散，有概率转移与发射。普通 RNN 的隐状态为连续向量，通过函数递推。卡尔曼滤波是线性高斯连续状态的贝叶斯递推，$F,H$ 分别是转移、观测矩阵，$Q,R$ 为相应噪声协方差，$K$ 将观测残差转成状态校正量。 【刘扬·12HMM p42–53】
+
+\subsection{真题与自测}
+2022 春一(2)、2023 第2只留课件例题线索，完整原参数缺失。2022 春一(3)、2023 第3问 Kalman：先按转移预测，再用似然校正。2024 单选4辨 HMM/RNN。判断2「HMM 不能预测序列」为错，先滤波再转移和发射。
+
+\textbf{五问五答。} ① $\beta_T$？全 1。② $\sum_j\xi_t(i,j)$？$\gamma_t(i)$。③ $c=(1/2,1/4,1/5)$？似然 $1/40$。④ 3 状态 4 观测的参数自由度？17。⑤ 所有态本步发射相等？归一后不改变转移得到的预测分布。
+
+\Needspace{10\baselineskip}
+\section{前馈神经网络与反向传播}
+\subsection{考点、概念与出处}
+
+\textbf{优先掌握：} 多层感知机（multilayer perceptron, MLP）的形状、前向计算与反向传播（backpropagation, BP），两种交叉熵输出，以及初始化和激活的选择。用列向量，层宽为 $n_l$ 时，$z^l=W^la^{l-1}+b^l$、$a^l=\phi_l(z^l)$，$W^l$ 为 $n_l\times n_{l-1}$，含偏置共有 $n_l(n_{l-1}+1)$ 个参数。刘远超课件写加权输入 $z^l$、激活 $a^l$，刘扬称净输入 $z^{(t)}$、输出 $h^{(t)}$。无非线性时，多个仿射层复合仍为仿射层。回归常用恒等输出。二类或多标签分类用独立 Sigmoid，互斥多类用 Softmax。【刘远超·6 感知机模型 p22--28。7 网络优化 p23--26、46--55】【刘扬·10 前馈神经网 p3--18、22--35】
+
+\subsection{公式与推导}
+
+\textbf{激活函数（activation）。}
+$\sigma(z)=1/(1+e^{-z})$，$\sigma'=\sigma(1-\sigma)\le1/4$。$\tanh z$ 零中心、导数为 $1-\tanh^2z$，和 Sigmoid 一样有饱和区。整流线性单元（ReLU）取 $\max(0,z)$，正区导数为 $1$、负区为 $0$，零点按题设。Leaky ReLU 的负区是固定的 $\alpha z$。PReLU 把 $\alpha$ 设为可训练。指数线性单元（ELU）负区取 $\alpha(e^z-1)$，导数为 $\alpha e^z$。【刘远超·7 p46--52】【补充：PReLU】
+
+\textbf{BP 四式。} 定 $\delta^l=\partial L/\partial z^l$。在输出激活逐元素时，$\delta^L=\nabla_{a^L}L\odot\phi'_L(z^L)$。由下一层 $z_j^{l+1}=\sum_i W_{ji}^{l+1}\phi_l(z_i^l)+b_j^{l+1}$，链式法则给
+\begin{align*}
+ \delta_i^l
+ &=\sum_j\delta_j^{l+1}W_{ji}^{l+1}\phi_l'(z_i^l),\\
+ \delta^l&=((W^{l+1})^{\mathsf T}\delta^{l+1})\odot\phi_l'(z^l),\\
+ \nabla_{W^l} L&=\delta^l(a^{l-1})^{\mathsf T},
+ \qquad \nabla_{b^l}L=\delta^l .
+\end{align*}
+最后一行来自 $\partial z_j^l/\partial W_{jk}^l=a_k^{l-1}$ 与 $\partial z_j^l/\partial b_j^l=1$。批量均值：将样本按列堆成 $A,D$，则 $\nabla_W J=DA^{\mathsf T}/m$，$\nabla_b J=D\mathbf 1_m/m$。同一变量有多个后继，沿分支求得的梯度要相加。
+
+\textbf{输出误差。} 恒等输出加 $L=\tfrac12\|\hat y-y\|^2$ 的得分梯度为 $\hat y-y$。Sigmoid 加二元交叉熵（binary cross-entropy, BCE）：
+\[
+ \frac{\partial L}{\partial z}
+ =\left[-\frac y p+\frac{1-y}{1-p}\right]p(1-p)=p-y.
+\]
+Softmax 的 $p_i=e^{z_i}/\sum_k e^{z_k}$，对分母同样求导，得到 $\partial p_i/\partial z_j=p_i(\mathbf1_{i=j}-p_j)$。于是
+\[
+ \frac{\partial(-\sum_i y_i\ln p_i)}{\partial z_j}
+ =-\sum_i y_i(\mathbf1_{i=j}-p_j)=p_j-y_j,
+ \qquad \sum_i y_i=1 .
+\]
+避免指数上溢可在指数之前对所有得分减最大值。
+
+\textbf{初始化（initialization）。} 独立零均值权重近似给 $\operatorname{Var}(z_j)=n_{\rm in}\operatorname{Var}(W)\mathbb E[a_i^2]$。前、反向分别希望按扇入、扇出保持尺度，Xavier 折中取方差 $2/(n_{\rm in}+n_{\rm out})$，常用于近零的 tanh。ReLU 在对称输入下把二阶矩减半，He 取 $2/n_{\rm in}$。随机权重打破同层单元的对称，偏置仍可置零。【模拟卷三 单选8】【补充：方差推导】
+
+\subsection{手算题型}
+
+\textbf{全链更新。} 先算 $z,a,L$，从输出推 $\delta$，按外积写权重梯度，全部用旧参数求完后同步更新。例：$x=(2,1,0)^{\mathsf T}$，单层 tanh，$r=\tfrac12\ln3$，初始 $b=0$，
+\[
+ W=\begin{pmatrix}0&r&0\\-r&r&1\end{pmatrix},
+ \quad v=(2,1)^{\mathsf T},\quad c=1/4.
+\]
+以 $\hat y=v^{\mathsf T}h+c$ 回归 $y=1/4$，平方误差带 $1/2$。前向得 $z=(r,-r)$、$h=(1/2,-1/2)$、$\hat y=3/4$、$L=1/8$。输出误差为 $1/2$。$g_v=(1/4,-1/4)$、$g_c=1/2$。乘 $v$ 再逐项乘 tanh 导数 $3/4$，得 $\delta=(3/4,3/8)^{\mathsf T}$，
+\[
+ g_W=\begin{pmatrix}3/2&3/4&0\\3/4&3/8&0\end{pmatrix},
+ \quad g_b=\delta .
+\]
+例如步长 $1/5$ 时，$W'_{11}=-3/10$，$b'=(-3/20,-3/40)$，$v'=(39/20,21/20)$，$c'=3/20$。其他权重同样减 $g_W/5$。
+
+\textbf{三类输出。} 评分 $(\ln4,0,\ln3)$，真类为第 3 类。指数比 $4:1:3$，故 $p=(1/2,1/8,3/8)$、$L=\ln(8/3)$。在真类分量减 1，得 $\delta=(1/2,1/8,-5/8)$，其和为零。若上一层是 $(2,-1)$，权重梯度三行分别为 $(1,-1/2)$、$(1/4,-1/8)$、$(-5/4,5/8)$。
+
+\subsection{辨析与陷阱}
+
+\begin{itemize}
+\item $p-y$ 已包含输出激活的链式因子，BCE 不再乘 Sigmoid 导数。Sigmoid 配平方损失则还乘 $p(1-p)$，MSE 不带 $1/2$ 时还有系数 $2$。
+\item 外积的行属于当前层，列属于前一层。方阵写反不一定能用尺寸检查发现。偏置梯度为 $\delta$，批量平均只除一次样本数。
+\item 一次样本落入 ReLU 负区不代表长期死亡。深网仍可能因负区零梯度、权重雅可比连乘而不稳定。打破同层对称看参数和更新是否一直相同。
+\end{itemize}
+
+\subsection{真题与自测}
+
+\textbf{真题得分点。} 2021 深度第 5 题比较 Sigmoid 与 ReLU，重点写梯度上界 $1/4$、饱和与 ReLU 正侧导数为 $1$，补上负区无梯度。2022 春四（1）答深层梯度困难，举匹配初始化、归一化、残差捷径三种并对应作用。2023 第 4 题写 ReLU 与三种变体。注意 Leaky ReLU 的负区斜率固定，PReLU 则需训练。2024 秋大题 3 与 2025 秋补／缓考简答 4（2）写 Sigmoid 与 BCE，逻辑回归预测正类概率，线性回归输出实数。【模拟卷一 大题21】【模拟卷二 单选5、大题1】【模拟卷三 大题1(1--6)】【模拟卷四 大题1(1--6)、大题7(6--8)】
+
+\begin{enumerate}
+\item 含偏置的层宽是 $4,2,2$，参数多少？
+\item $a=(1,-2)$、$\delta=(3,1)$，偏置梯度及权重第一行是什么？
+\item 二分类 $p=1/4$、$y=0$，BCE 和得分梯度是什么？
+\item Softmax 输出 $(1/6,1/3,1/2)$，真类为第 1 类，求得分梯度。
+\item 两分支传回 $5,-3$，再乘局部导数 $4$，结果是多少？
+\end{enumerate}
+\textbf{短答。} （1）$16$。（2）$(3,1)^{\mathsf T}$、$(3,-6)$。（3）$\ln(4/3)$，$1/4$。（4）$(-5/6,1/3,1/2)$。（5）$8$。
+
+\Needspace{10\baselineskip}
+\section{网络优化与正则化}
+\subsection{考点、概念与出处}
+
+\textbf{优先掌握：} 批次规则、动量和 Adam、梯度稳定性与 BN/LN。经验风险（empirical risk）为训练损失均值，结构风险常再加 $\lambda R(w)$。全批量用全部样本，随机梯度下降（SGD）每步用一条，小批量（mini-batch）在同一参数处对一组梯度取均值。下文动量记 $u_t$、平方统计记 $s_t$，刘远超课件有时用 $v_t$ 表示累积量。两版的“批量标准化／归一化”同指 Batch Normalization（BN）。【刘远超·7 网络优化 p20--26、29--43、58--65。8 序列神经网络 p63--65】【刘扬·10 前馈神经网 p19--21、35--38】
+
+\subsection{公式与推导}
+
+\textbf{更新和学习率。} 设 $g_t=|B_t|^{-1}\sum_{i\in B_t}\nabla L_i(w_t)$，一步 $w_{t+1}=w_t-\eta_tg_t$。一维二次目标 $a(w-w^*)^2/2$ 的误差满足
+\[
+ w_{t+1}-w^*=(1-\eta a)(w_t-w^*).
+\]
+稳定需 $0<\eta a<2$。$1<\eta a<2$ 会衰减震荡，$\eta a=2$ 不衰减，过小则慢。多维二次问题用最大正曲率限制步长。学习率可分段衰减、指数衰减、余弦退火或验证停滞时降低。余弦常写 $\eta_{\min}+(\eta_{\max}-\eta_{\min})(1+\cos(\pi t/T))/2$。【补充：二次稳定边界和余弦公式】
+
+\textbf{动量（Momentum）与前瞻。}
+$u_t=\beta u_{t-1}+g_t,\ w_{t+1}=w_t-\eta u_t$。展开 $u_t=g_t+\beta g_{t-1}+\cdots$，同向累积，往复可抵消。Nesterov 加速梯度（NAG）用 $w_t-\eta\beta u_{t-1}$ 的梯度合并旧动量。若题面把学习率或 $(1-\beta)$ 吸收入动量定义，按该约定代数。
+
+\textbf{自适应一阶法。} AdaGrad 用 $s_t=s_{t-1}+g_t^2$。RMSProp 用 $s_t=\rho s_{t-1}+(1-\rho)g_t^2$，两者以 $\eta g_t/(\sqrt{s_t}+\epsilon)$ 作减量，均逐坐标计算。前者累计不减，后者忘记久远梯度。Adam（adaptive moment estimation）为
+\begin{align*}
+ m_t&=\beta_1 m_{t-1}+(1-\beta_1)g_t,\quad
+ s_t=\beta_2 s_{t-1}+(1-\beta_2)g_t^2,\\
+ \widehat m_t&=m_t/(1-\beta_1^t),\quad
+ \widehat s_t=s_t/(1-\beta_2^t),\\
+ w_{t+1}&=w_t-\eta\,\widehat m_t/(\sqrt{\widehat s_t}+\epsilon).
+\end{align*}
+因为零初值、近似恒均值时 $\mathbb E[m_t]=(1-\beta_1)\sum_{j=0}^{t-1}\beta_1^j\mathbb E[g]=(1-\beta_1^t)\mathbb E[g]$，所以这样修正。平方矩同理。$s_t$ 估计的是二阶原点矩而非方差，第一步编号 $t=1$。【刘远超·7 p37--43】【补充：Adam 完整更新】
+
+\textbf{梯度稳定与裁剪。} 反传是多层局部雅可比的转置乘积。共同范数界小于 $1$ 会造成衰减，而连续在同一方向放大可能爆炸。全局范数裁剪（gradient norm clipping）把梯度拼接为 $g$ 并乘 $\min(1,C/\|g\|_2)$，$g=0$ 时直接返回零。它保留整体方向，逐元素裁剪通常会改变方向。
+
+\textbf{标准化。} 对每组 $m$ 个数，$u_i=x_i-\mu$、$\mu=m^{-1}\sum_i x_i$，$v=m^{-1}\sum_i u_i^2$，$y_i=\gamma_i u_i/\sqrt{v+\epsilon}+\beta_i$。训练 BN 在每特征跨样本统计（卷积可跨空间），推理常用运行统计。层归一化（Layer Normalization, LN）每样本内部跨特征，训练推理均用当前样本。【刘远超·7 p59。8 p64】【刘扬·10 p36】
+
+\textbf{泛化策略。} 倒置 Dropout 的训练值是 $M a/q$，$M\sim{\rm Bernoulli}(q)$，期望为 $a$，推理用原值。早停（early stopping）保留验证最优检查点。数据增强（data augmentation）须保持标签或同步变换。L2 正则项 $\lambda\|w\|^2/2$ 在纯 SGD 中给 $w'=(1-\eta\lambda)w-\eta g$，等同乘性权重衰减（weight decay）。Adam 中把 $\lambda w$ 加进梯度会改变两个估计矩，AdamW 的解耦衰减只把旧权重乘 $1-\eta\lambda$。矩仍用数据梯度。L1 惩罚的零点有次梯度区间，可使权重为零。【刘远超·7 p62--65】【刘扬·10 p37--38】【补充：解耦衰减】
+
+\subsection{手算题型}
+
+\textbf{优化器更新。} 固定两步梯度 $4,-1$、初值 $w=1$、$\eta=0.1$，状态初始为零，$\epsilon=0$。Momentum 取 $\beta=1/2$，$u_1=4,u_2=1$，权重为 $0.6,0.5$。AdaGrad 的 $s_t=16,17$，$w_2=0.9+0.1/\sqrt{17}$。RMSProp 取 $\rho=3/4$，$s_t=4,13/4$，$w_2=0.8+0.1/\sqrt{13/4}$。Adam 取 $\beta_1=1/2,\beta_2=3/4$，第一步修正矩为 $(4,16)$、$w_1=0.9$。第二步原矩为 $(1/2,13/4)$，修正为 $(2/3,52/7)$，$w_2=0.9-0.1(2/3)/\sqrt{52/7}\approx0.8755$。
+
+\textbf{归一化轴。} 两样本三特征 $X=\begin{pmatrix}1&2&3\\5&6&9\end{pmatrix}$，取 $\gamma=1,\beta=0,\epsilon=0$。BN 列均值、方差分别为 $(3,4,6),(4,4,9)$，输出两行为全 $-1$、全 $1$。LN 行均值 $2,20/3$、方差 $2/3,26/9$，两行分别为 $(-1,0,1)/\sqrt{2/3}$ 和 $(-5,-2,7)/\sqrt{26}$。每个归一化组校验均值 $0$、均方 $1$。
+
+\textbf{裁剪后更新。} $g=(6,-8)$、阈值 $5$，梯度范数 $10$，裁剪后 $(3,-4)$。若 $w=(2,1)$、$\eta=0.1,\lambda=0.2$，按解耦衰减一步得 $0.98(2,1)-0.1(3,-4)=(1.66,1.38)$。
+
+\subsection{辨析与陷阱}
+
+\begin{itemize}
+\item 逐条 SGD 后一条在新参数处求导，小批量是同一参数处求完再平均。小批量分母与损失相符，动量不等同平方梯度均值。
+\item $\epsilon$ 在根号内还是外以题设为准。裁剪约束传入优化器的梯度，不直接约束加上动量、衰减后的参数改变量。
+\item BN 训练输出依赖同批其他样本。LN 对每行独立。训练的方差一般以 $m$ 为分母。倒置 Dropout 推理不能再乘 $q$。
+\item 过拟合看训练与验证差距，退化看加深后训练误差是否变差。早停不用测试集挑轮次。
+\end{itemize}
+
+\subsection{真题与自测}
+
+\textbf{真题得分点。} 2021 深度第 6 题：Adam 的两个矩分别看梯度与平方梯度，写衰减和修正。2022 春四（2）：比较 Momentum、NAG、Adam、Nadam，说明后者结合前瞻动量与 Adam 的矩估计【补充】。2023 第 5 题只记“优化算法”。2021 秋第 1 题：MAP 取负对数后有数据负对数似然和先验惩罚，高斯、拉普拉斯分别对应 L2、L1。2022 秋第 4 题结合实验判过拟合，给降低容量、增加数据或加强正则中的两种。【模拟卷一 填7、判12--13】【模拟卷二 判11、14】【模拟卷三 判13--15、大1(7--10)】【模拟卷四 选6、大1(7--10)】
+
+\begin{enumerate}
+\item $J=2(w-1)^2$ 的常数学习率稳定区间是什么？
+\item 裁剪 $(-5,12)$ 到全局阈值 $6.5$。
+\item Adam 第一步 $g=-3$，给出修正后两矩。
+\item 换掉同批其他样本，当前样本 BN 与 LN 谁可能变？
+\item 保留率 $0.8$ 的倒置 Dropout，本次保留激活 $-2$，训练、推理值各是什么？
+\end{enumerate}
+\textbf{短答。} （1）$(0,1/2)$。（2）$(-2.5,6)$。（3）$(-3,9)$。（4）训练 BN。（5）$-2.5,-2$。
+
+\Needspace{10\baselineskip}
+\section{卷积神经网络}
+\subsection{考点、概念与出处}
+
+\textbf{优先掌握：} 卷积与池化尺寸、参数量、共享权重与输入梯度、感受野及残差（residual connection）。卷积神经网络（convolutional neural network, CNN）在不同位置复用同一局部识别器：局部连接限制每个输出读取的范围，共享权重降低独立参数数。数学卷积翻核，CNN 手算多按互相关（cross-correlation），直接对齐乘加。刘扬课件的 depth 指特征通道。刘远超的“一组卷积核”覆盖输入各通道，相加得到一张输出图。步长为 1 时在无边界干扰情况下可保持平移等变，池化可提高局部小平移下的稳定性。【刘远超·9 卷积神经网络 p6--18、23、30--33、51--61】【刘扬·11 卷积神经网络 p4--26、30--34】
+
+\subsection{公式与推导}
+
+\textbf{多通道互相关。} 输出通道为 $q$，核内位置 $(r,s)$，步长为 $S_h,S_w$，空洞率（dilation）为 $D_h,D_w$。记窗口 $X^{ij}_{rsc}=X_{iS_h+rD_h-p_h,\ jS_w+sD_w-p_w,c}$，超出输入填零，则
+\[
+ Y_{ijq}=b_q+\sum_{r,s,c}K^{(q)}_{rsc}X^{ij}_{rsc}.
+\]
+高方向核最远点相差 $(k_h-1)D_h$，所以等效跨度为 $K_{\rm eff}=1+(k_h-1)D_h$。填充后最多允许窗口起点走到 $H+p_{\rm top}+p_{\rm bot}-K_{\rm eff}$，故
+\[
+ H_{\rm out}=1+\left\lfloor
+ \frac{H+p_{\rm top}+p_{\rm bot}-K_{\rm eff}}{S_h}
+ \right\rfloor ,
+\]
+宽同理。参数为 $C_{\rm out}(k_hk_wC_{\rm in}+1)$，无偏置则删 $+1$。$1\times1$ 卷积步长 1、不填充时只变通道，参数 $C_{\rm out}(C_{\rm in}+1)$。空洞只改跨度，参数仍按原核采样点。分组卷积把每核输入通道数改为 $C_{\rm in}/G$。【刘远超·9 p6--16、p23】【刘扬·11 p19--22】【补充：空洞、分组】
+
+\textbf{卷积与池化反传。} 对上游 $\delta_{ijq}=\partial L/\partial Y_{ijq}$，单位置的局部导数对核为输入块，对输入块为核权重，对偏置为 1。共享参数跨位置求和：
+\[
+ g_{K^{(q)}_{rsc}}=\sum_{ij}\delta_{ijq}X^{ij}_{rsc},
+ \qquad g_{b_q}=\sum_{ij}\delta_{ijq}.
+\]
+输入梯度则把 $\delta_{ijq}K^{(q)}_{rsc}$ 散回对应原输入格，格子被多个窗口使用就累加。最大池化（max pooling）窗口内最大值唯一时，仅其格子收到梯度，若并列按题面。平均池化（average pooling）按参与元素数均分。含填充时核查分母。全局平均池化（global average pooling, GAP）给 $Y_c=\sum_{ij}X_{ijc}/(HW)$，每个空间位置收到该通道上游梯度的 $1/(HW)$。
+
+\textbf{感受野（receptive field）。} 令 $r_0=j_0=1$。本层窗口覆盖的两端在原输入上相隔 $(K_{\rm eff}-1)j_{l-1}$，再加上一层单点覆盖，故
+\[
+ r_l=r_{l-1}+(K_{\rm eff}-1)j_{l-1},\qquad
+ j_l=S_l j_{l-1}.
+\]
+分别对高宽递推。$j_l$ 是相邻输出在原图上的步距。三层同通道 $3\times3$、步长 1 的核覆盖 $7\times7$，不计偏置时参数 $27C^2$，单层 $7\times7$ 为 $49C^2$。填充影响实际边界是否有真实像素。残差块 $y=x+F(x)$ 给
+\[
+ \nabla_x L=\nabla_y L+J_F(x)^{\mathsf T}\nabla_y L.
+\]
+直接项有助于传递梯度，$F=0$ 可保留浅层网络已有映射。两分支也可能相互抵消。形状不同时可用投影替换恒等项。
+
+\subsection{手算题型}
+
+\textbf{尺寸和参数。} 输入 $8\times10\times4$，核 $3\times2$，空洞率 $(2,1)$、步长 $(2,3)$、对称填充 $(2,1)$，有偏置、输出 6 通道。等效核 $(5,2)$，输出为 $4\times4\times6$，参数 $6(3\cdot2\cdot4+1)=150$。续接两个有偏置的 $1\times1$ 核得到 $4\times4\times2$ 与 14 个参数。局部多通道加权时，先逐通道求和，最后只加一次该输出通道的偏置。
+
+\textbf{重叠池化。} 输入、上游梯度分别为
+\[
+ X=\begin{pmatrix}0&3&1\\2&5&8\\6&4&7\end{pmatrix},\qquad
+ G=\begin{pmatrix}1&2\\-1&3\end{pmatrix}.
+\]
+$2\times2$、步长 1 无填充做最大池化，输出为 $\begin{pmatrix}5&8\\6&8\end{pmatrix}$。给值 5、6 的格子分别传 $1,-1$。两个窗口均选中 8，故该格子传 $2+3=5$。其余为零。按同一原输入做 GAP 值为 $36/9=4$。
+
+\textbf{感受野。} 依次为普通核长 3 步长 2、池化核长 2 步长 2、空洞率 2 的核长 3 步长 1。递推 $(r,j)=(1,1)\to(3,2)\to(5,4)\to(21,4)$。第三层等效跨度为 5。相邻最终输出的步距仍为 4。感受野大并不等于步距大。
+
+\subsection{辨析与陷阱}
+
+\begin{itemize}
+\item LeNet-5 面向手写字符，早期降采样可带参数，C3 有部分连接。C1 共享后有 $6(5^2+1)=156$ 个参数和 $28^2\cdot156$ 次连接。AlexNet 使用 ReLU、重叠池化、Dropout 和数据增强，典型首层 $11\times11$。局部响应归一化（LRN）用同位置邻通道平方和缩放，与 BN 的减均值、除标准差不同。
+\item VGG 堆叠小卷积核并分阶段池化，全连接权重可重排为空间卷积。GoogLeNet 的 Inception 并行多尺度分支并沿通道拼接，$1\times1$ 常先降维【补充】。ResNet 用相加保留捷径。文本 CNN 的卷积核可跨整个词嵌入宽度、沿词序滑动再池化。【刘远超·9 p22--29、35--64】【刘扬·11 p27--34】
+\item 偏置通常按输出通道计，不能乘空间面积。卷积核深度由输入通道数决定，输出深度由核数决定。最大池化没有可学参数仍有关于输入的导数。下采样扩大覆盖也会丢空间细节。
+\end{itemize}
+
+\subsection{真题与自测}
+
+\textbf{真题得分点。} 2020 春 A 卷 3.1，$3\times3$、步长 1 连续卷积每层扩大 2，$1+2L=27$，需 13 层。可用空洞、低分辨率支路、$1\times1$ 通道瓶颈兼顾计算。3.2--3.3 配对去噪用预测对干净图的 MSE/MAE，再举训练稳定与验证方法。3.4 视频加时序模块，第 5 题场景分类按任务定义标签与错分代价。2021 深度第 8 题只记类似 2020 卷积题。2022 春五（1--2）可写小核堆叠、空洞、步幅／池化、跨分辨率融合四种，再讨论全局注意力与局部卷积互补。旧检测题 2022 春八（2）、2023 第 9 可按类别预测、边框回归和匹配组织。2023 题材料原写 DERT，名称未核实。【模拟卷一 判17、大25(1)】【模拟卷二 单选4、判19、大5(1--3)】【模拟卷三 单选9、大5(1--4)】【模拟卷四 单选7、大5(1--2)】
+
+\begin{enumerate}
+\item 输入长 13，核长 4，两端各补 1，步长 3，求输出长。
+\item $1\times1$ 卷积把 10 通道变 7 通道，有偏置，求参数量。
+\item 空洞率 3、核长 5 的单通道核，求跨度和权重数。
+\item 两个最大池化窗口选中同一输入，上游 $-2,5$，求该输入梯度。
+\item 两层核长 3 的卷积，步长分别为 2、1，求最终感受野和步距。
+\end{enumerate}
+\textbf{短答。} （1）4。（2）77。（3）13、5。（4）3。（5）$(7,2)$。
+
+\Needspace{10\baselineskip}
+\section{序列模型与 Transformer}
+\subsection{考点、概念与出处}
+
+\textbf{优先掌握：} RNN 方向与跨时梯度、LSTM/GRU 门控、注意力和掩码。循环神经网络（RNN）跨时共享参数。多对一可取读完序列的末状态。一对多可生成描述。多对多可做标注或翻译。双向 RNN 拼接正反状态，多层 RNN 的上层读取同一时刻的下层状态。树形递归网络（recursive neural network）则组合子节点，可用张量刻画二次交互。【刘远超·8 建模序列数据 p7--15、18--35、47--83】【刘扬·13 RNN-10.25 p3--24】
+
+\subsection{公式与推导}
+
+\textbf{RNN 与时间反传。} 正向写 $a_t=W_xx_t+W_hh_{t-1}+b,\ h_t=f(a_t)$，输出 $s_t=W_yh_t+c,\ o_t=g(s_t)$。若隐维 $d_h$、类别 $d_y$，$W_y$ 为 $d_y\times d_h$。刘远超用 $U,W,V$ 对应 $W_x,W_h,W_y$，刘扬用 $W,U,V$。逆向把 $h_{t-1}$ 换成 $h_{t+1}$，改用末侧边界，整句分类读完后的状态是 $h_1$。
+
+时间反向传播（BPTT）令 $\varepsilon_t=\partial\ell_t/\partial s_t,\ \delta_t=\partial L/\partial a_t$。$h_t$ 同时送给当前输出和下一步隐状态，两条链相加：
+\begin{align*}
+ \delta_t&=(W_y^{\mathsf T}\varepsilon_t+
+    W_h^{\mathsf T}\delta_{t+1})\odot f'(a_t),\quad \delta_{T+1}=0,\\
+ g_{W_x}&=\sum_t\delta_tx_t^{\mathsf T},\quad
+ g_{W_h}=\sum_t\delta_th_{t-1}^{\mathsf T},\quad g_b=\sum_t\delta_t,\\
+ g_{W_y}&=\sum_t\varepsilon_t h_t^{\mathsf T},\quad g_c=\sum_t\varepsilon_t.
+\end{align*}
+逆向 RNN 按时刻递增反传，递推依赖 $\delta_{t-1}$，循环权重的输入为 $h_{t+1}$。
+
+跨时连乘局部雅可比 $\operatorname{diag}(f'(a_t))W_h$，可能造成梯度消失或爆炸。【刘扬·13 p7--9 图像公式】
+
+\textbf{门控状态。} 长短期记忆网络（LSTM）令 $r=[h_{t-1};x_t]$，遗忘、输入、输出门 $f_t,i_t,o_t=\sigma(W_{f,i,o}r+b_{f,i,o})$，候选 $\tilde c_t=\tanh(W_cr+b_c)$。更新为
+\[
+ c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t,\qquad
+ h_t=o_t\odot\tanh(c_t).
+\]
+固定门和候选时，某维直接记忆路径跨 $k$ 步的因子为 $\prod_{j=t-k+1}^t f_j$，接近 1 时保留较好。总导数还含间接路径。猫眼连接（peephole）让门读取细胞状态。耦合门可取 $i_t=1-f_t$。刘扬称“长短时记忆”或“记忆元”，对应刘远超的“长短期记忆”或“长期状态”。
+
+门控循环单元（GRU）有重置门 $r_t$、更新门 $z_t$，均由当前输入和旧状态的仿射组合过 Sigmoid。刘远超 p28 约定
+\[
+ \tilde h_t=\tanh(W[r_t\odot h_{t-1};x_t]+b),\quad
+ h_t=z_t\odot\tilde h_t+(1-z_t)\odot h_{t-1}.
+\]
+重置门调节候选读取多少旧状态。另一种约定把 $z_t$ 作为保留旧状态的权重，和此处取互补。没有独立的 $c_t$ 或 LSTM 式输出门。
+
+\textbf{注意力与 Transformer。} 序列到序列（Seq2Seq）解码器可对源状态 $h_i$ 打分 $e_{ti}$，计算 $\alpha_{ti}=\operatorname{softmax}_i(e_{ti})$ 和上下文 $c_t=\sum_i\alpha_{ti}h_i$。刘远超 p35 用 tanh 投影后对上下文向量点积打分，归一化后仍做加权和。教师强制（teacher forcing）训练时输入真实的前一词元，如目标 $(a,b,\mathrm{EOS})$ 对应输入 $(\mathrm{BOS},a,b)$。推理改用预测值。
+
+缩放点积注意力（scaled dot-product attention）按位置作行：
+\[
+ P=\operatorname{softmax}_{\mathrm{row}}
+   (QK^{\mathsf T}/\sqrt{d_k}+M),\qquad O=PV.
+\]
+独立标准化分量相乘求和时，点积方差约为 $d_k$，故按其平方根缩放。因果掩码未来位加 $-\infty$，归一后为零。自注意力的 $Q,K,V$ 同源。交叉注意力中 $Q$ 来自目标，$K,V$ 来自源，分数形状 $n_t\times n_s$，输出 $n_t\times d_v$。多头（multi-head）分别投影再拼接。若模型宽 $d$、每头宽 $d/h$，四组无偏置投影参数合计 $4d^2$，稠密注意力本身耗时 $O(n^2d)$，投影另耗 $O(nd^2)$。
+
+位置编码（positional encoding）例为
+$\operatorname{PE}(p,2j)=\sin(p/10000^{2j/d})$。
+奇数位 $2j+1$ 用同频率余弦。无位置结构的全局自注意力对置换等变：分数按相同规则重排行列，逐行归一和乘值后输出也同序重排。课件的后归一化结构为 $\operatorname{LN}(x+\operatorname{SubLayer}(x))$。编码器依次自注意力、逐位置前馈网络（FFN）。解码器依次因果自注意力、交叉注意力、FFN。FFN 共享权重但逐位置独立，注意力才跨位置混合输入。
+
+\subsection{手算题型}
+
+\textbf{状态与共享参数。} 设 $h_t=\tfrac14 h_{t-1}+2x_t$，初值 $h_0=1$，输入 $x=(2,-1,3)$。前向状态依次为 $17/4$、$-15/16$、$369/64$。各步局部梯度为 $(2,0,-1)$，反传按 $3,2,1$ 得 $-1,-1/4,31/16$。循环权重梯度为 $(31/16)\cdot1+(-1/4)(17/4)+(-1)(-15/16)=29/16$。
+
+\textbf{门控。} LSTM 给 $c_{t-1}=-2,f=1/4,i=3/4,\tilde c=0.4,o=1/2$。先得 $c_t=-0.2$，再得 $h_t=\tfrac12\tanh(-0.2)\approx-0.09869$。固定门值的直接导数 $1/4$。GRU 若 $h_{t-1}=0.4,r=1/4,z=3/4$，候选为 $\tanh(0.5+r h_{t-1})$，则候选约 $0.5370$，插值得 $h_t\approx0.5028$。
+
+\textbf{掩码矩阵。} 已知三个位置的指数化分数依次成行 $(2,1,3),(1,4,2),(3,2,4)$，值为 $(3,0,-2)^{\mathsf T}$。未来位先置零再行归一，得行权重 $(1,0,0),(1/5,4/5,0),(1/3,2/9,4/9)$，输出 $(3,3/5,1/9)^{\mathsf T}$。此处输入已是指数化值，不能再取一次指数。
+
+\subsection{辨析与陷阱}
+
+\begin{itemize}
+\item 顺着真实箭头做前向，逆箭头反传，最后按共享参数累加。RNN 处理可变长不保证学到任意长期依赖。
+\item LSTM 的逐元素乘法不是点积。输出门关闭不清空当前细胞状态。GRU 的更新门要看题面所乘的是旧状态还是候选。
+\item 对每个查询，在同一行的可见键上归一。遮挡用 $-\infty$，缩放用头宽 $d_k$。交叉注意力的源长和目标长可不同。
+\end{itemize}
+
+\subsection{真题与自测}
+
+\textbf{真题得分点。} 2024 秋大 8 按从右到左写 $h_t=f(Ux_t+Wh_{t+1}+b)$，再写 $o_t=g(Vh_t+c)$。判断 3 仅留自注意力残片。2025 秋补／缓考简答 6 写 $h_1=\tanh(1.6+0.1h_0)$、$h_2=\tanh(-0.8+0.1h_1)$，$h_0$ 原值未留。LSTM 解释门与长期记忆。该卷简答 7 写投影 $Q,K,V$、点积缩放、归一和加权。位置编码补序、RNN递推自带顺序。2022 春六比较 LSTM 和 GRU。旧题如 2020 春 3.4 可用共享 CNN 后接时序隐状态做视频去噪，2021 深度第 9 题按双侧文本上下文与图像自回归比较。范本大题 2 的十分类、隐维 200 对应权重 $10\times200$。【模拟卷一 判18、大25(2--4)】【模拟卷二 大5(4--10)】【模拟卷三 大5(5--10)】【模拟卷四 大5(3--10)】
+
+\begin{enumerate}
+\item 逆向 RNN 的整句分类取 $h_1$ 还是 $h_T$？
+\item 共享参数所乘状态是 $2,1,-1$，净输入梯度为 $1/2,2,3$，求权重梯度。
+\item 直接记忆路径的遗忘门为 $1,1/2,1/2$，求梯度因子。
+\item 一步可见的分数为 $0,\ln3,0$，值为 $-1,2,4$，求输出。
+\item 模型宽 24、四头且每头宽 6，无偏置，多头投影参数是多少？
+\end{enumerate}
+\textbf{短答。} （1）$h_1$。（2）0。（3）$1/4$。（4）$9/5$。（5）2304。
+
+\Needspace{10\baselineskip}
+\section{自编码器与变分自编码器}
+\subsection{考点、概念与出处}
+
+\textbf{优先掌握：} 重构维度、证据下界、两个 KL 和重参数梯度。自编码器（AE）用 $z=f_\phi(x)$、$\hat x=g_\theta(z)$ 训练重构，$\hat x$ 与目标同形。去噪 AE 收受损输入、重构干净目标。稀疏 AE 限制隐藏激活。堆栈 AE 串联编码块。变分自编码器（VAE）有先验 $p(z)$、解码似然 $p_\theta(x\mid z)$、近似后验 $q_\phi(z\mid x)$。刘远超写编码器输出 $z_{\rm mean},z_{\rm log\_var}$，它们确定刘扬记作 $q_\phi$ 的近似分布。训练从 $q_\phi$ 采样估重构。生成从 $p(z)$ 采样并解码。【刘远超·10 生成式神经网络 p7--24】【刘扬·14 VAE p2--11、15--19】
+
+\subsection{公式与推导}
+
+\textbf{线性 AE 与 PCA。} 对中心化数据，取正交列矩阵 $U$，$P=UU^{\mathsf T}$ 是秩 $k$ 投影。由 $(I-P)^2=I-P$，
+\[
+ \mathbb E\|x-Px\|^2
+ =\operatorname{tr}(\Sigma)-\operatorname{tr}(U^{\mathsf T}\Sigma U).
+\]
+若 $\Sigma$ 的特征对为 $(\lambda_i,e_i)$，最大化后项就是最大化 $\sum_i\lambda_i\|U^{\mathsf T}e_i\|^2$。这些权重在 $[0,1]$ 中且和为 $k$，集中到最大 $k$ 项取最优，误差为剩余特征值之和。结论针对线性、平方误差的主子空间，不要求两个模型学出逐项相同的编码基。【刘扬·9 PCA p5--11】【补充：线性 AE 推导】
+
+\textbf{ELBO 的两种推导。} 证据下界（evidence lower bound, ELBO）记 $\mathcal L$。设 $q=q_\phi(z\mid x)$ 覆盖联合模型的有效支撑。先把证据写成 $\mathbb E_q[p_\theta(x,z)/q(z)]$。$\ln$ 为凹函数，Jensen 不等式给出
+\begin{align*}
+ \ln p_\theta(x)&\ge
+ \mathbb E_q[\ln p_\theta(x,z)-\ln q(z)]\equiv\mathcal L,\\
+ \mathcal L&=\mathbb E_q\ln p_\theta(x\mid z)
+       -D_{\rm KL}(q\|p(z)).
+\end{align*}
+第二行拆 $p_\theta(x,z)=p_\theta(x\mid z)p(z)$。等号时比值 $p_\theta(x,z)/q(z)$ 在有效支撑上恒定。若 $q$ 漏掉有证据质量的区域，第一步期望只覆盖一部分证据。另一条证明从贝叶斯公式出发：
+\begin{align*}
+ D_{\rm KL}(q\|p_\theta(z\mid x))
+ &=\mathbb E_q[\ln q(z)-\ln p_\theta(x,z)]+\ln p_\theta(x)\\
+ &=\ln p_\theta(x)-\mathcal L\ge0.
+\end{align*}
+取等恰是近似后验等于真实后验（几乎处处）。ELBO 内的 KL 对先验，差距的 KL 对真实后验。固定 $\theta$ 最大化 ELBO 等价于最小化后验 KL。共同改变 $\theta$ 时证据也变。【刘扬·14 VAE p4--9】【模拟卷二 判断20、大4(5--6)】【模拟卷三 大4(2--6、9)】
+
+\textbf{Gaussian KL 与重参数化。} 一维 $q=\mathcal N(\mu,\sigma^2)$ 和标准正态先验的对数密度差是
+$-\tfrac12\ln\sigma^2-\tfrac{(z-\mu)^2}{2\sigma^2}+\tfrac12z^2$。
+用 $q$ 下的两个二阶矩 $\mathbb E_q[(z-\mu)^2]=\sigma^2$、
+$\mathbb E_q[z^2]=\mu^2+\sigma^2$ 取期望。对角高斯逐维累加，得
+\[
+ D_{\rm KL}(q\|p)=\tfrac12\sum_j
+       (\mu_j^2+\sigma_j^2-1-\ln\sigma_j^2).
+\]
+重参数化（reparameterization）先抽固定分布 $\epsilon\sim\mathcal N(0,I)$，令 $z=\mu+\sigma\odot\epsilon$。编码器输出若为 $\ell=\ln\sigma^2$，则 $\sigma=e^{\ell/2}$。固定噪声后，沿路径有 $\partial z_j/\partial\mu_j=1$、$\partial z_j/\partial\sigma_j=\epsilon_j$、$\partial z_j/\partial\ell_j=\sigma_j\epsilon_j/2$。重构期望改写为对 $\epsilon$ 的期望，抽样平均可估重构，标准高斯 KL 常直接算。刘扬课件将这类方法称为随机梯度变分贝叶斯（SGVB）。【刘远超·10 p15--17】【刘扬·14 p6--11】
+
+\textbf{条件与扩展。} 条件变分自编码器（CVAE）以 $q_\phi(z\mid x,c)$ 编码、$p_\theta(x\mid z,c)$ 解码，条件 ELBO 里的先验可写 $p(z\mid c)$。刘远超 p18--20 的生成示例固定类别 $c$，仍用标准正态取 $z$。潜空间插值取 $z_\tau=(1-\tau)z_0+\tau z_1$ 再解码，非线性下不等于输出插值。$\beta$-VAE 最大化重构对数似然减 $\beta$ 倍先验 KL。$\beta>1$ 更约束先验匹配，$0<\beta<1$ 不一定仍是证据下界。后验坍塌（posterior collapse）常见信号是对不同 $x$ 的近似后验都贴近先验。还需检查改变 $z$ 是否影响解码。【补充：稀疏训练、条件先验的推广、$\beta$-VAE 与坍塌】
+
+\subsection{手算题型}
+
+\textbf{有限状态。} 先验 $(2/3,1/3)$，似然 $(3/4,1/4)$。相乘得联合 $(1/2,1/12)$，求和是证据 $7/12$。若 $q=(1/2,1/2)$，与联合的比值 $p(x,z)/q(z)$ 为 $(1,1/6)$，故 $\mathcal L=-\tfrac12\ln6$、差距 $\ln(7\sqrt6/12)$。归一化联合得最优 $q=(6/7,1/7)$，此时比值都为 $7/12$、达到等号。
+
+\textbf{固定噪声的单样本估计。} 设 $\mu=(-1/2,1)$、$\sigma=(1/2,\sqrt2)$、$\epsilon=(2,0)$，标准正态先验，$x\mid z\sim\mathcal N(z_1+2z_2,1)$，$x=2$。KL 为 $3/4+\tfrac12\ln2$，$z=(1/2,1)$，重构均值 $5/2$。对数似然 $-\tfrac12\ln(2\pi)-\tfrac18$ 减 KL，得 ELBO 约 $-2.141$。重构对 $z$ 的梯度 $(2-5/2)(1,2)=(-1/2,-1)$，直接传给 $\mu$，逐项乘 $\epsilon$ 后传给 $\sigma$，后者得 $(-1,0)$。分别减 KL 偏导 $\mu$、$\sigma-1/\sigma$，得到
+\[
+ \nabla_\mu\widehat{\mathcal L}=(0,-2),\qquad
+ \nabla_\sigma\widehat{\mathcal L}=(1/2,-1/\sqrt2).
+\]
+若求 $\ell$ 的梯度，逐维再乘 $\sigma/2$。若以负 ELBO 作最小化目标，整体变号。
+
+\subsection{辨析与陷阱}
+
+\begin{itemize}
+\item 重新生成需从先验采潜变量。复原给定 $x$ 时从近似后验取潜变量。CVAE 生成把指定标签与潜变量一并给解码器，不要求先有目标真图。
+\item $\ln\mathbb E[R]\ge\mathbb E[\ln R]$，是凹函数的方向。先验 KL 为零并不能推出证据与 ELBO 相等，也不能推出重构误差为零。
+\item 对数方差 $\ell$ 对应标准差 $e^{\ell/2}$，直接写 $e^\ell$ 多了一倍指数。求梯度先标明 $\sigma$、$\sigma^2$ 或 $\ell$，还要标明固定本次噪声。
+\item 重构若为连续高斯可写平方误差，二值独立坐标常用 BCE。平均时重构和 KL 要采用一致的样本归约。Lab6 的 VAE.py 第120--134行使用解析 KL、重构 BCE，二者都在同批求和。
+\end{itemize}
+
+\subsection{真题与自测}
+
+\textbf{真题得分点。} 2024 秋大题 7（5 分）：$x\to z\to x'$，$x'$ 与 $x$ 同维以计算误差。用图像说明提取特征、去噪或压缩。DOCX 与参考答案均载，PDF 回忆漏题。范本单选 4：VAE 能从先验抽样生成新样本。【模拟卷一 判断19、大24】【模拟卷二 大4】【模拟卷三 大4】【模拟卷四 大4】
+
+\begin{enumerate}
+\item 去噪 AE 的输入是什么，重构目标尺寸由什么决定？
+\item $q=\mathcal N(0,4)$ 对标准正态的 KL 是多少？
+\item $\mu=2,\ell=\ln9,\epsilon=-1/3$，求 $z$ 及 $\partial z/\partial\ell$。
+\item 证据对数 $-2.8$、ELBO $-3.5$，得哪个 KL、是多少？
+\item CVAE 采用独立于类别的先验，指定类别生成时从哪抽样，类别送往哪里？
+\end{enumerate}
+\textbf{短答。} （1）噪声样本。尺寸同干净目标。（2）$(3-\ln4)/2$。（3）$1,-1/2$。（4）对真实后验的 KL，$0.7$。（5）$p(z)$，与 $z$ 一并给解码器。
+
+\Needspace{10\baselineskip}
+\section{六项课程实验}
+
+\subsection{考点、概念与出处}
+\begin{tabularx}{\linewidth}{@{}p{.15\linewidth}X@{}}
+\toprule
+实验 & 目的与实际做法\\
+\midrule
+1 正弦拟合 ★★★ & $\sin(2\pi x)$ 加噪，构造 $[1,x,\ldots,x^d]$，比较阶数、样本量、$L_2$，用独立验证选阶数。对照梯度下降与方程解。【实验一·sin\_loss1.py】【lab1.pdf p2–7】\\
+2 逻辑回归 ★★★ & 合成相关特征、标准化、后验与阈值、分类评价。\texttt{logit.py} 使用 WDBC 和 $L_2$，\texttt{lab2.py} 及另一报告版有 Skin、$L_1$。【实验二·logit.py、lab2.py】【lab2.pdf p2–9】\\
+3 聚类 ★★★ & 可先层次初始化再做 $K$ 均值，以结果初始化 GMM。对合成簇和 Iris 做后验、协方差和簇质量检查，标签事后评估。【实验三·kmeans.py】【lab3.pdf p2–14】\\
+4 MLP ★★★ & 二维螺旋四分类比较线性 Softmax 与一隐层 ReLU。控制样本量、宽度、学习率，各跑同一划分。另有 Sigmoid 版本。【实验四·MLP.py、lab4.py】【实验四报告.pdf p2–9】\\
+5 CNN ★★ & AlexNet 改为 MNIST 单通道，输出 10 类。对照激活、Dropout、样本数和学习率。【实验五·AlexNet.py、卷积.py】【实验五报告.pdf p2–7】\\
+6 VAE ★★ & 编码出 $\mu,\ell=\ln v$，重参数并解码，训练损失为像素 BCE 和加 KL。对照重构、随机生成和潜变量编辑。【实验六·VAE.py】【实验六报告.pdf p3–8】\\
+\bottomrule
+\end{tabularx}
+
+\subsection{公式与推导}
+实验一 $e=Xw-y$，$d(\|e\|^2/2)=e^\top X\,dw$，故梯度 $X^\top e+\lambda w$。实验二 $a=x^\top w+b$，BCE 对 $a$ 的导数 $p-y$，所以权重与偏置梯度分别是 $(p-y)x$、$p-y$。实验四采用行样本，$\Delta_2=P-Y$，$\Delta_1=(\Delta_2W_2^\top)\odot\phi'(Z_1)$，梯度 $X^\top\Delta_1/N$ 与按行平均的偏置梯度。实验三协方差加 $\epsilon I$ 后任意非零方向的二次型增加 $\epsilon\|u\|^2$，因而低秩矩阵可正定化。实验六 $\sigma=e^{\ell/2}$，KL 为 $\frac12\sum_j(\mu_j^2+e^{\ell_j}-1-\ell_j)$，归约要和重构项一致。
+
+\subsection{手算题型}
+\textbf{拟合误差。} $1+2x-x^2+x^3$ 在 $x=-1,0,2$ 给出 $-3,1,9$。目标 $-2,0,7$ 则残差 $-1,1,2$，MSE $=6/3=2$。若计算半平方和加 $\lambda\|w\|^2/2$（$\lambda=.4$，全参数惩罚），目标 $3+.2(7)=4.4$。
+
+\textbf{尺寸与数值稳定性。} AlexNet 实验首层从 224 变 55，三次池化依次得 27、13、6，末层 256 通道，展平 9216。首层单通道、64 个 $11^2$ 核含偏置，共 7808。对共线向量 $(0,1),(2,1),(5,1)$，MLE 协方差为 $\operatorname{diag}(38/9,0)$，加 $.01I$ 后两特征值都正。
+
+\subsection{辨析与陷阱}
+作答先绑定实现版本。源码里用全数据极值做预处理、用测试准确率挑系数、用测试表现挑轮次均会引入评估偏差。规范流程先划分，再用训练段拟合变换、验证段选择、测试段评价。CNN 损失若包含 log-softmax，直接输入 logits。VAE 重建用近似后验，生成用先验。损失可按像素、样本或批求和，报告比较时说明归约。
+
+\subsection{真题与自测}
+2019 第7、2021 秋第6：实验中低秩或成分坍缩使协方差奇异，加对角量或重新初始化。2019 第8、9：幂基、隐层或卷积内积举真实实现。2022 秋第4、2025 简答8：按「数据与划分、现象、原因、改法、验证」解释高阶过拟合。2024 大题2 的两个误差为 2，MSE 为 4。2025 简答4 的具体样本未保留，第（2）问是逻辑回归用的二元交叉熵。
+
+\textbf{五问五答。} ① 验证先降后升？按最低点附近选检查点。② $p=.25,y=1$ 的偏置梯度？$-.75$。③ 200 个点的某成分责任度和 80？新权重 $.4$。④ 19 边长，池化核 3 步长 2？输出 9。⑤ $\mu=\ell=0$？$\sigma=1$，先验 KL 为 0。
+
+\clearpage
+\section{考前一页纸}
+\small
+\ctexset{subsection={format=\normalsize\bfseries\color{navy},beforeskip=.38em,afterskip=.15em}}
+\setlength{\parskip}{.12em}
+
+\subsection{考点、概念与出处}
+★★★ 遮住右栏默写。出处可回查对应章。
+
+\subsection{公式与推导}
+{
+\small
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\linewidth}{@{}p{.18\linewidth}X@{}}
+\toprule
+章节 & 看到题就写\\
+\midrule
+1–3 数据、概率、树 & 预处理只用训练段。$F_1=2TP/(2TP+FP+FN)$，AUC 看正例胜负例。$D_{\rm KL}=H(P,Q)-H(P)$，统一底数。信息增益 $=H(\text{父})-\sum_j p_jH(\text{儿}_j)$。增益比除分支熵。基尼 $1-\sum_kp_k^2$。\\
+4–6 决策、密度、NB & 未归一后验 $=\text{先验}\times\text{似然}$，风险为后验加权损失。Parzen 固定体积，KNN 密度固定点数。多项式按词频，伯努利缺词乘补概率，高斯方差用题定分母。\\
+7–9 回归、线性分类 & MSE 梯度 $2X^\top(Xw-y)/n$，逻辑与 Softmax 交叉熵的得分梯度 $p-y$。感知机按错分更新。SVM 写 $yf\ge1-\xi$、$2/\|w\|$、$\sum\alpha_i y_i=0$ 和核预测。\\
+10–11 聚类、降维 & $K$ 均值硬分配后取均值。GMM 先责任度、后权重/均值/协方差，分母用 $N_k$。PCA 中心化求 $Su=\lambda u$，投影后重构要加回均值。\\
+12 HMM & $\alpha$ 先乘转移再乘新发射，末步求和。$\beta$ 用下一观测。Viterbi 取最大并回溯。Baum–Welch 转移计数到 $T-1$。\\
+13–14 BP、优化 & $\delta_l=(W_{l+1}^\top\delta_{l+1})\odot f'(z_l)$，权重梯度 $\delta_l a_{l-1}^\top$。批平均别漏分母，Adam 别漏偏差修正。BN 跨批，LN 单样本内部。inverted Dropout 推理直接用激活。\\
+15–16 CNN、序列 & 有效核 $d(k-1)+1$，尺寸 $\lfloor(H+2p-k_{\rm eff})/s\rfloor+1$，每输出通道一个偏置。RNN 读向决定 $h_{t-1}$ 或 $h_{t+1}$，掩码在注意力 Softmax 前。\\
+17–18 VAE、实验 & ELBO $=\mathbb E_q\ln p_\theta(x\mid z)-D_{\rm KL}(q\Vert p(z))$。用 $z=\mu+e^{\ell/2}\epsilon$ 反传。实验答数据、现象、机制、对照。\\
+\bottomrule
+\end{tabularx}
+}
+
+\subsection{手算题型}
+高分判正。正例 $.83,.42$，负例 $.72,.41,.11$。配对胜场 $3+2$，AUC 为 $5/6$。阈值 $.5$ 时 $TP=FP=1$。
+
+\subsection{辨析与陷阱}
+最后查\textbf{方向、分母、维度、偏置}。非等代价看风险。ELBO 训练项用先验 KL，和证据的差距用后验 KL。
+
+\subsection{真题与自测}
+MSE、KL 底数、E/M 两步。【2024秋真题 大题2、6、9】递推、LSTM、注意力与位置。【2025秋补缓考 简答6–7】整句分类 $p=\mathrm{softmax}(Vs_3)$，Iris 求第 2 类第 3 特征密度。【刘远超·模拟试题范本 p2】
+
+\textbf{五问五答。} ① logits 同加常数？概率不变。② KL 换底 2？除 $\ln2$。③ $\xi_t$ 行和？$\gamma_t$。④ 主轴取反？重构不变。⑤ 只缩空间？偏置数不变。
+
+\end{document}

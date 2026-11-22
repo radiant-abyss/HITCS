@@ -1,0 +1,38 @@
+\thispagestyle{firstpage}
+% ===== 卷头：仿哈工大试卷，按页面绝对坐标定位（单位 cm，原点为页面左上角，y 向下） =====
+\noindent\begin{tikzpicture}[remember picture,overlay,x=1cm,y=-1cm,shift={(current page.north west)}]
+  % 主管领导审核签字栏
+  \draw[line width=0.6pt] (3.6,1.6) rectangle (4.8,8.3);
+  \draw[line width=0.6pt] (3.6,4.2) -- (4.8,4.2);
+  \node[align=center,font=\zihao{-4}\songti,inner sep=0pt] at (4.2,2.9)
+    {主管\\[-2pt]领导\\[-2pt]审核\\[-2pt]签字};
+  % 标题
+  \node[font=\zihao{-2}\heiti] at (11.6,1.95) {哈尔滨工业大学 2026 年秋季学期};
+  \node[font=\zihao{2}\heiti] at (12.6,3.35) {模式识别与机器学习（A）\hspace{1em}试\hspace{0.5em}题（模拟）};
+  % 题号 / 得分 / 阅卷人（3 行，12 列）
+  \def\xs{5.2,6.55,7.75,8.95,10.15,11.35,12.55,13.75,14.95,16.15,17.35,18.55,20.05}
+  \foreach \y in {4.90,5.98,7.06,8.14} \draw[line width=0.5pt] (5.2,\y) -- (20.05,\y);
+  \foreach \x in \xs \draw[line width=0.5pt] (\x,4.90) -- (\x,8.14);
+  \foreach \t/\xa/\xb in {题号/5.2/6.55,一/6.55/7.75,二/7.75/8.95,三.1/8.95/10.15,三.2/10.15/11.35,
+      三.3/11.35/12.55,三.4/12.55/13.75,三.5/13.75/14.95,三.6/14.95/16.15,三.7/16.15/17.35,
+      三.8/17.35/18.55,总分/18.55/20.05}
+    \node[font=\zihao{-4}\heiti] at ({(\xa+\xb)/2},5.44) {\t};
+  \node[font=\zihao{-4}\heiti] at (5.875,6.52) {得分};
+  \node[font=\zihao{-4}\heiti] at (5.875,7.60) {阅卷人};
+  % 片纸鉴心 诚信不败
+  \node[font=\fontsize{26pt}{30pt}\selectfont\stliti] at (11.6,9.05) {片纸鉴心\hspace{0.6em}诚信不败};
+  \draw[line width=0.6pt] (2.5,9.75) -- (3.3,9.75);
+  \draw[line width=0.6pt] (4.6,9.75) -- (20.05,9.75);
+  % 密封线（内侧，带“密”“封”）
+  \draw[densely dotted,line width=1pt] (4.5,9.2) -- (4.5,27.0);
+  \foreach \y/\t in {15.6/密,21.3/封}
+    \node[fill=white,inner sep=1.5pt,font=\zihao{-4}\songti] at (4.32,\y) {\t};
+  % 学生信息（外侧，竖排）
+  \draw[densely dotted,line width=1pt] (3.95,9.2) -- (3.95,27.0);
+  \foreach \yb/\t/\len in {13.9/授课教师/2.8,17.9/姓名/3.0,22.0/学号/3.1,26.6/院系/3.4}
+    \node[rotate=90,anchor=west,fill=white,inner xsep=2pt,font=\zihao{-4}\heiti] at (3.1,\yb)
+      {\t\rule[-1.5pt]{\len cm}{0.5pt}};
+\end{tikzpicture}%
+\vspace*{6.85cm}
+
+\noindent{\zihao{5}说明：考试时间 120 分钟，满分 100 分，允许使用计算器。如无特别说明，$\log$ 表示自然对数 $\ln$，数值结果保留 4 位有效数字。}

@@ -1,0 +1,321 @@
+\input{preamble}
+\geometry{left=2.4cm,right=2.4cm}
+\renewcommand{\coursename}{模式识别与机器学习A\quad 期末模拟试题（第二套）参考答案与评分标准}
+\fancyfootoffset[L]{0pt}
+\begin{document}
+
+\begin{center}
+{\LARGE\heiti 模式识别与机器学习A 期末模拟试题（第二套）}\\[4pt]
+{\Large\heiti 参考答案与评分标准}
+\end{center}
+
+%==================== 一、选择 ====================
+\sect{一、单项选择题（每小题 2 分）}
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|*{10}{c|}}\hline
+题号 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\ \hline
+答案 & C & B & D & A & D & B & A & D & A & C\\ \hline
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=\arabic*.]
+\item 训练误差远小于验证误差，是过拟合。A、B、D 都能缓解过拟合；KNN 的 $k$ 越小模型越复杂，把 $k$ 减到 1 会加重过拟合。
+\item 逻辑回归、朴素贝叶斯、感知机都是有监督学习。K-means、GMM、层次聚类、自编码器都不使用标签。
+\item $P(\omega_2|x)=\frac{0.04}{0.18+0.04}\approx0.1818$。判 $\omega_1$ 的条件风险 $R_1=10\times0.1818=1.818$，判 $\omega_2$ 的条件风险 $R_2=1\times0.8182=0.818$，故判 $\omega_2$。注意按最小错误率会判 $\omega_1$（选 C 的同学混淆了两种决策规则）。
+\item 输出边长 $(32-5+2\times2)/1+1=32$；参数 $16\times(5\times5\times3+1)=1216$。选 C 是漏掉了偏置。
+\item softmax 一般只用在输出层，把输出变为概率分布；隐藏层常用 ReLU 一类激活函数。
+\item $H(D)=-\frac34\log_2\frac34-\frac14\log_2\frac14\approx0.811$，$H(D|A)=\frac12\times0+\frac12\times1=0.5$，$g(D,A)\approx0.311$。
+\item 保留比例 $(5+3)/10=80\%$；平均重构误差等于丢弃的特征值之和 $1.5+0.5=2$。
+\item GRU 只有更新门和重置门，没有输出门，门比 LSTM 少，参数也更少。
+\item 由观测独立性假设，A 正确。前向算法求 $P(O|\lambda)$，维特比算法求最优状态序列；Baum-Welch 用于学习参数；HMM 是概率图模型，不是神经网络。
+\item 感知机的解依赖初值和样本顺序，不唯一；逻辑回归的决策边界 $\bm w^\top\bm x+b=0$ 是线性的；SVM 加核函数、逻辑回归加特征变换都能处理非线性问题。
+\end{enumerate}
+
+%==================== 二、判断 ====================
+\sect{二、判断对错题（每小题 1 分）}
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|*{10}{c|}}\hline
+题号 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20\\ \hline
+答案 & √ & × & × & √ & × & × & √ & √ & × & √\\ \hline
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=\arabic*.,start=11]
+\item 正确。原始 Dropout 是测试时把权重乘以保留概率，inverted dropout 把这一步移到训练时，两者期望一致。
+\item 错误。K-means 只能收敛到局部最优，对初始中心敏感，这正是 K-means++ 要解决的问题。
+\item 错误。阶数过高会过拟合，测试误差反而上升（见大题 7(4)）。
+\item 正确。MAP 估计中，高斯先验的对数为 $-\lambda\|\bm w\|_2^2$，拉普拉斯先验的对数为 $-\lambda\|\bm w\|_1$；L1 约束区域有“角”，最优解常落在坐标轴上。
+\item 错误。$C$ 越大对违反间隔的惩罚越重，容忍度越低，间隔越窄，越接近硬间隔。
+\item 错误。EM 只保证似然单调不减，收敛到局部极大值或鞍点，结果依赖初值。
+\item 正确。
+\item 正确。前向：$\alpha_{t+1}(j)=\big[\sum_i\alpha_t(i)a_{ij}\big]b_j(o_{t+1})$；维特比：$\delta_{t+1}(j)=\max_i[\delta_t(i)a_{ij}]\,b_j(o_{t+1})$。
+\item 错误。池化层没有参数，但梯度仍要经过它传到前层：最大池化把梯度传给最大值所在位置，平均池化把梯度均分。
+\item 正确。$\log p_\theta(\bm x)=\mathcal L+\KL(q_\phi\|p_\theta(\bm z|\bm x))$，左边与 $\phi$ 无关，增大 $\mathcal L$ 就是减小 KL。
+\end{enumerate}
+
+%==================== 大题 1 ====================
+\sect{三、计算与分析题}
+\noindent\textbf{1. 多层感知机与反向传播（10 分）}
+
+\textbf{(1)}（1 分）$W^{(1)}$ 4 个，$\bm b^{(1)}$ 2 个，$\bm w^{(2)}$ 2 个，$b^{(2)}$ 1 个，共 9 个。
+
+\textbf{(2)}（1 分）$\bm z=(1-2+0.5,\ 0.5+1-0.5)^\top=(-0.5,\ 1)^\top$，$\bm h=(0,\ 1)^\top$。
+
+\textbf{(3)}（1 分）$\hat y=1\times0+2\times1+0.5=2.5$，$L=\frac12(2.5-1)^2=1.125$。
+
+\textbf{(4)}（1.5 分）$\delta^{(2)}=\hat y-y=1.5$；$\frac{\partial L}{\partial\bm w^{(2)}}=\delta^{(2)}\bm h=(0,\ 1.5)^\top$；$\frac{\partial L}{\partial b^{(2)}}=1.5$。
+
+\textbf{(5)}（2 分）$\bm\delta^{(1)}=\big(\bm w^{(2)}\delta^{(2)}\big)\odot\mathrm{ReLU}'(\bm z)=(1.5,\ 3)\odot(0,\ 1)=(0,\ 3)^\top$（表达式 1 分）。
+\[
+\frac{\partial L}{\partial W^{(1)}}=\bm\delta^{(1)}\bm x^\top=\begin{pmatrix}0&0\\3&6\end{pmatrix},\qquad
+\frac{\partial L}{\partial\bm b^{(1)}}=\bm\delta^{(1)}=(0,\ 3)^\top\quad\text{（1 分）}.
+\]
+漏掉 ReLU 导数（得到 $W^{(1)}$ 第一行梯度非零）的，本小问最多得 0.5 分。
+
+\textbf{(6)}（1.5 分）
+\[
+W^{(1)}\leftarrow\begin{pmatrix}1&-1\\0.2&-0.1\end{pmatrix},\quad
+\bm b^{(1)}\leftarrow\begin{pmatrix}0.5\\-0.8\end{pmatrix},\quad
+\bm w^{(2)}\leftarrow\begin{pmatrix}1\\1.85\end{pmatrix},\quad b^{(2)}\leftarrow0.35 .
+\]
+
+\textbf{(7)}（1 分）$\bm z=(-0.5,\ -0.8)^\top$，$\bm h=(0,0)^\top$，$\hat y=0.35$，$L=\frac12(0.65)^2\approx0.2113$，损失下降。
+两个隐藏单元输入都为负、输出全为 0，即“ReLU 死亡”。此时 $\mathrm{ReLU}'(\bm z)=\bm 0$，该样本无法再更新 $W^{(1)},\bm b^{(1)}$，网络输出只剩 $b^{(2)}$，表达能力退化。
+
+\textbf{(8)}（1 分）缓解（任两种，0.5 分）：减小学习率；改用 Leaky ReLU / ELU；He 初始化；BatchNorm。
+全零初始化时，同一层所有神经元的输出和梯度完全相同，更新后仍然相同，无法打破对称性，隐藏层相当于只有一个神经元（0.5 分）。
+
+\medskip
+\noindent\textbf{2. 支持向量机（8 分）}
+
+\textbf{(1)}（1 分）分离超平面：把两类样本分开的决策边界 $\bm w^\top\bm x+b=0$，二维中是一条直线。支持向量：离超平面最近、恰好落在间隔边界 $\bm w^\top\bm x+b=\pm1$ 上的样本，最优超平面只由它们决定。函数间隔 $\hat\gamma_i=y_i(\bm w^\top\bm x_i+b)$，会随 $\bm w,b$ 等比缩放而变；几何间隔 $\gamma_i=\hat\gamma_i/\|\bm w\|$，是样本到超平面的带符号真实距离。
+
+\textbf{(2)}（1 分）$\min_{\bm w,b}\frac12\|\bm w\|^2$，s.t. $y_i(\bm w^\top\bm x_i+b)\ge1$，$i=1,2,3$。
+
+\textbf{(3)}（1 分）离得最近的异类点是 $\bm x_1$ 与 $\bm x_3$，最优超平面是二者连线的中垂线，$\bm w^*\propto(1,1)$。由 $\bm w^\top\bm x_1+b=1$、$\bm w^\top\bm x_3+b=-1$ 得 $\bm w^*=(0.5,\ 0.5)^\top$，$b^*=-1$，即 $x^{(1)}+x^{(2)}-2=0$。
+验证 $\bm x_2$：$y_2(\bm w^\top\bm x_2+b)=2.5\ge1$。间隔 $2/\|\bm w^*\|=2\sqrt2\approx2.828$；支持向量为 $\bm x_1,\bm x_3$。
+
+\textbf{(4)}（1 分）对偶问题：$\max_{\bm\alpha}\sum_i\alpha_i-\frac12\sum_{i,j}\alpha_i\alpha_jy_iy_j\bm x_i^\top\bm x_j$，s.t. $\sum_i\alpha_iy_i=0$，$\alpha_i\ge0$。
+非支持向量 $\alpha_2=0$；由 $\alpha_1-\alpha_3=0$ 和 $\alpha_1(2,2)=(0.5,0.5)$ 得 $\alpha_1=\alpha_3=0.25$。
+求对偶的原因：约束更简单；样本只以内积出现，便于引入核函数；解是稀疏的，只有支持向量的 $\alpha_i>0$。
+
+\textbf{(5)}（1 分）$y_i(\bm w^\top\bm x_i+b)$ 依次为 $1,\ 2.5,\ 1,\ 0.25,\ -0.5$，故 $\xi=(0,\ 0,\ 0,\ 0.75,\ 1.5)$。$\bm x_4$：$0<\xi<1$，在间隔内但分类正确；$\bm x_5$：$\xi>1$，被误分类。
+
+\textbf{(6)}（1 分）$\frac12\|\bm w\|^2+C\sum\xi_i=0.25+2.25=2.5$。$C$ 增大：惩罚加重，间隔变窄，误分类减少，易过拟合；$C$ 减小：间隔变宽，容许更多误分类，易欠拟合。
+
+\textbf{(7)}（1 分）对偶约束 $\sum_i\alpha_iy_i=0$，$0\le\alpha_i\le C$。
+$\alpha_i=0$：在间隔边界外、分类正确；$0<\alpha_i<C$：$\xi_i=0$，恰在间隔边界上；$\alpha_i=C$：$\xi_i>0$，在间隔内或被误分类。
+等价形式 $\min_{\bm w,b}\sum_i\max\big(0,\ 1-y_i(\bm w^\top\bm x_i+b)\big)+\lambda\|\bm w\|^2$，$\lambda=\frac1{2C}$。
+
+\textbf{(8)}（1 分）用非线性映射 $\phi$ 把样本映射到高维空间，使其线性可分。对偶问题与决策函数 $f(\bm x)=\mathrm{sign}\big(\sum_i\alpha_iy_i\bm x_i^\top\bm x+b\big)$ 中样本只以内积出现，可直接换成 $K(\bm x_i,\bm x_j)=\phi(\bm x_i)^\top\phi(\bm x_j)$，不必显式计算 $\phi$。
+高斯核 $K(\bm x,\bm z)=\exp\!\big(-\|\bm x-\bm z\|^2/(2\sigma^2)\big)$。$\sigma$ 过小时核只对极近的样本有响应，决策边界过于复杂，易过拟合。
+
+\medskip
+\noindent\textbf{3. 非参数估计与聚类（12 分）}
+
+\textbf{(1)}（1 分）窗口 $[3.5,7.5]$ 内有 $\{4,7\}$，$k=2$，$V=4$，$\hat p(5.5)=\frac{2}{6\times4}=\frac1{12}\approx0.0833$。
+
+\textbf{(2)}（1 分）到 5.5 的距离为 $4{:}1.5,\ 7{:}1.5,\ 2{:}3.5,\ 9{:}3.5,\dots$，第 3 近邻距离 3.5，区间长 $V=7$，$\hat p(5.5)=\frac{3}{6\times7}=\frac1{14}\approx0.0714$。
+Parzen 窗固定体积 $V$（由 $h$ 决定），统计落入的样本数；KNN 固定样本数 $k$，让体积随局部密度变化。$h$ 或 $k$ 过小：估计起伏大、受噪声影响大（方差大）；过大：过度平滑，丢失细节（偏差大）。
+
+\textbf{(3)}（1 分）到 6 的距离：$7{:}1$(B)，$4{:}2$(A)，$9{:}3$(B)。1-NN 判 B；3-NN 中 B 占 2 票，判 B。
+
+\textbf{(4)}（1.5 分）步骤：选 $K$ 个初始中心；把每个样本分到最近的中心；用簇内均值更新中心；重复直到划分不变。优化目标 $J=\sum_k\sum_{x\in C_k}\|x-\mu_k\|^2$（0.5 分）。
+\begin{center}
+\begin{tabular}{cll}
+\toprule
+轮次 & 划分 & 新中心\\ \midrule
+1 & $\{1,2\}$，$\{4,7,9,10\}$ & $1.5,\ 7.5$\\
+2 & $\{1,2,4\}$，$\{7,9,10\}$ & $7/3\approx2.333,\ 26/3\approx8.667$\\
+3 & 划分不变 & 收敛\\
+\bottomrule
+\end{tabular}
+\end{center}
+SSE $=\big[(4/3)^2+(1/3)^2+(5/3)^2\big]+\big[(5/3)^2+(1/3)^2+(4/3)^2\big]=\frac{28}{3}\approx9.333$（1 分）。
+
+\textbf{(5)}（1 分）需预先指定 $K$；对初始中心敏感，易陷入局部最优；对噪声和离群点敏感；只适合凸形、大小相近的簇；对特征尺度敏感（答出三条即可）。
+
+\textbf{(6)}（1 分）到中心 4 的距离平方：$1{:}9,\ 2{:}4,\ 7{:}9,\ 9{:}25,\ 10{:}36$，总和 83。被选概率依次为 $\frac9{83},\frac4{83},\frac9{83},\frac{25}{83},\frac{36}{83}$（约 $0.108,0.048,0.108,0.301,0.434$）。针对的是对初始中心敏感的缺点：让初始中心彼此尽量远。
+
+\textbf{(7)}（1 分）$a(4)=\frac{3+2}{2}=2.5$，$b(4)=\frac{3+5+6}{3}=\frac{14}3$，$s(4)=\frac{b-a}{\max(a,b)}=\frac{13}{28}\approx0.4643$。$s\to+1$：离本簇近、离其他簇远，聚类合理；$s\to-1$：离其他簇更近，很可能被分错。
+
+\textbf{(8)}（1.5 分）单链 $d=7-4=3$；全链 $d=10-1=9$；平均链 $d=\frac19\sum_{a\in C_1,b\in C_2}|a-b|=\frac{57}9\approx6.333$（各 0.3 分）。
+单链：一个桥接点就能把两簇连起来，产生链式效应，能发现细长或非凸的簇；全链：对离群点敏感，偏好直径小、紧凑的球形簇；平均链介于二者之间，对噪声相对鲁棒（0.6 分）。
+
+\textbf{(9)}（1.5 分）EM 思想：含隐变量时直接极大化似然困难；E 步用当前参数求隐变量的后验期望，M 步在此基础上极大化期望对数似然更新参数，交替迭代，似然单调不减（0.5 分）。
+$\gamma_1(4)=\frac{\pi_1\mathcal N(4|2,4)}{\pi_1\mathcal N(4|2,4)+\pi_2\mathcal N(4|8,4)}=\frac{e^{-4/8}}{e^{-4/8}+e^{-16/8}}=\frac1{1+e^{-1.5}}\approx0.8176$（0.5 分）。
+记 $N_k=\sum_i\gamma_k(x_i)$：$\pi_k=\frac{N_k}{n}$，$\mu_k=\frac1{N_k}\sum_i\gamma_k(x_i)x_i$，$\sigma_k^2=\frac1{N_k}\sum_i\gamma_k(x_i)(x_i-\mu_k)^2$（0.5 分）。
+
+\textbf{(10)}（0.5 分）各分量协方差相同且为 $\sigma^2I$、$\sigma^2\to0$ 时，软分配退化为 0/1 硬分配，即 K-means。协方差不可逆：某分量只分到极少样本或样本共线，特征维数大于有效样本数；解决办法是对协方差加 $\epsilon I$、限制为对角协方差、重新初始化塌缩的分量或先降维。
+
+\textbf{(11)}（1 分）选 DBSCAN。它基于密度，可发现任意形状的簇，不需要预先指定簇数，能把噪声点单独标出。K-means 要求每个点都归入某簇，噪声会拉偏中心，且只适合凸形簇。
+DBSCAN 给定半径 $\varepsilon$ 和最小点数 MinPts：$\varepsilon$-邻域内点数不少于 MinPts 的是核心点；不是核心点但在某核心点邻域内的是边界点；其余点既不是核心点、也不能由核心点密度可达，标为噪声，不划入任何簇。
+
+\medskip
+\noindent\textbf{4. 自编码器与变分自编码器（8 分）}
+
+\textbf{(1)}（1 分）编码 $\bm z=\sigma(W\bm x+\bm b)$，解码 $\bm x'=\sigma'(W'\bm z+\bm b')$，训练目标是最小化重构误差 $\|\bm x-\bm x'\|^2$（或交叉熵）。
+
+\textbf{(2)}（0.5 分）$\bm x'$ 与 $\bm x$ 长度相等，因为要逐元素计算重构误差。$\bm z$ 通常比 $\bm x$ 小，形成“瓶颈”，迫使网络只保留最重要的信息，否则可能学成恒等映射。
+
+\textbf{(3)}（0.5 分）图像降维与特征提取、图像去噪（去噪自编码器）、图像压缩、异常检测、为下游有监督任务提供特征（任三种）。
+
+\textbf{(4)}（0.5 分）普通自编码器的隐空间没有约束成已知分布，编码点分布离散、不连续，随机取一个 $\bm z$ 解码往往得不到有意义的图像。
+
+\textbf{(5)}（2 分）$\log p_\theta(\bm x)$ 与 $\bm z$ 无关，对 $q_\phi(\bm z|\bm x)$ 取期望不变：
+\[
+\log p_\theta(\bm x)=\E_{q}\Big[\log\frac{p_\theta(\bm x,\bm z)}{p_\theta(\bm z|\bm x)}\Big]
+=\E_{q}\Big[\log\frac{p_\theta(\bm x,\bm z)}{q_\phi(\bm z|\bm x)}\Big]+\E_{q}\Big[\log\frac{q_\phi(\bm z|\bm x)}{p_\theta(\bm z|\bm x)}\Big].
+\]
+第二项是 $\KL(q_\phi(\bm z|\bm x)\|p_\theta(\bm z|\bm x))$（1 分）。第一项代入 $p_\theta(\bm x,\bm z)=p_\theta(\bm x|\bm z)p(\bm z)$：
+\[
+\E_q[\log p_\theta(\bm x|\bm z)]+\E_q\Big[\log\frac{p(\bm z)}{q_\phi(\bm z|\bm x)}\Big]
+=\E_q[\log p_\theta(\bm x|\bm z)]-\KL\big(q_\phi(\bm z|\bm x)\,\|\,p(\bm z)\big)=\mathcal L\quad\text{（1 分）}.
+\]
+
+\textbf{(6)}（1 分）$\KL\ge0$，所以 $\log p_\theta(\bm x)\ge\mathcal L$，$\mathcal L$ 是对数证据（边际似然）的下界。$\log p_\theta(\bm x)=\log\int p_\theta(\bm x|\bm z)p(\bm z)\,d\bm z$ 的积分和真实后验都难以计算，而 $\mathcal L$ 可用采样估计并求梯度。
+第一项是重构项，让解码器能从 $\bm z$ 还原 $\bm x$；第二项是正则项，让近似后验靠近先验，使隐空间连续、可采样。
+
+\textbf{(7)}（1 分）第 1 维 $1+1-1-0=1$；第 2 维 $0+e^{-1}-1+1=e^{-1}$；$\KL=\frac12(1+e^{-1})\approx0.6839$。
+
+\textbf{(8)}（1 分）把 $\bm z\sim\mathcal N(\bm\mu,\bm\sigma^2)$ 写成 $\bm z=\bm\mu+\bm\sigma\odot\bm\varepsilon$，$\bm\varepsilon\sim\mathcal N(\bm 0,I)$。随机性移到与参数无关的 $\bm\varepsilon$ 上后，$\bm z$ 对 $\bm\mu,\bm\sigma$ 可导。不用这个技巧时，“从 $q_\phi$ 采样”这一步不可导，梯度传不回编码器参数 $\phi$。
+
+\textbf{(9)}（0.5 分）从先验 $\mathcal N(\bm 0,I)$ 采样 $\bm z$，送入解码器即得新样本，不需要编码器。CVAE 在编码器和解码器的输入中都拼接条件（如类别标签 $\bm y$），生成时指定 $\bm y$ 再采样 $\bm z$，可以生成指定类别的样本。
+
+\medskip
+\noindent\textbf{5. 卷积神经网络、循环神经网络与 Transformer（8 分）}
+
+\textbf{(1)}（1 分）输出尺寸 $(4-3)+1=2$。卷积核取窗口的四角与中心之和：
+左上 $(1+2+2+0)+1=6$，右上 $(0+1+1+1)+1=4$，左下 $(0+1+1+1)+1=4$，右下 $(1+0+0+2)+0=3$，输出 $\begin{pmatrix}6&4\\4&3\end{pmatrix}$。
+
+\textbf{(2)}（1 分）最大池化结果为 $6$。局部连接：每个神经元只连一个小邻域，参数和计算量大幅减少，并能提取局部特征。权值共享：同一卷积核在所有位置复用，参数量与输入尺寸无关，并带来平移等变性。
+
+\textbf{(3)}（1 分）感受野 $3+(3-1)=5$，即 $5\times5$。参数量：两层 $3\times3$ 为 $2\times9C^2=18C^2$，单层 $5\times5$ 为 $25C^2$。堆叠小卷积核参数更少，还多一层非线性。
+
+\textbf{(4)}（1 分）$\bm h_t=f(U\bm x_t+W\bm h_{t-1}+\bm b)$，$\bm o_t=\mathrm{softmax}(V\bm h_t+\bm c)$，$f$ 常取 $\tanh$；各时刻共享 $U,W,V$。$V$ 为 10 行 200 列。
+
+\textbf{(5)}（0.5 分）$h_1=\tanh(1)\approx0.7616$；$h_2=\tanh(-1+0.5\times0.7616)=\tanh(-0.6192)\approx-0.5506$。
+
+\textbf{(6)}（0.5 分）$\frac{\partial h_2}{\partial h_1}=u(1-h_2^2)\approx0.5\times0.6969\approx0.3484$。长度为 $T$ 时 $\frac{\partial h_T}{\partial h_1}=\prod_{t=2}^{T}u(1-h_t^2)$：每个因子小于 1 时连乘指数衰减（梯度消失）；$|u|$ 很大使因子大于 1 时连乘指数增长（梯度爆炸）。
+
+\textbf{(7)}（1 分）$c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t$，$h_t=o_t\odot\tanh(c_t)$。遗忘门决定保留多少旧记忆，输入门决定写入多少新信息，输出门决定输出多少记忆。
+数值：$c_t=0.5\times2+0.8\times0.5=1.4$，$h_t=0.5\tanh(1.4)\approx0.4427$。
+$c_t$ 对 $c_{t-1}$ 的偏导主要是 $f_t$，加法更新避免了反复乘同一权重矩阵和激活导数；$f_t\approx1$ 时梯度能跨很多步传播。
+
+\textbf{(8)}（0.5 分）GRU 只有更新门和重置门，没有单独的细胞状态和输出门；更新门同时承担遗忘门与输入门的作用（$1-z_t$ 与 $z_t$），参数更少。
+
+\textbf{(9)}（1 分）得分 $\bm q\bm k_1^\top/\sqrt2\approx0.7071$，$\bm q\bm k_2^\top/\sqrt2=0$；权重 $\mathrm{softmax}=(0.6698,\ 0.3302)$；输出 $0.6698(1,2)+0.3302(3,0)=(1.660,\ 1.340)$。
+除以 $\sqrt{d_k}$：$d_k$ 较大时点积方差随 $d_k$ 增大，softmax 进入饱和区、梯度很小；缩放后方差约为 1。
+
+\textbf{(10)}（0.5 分）自注意力对输入顺序是置换等变的，本身不含位置信息，位置编码把位置信息加到词向量上。RNN 不需要，它按时间步依次递推，顺序已体现在计算过程中。
+
+\medskip
+\noindent\textbf{6. 朴素贝叶斯分类器（8 分）}
+
+\textbf{(1)}（1 分）$\hat y=\argmax_y P(y)\prod_iP(x_i|y)$。“朴素”指给定类别时各特征条件独立。若数据确实满足该假设，它算出的就是真实后验，按最大后验判决，是最小错误率意义下的最优（贝叶斯）分类器。
+
+\textbf{(2)}（0.5 分）$P(\text{Pos})=P(\text{Neg})=\frac24=\frac12$。
+
+\textbf{(3)}（1 分）Pos 类词频：good 2、movie 2、great 1，$N_y=5$；Neg 类：boring 2、movie 1、bad 1、plot 1，$N_y=5$。
+$P(\text{good}|\text{Pos})=\frac{2+1}{5+6}=\frac3{11}$，$P(\text{boring}|\text{Pos})=\frac{0+1}{11}=\frac1{11}$；
+$P(\text{good}|\text{Neg})=\frac1{11}$，$P(\text{boring}|\text{Neg})=\frac{2+1}{11}=\frac3{11}$。
+
+\textbf{(4)}（1 分）
+\[
+\text{Pos}:\ \tfrac12\cdot\big(\tfrac3{11}\big)^2\cdot\tfrac1{11}=\tfrac{9}{2662}\approx3.381\times10^{-3},\qquad
+\text{Neg}:\ \tfrac12\cdot\big(\tfrac1{11}\big)^2\cdot\tfrac3{11}=\tfrac{3}{2662}\approx1.127\times10^{-3}.
+\]
+判为 \textbf{Pos}。good 出现 2 次，要乘两次。
+
+\textbf{(5)}（1.5 分）每类 2 篇文档，$P(x_i=1|y)=\frac{\text{含词文档数}+1}{2+2}$：
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+ & good & movie & great & boring & bad & plot\\ \midrule
+Pos & 1/2 & 3/4 & 1/2 & 1/4 & 1/4 & 1/4\\
+Neg & 1/4 & 1/2 & 1/4 & 3/4 & 1/2 & 1/2\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{(6)}（1 分）测试文档含 good、boring，不含 movie、great、bad、plot。因子依次为先验、good、$1-P(\text{movie})$、$1-P(\text{great})$、boring、$1-P(\text{bad})$、$1-P(\text{plot})$：
+\[
+\text{Pos}:\ \tfrac12\cdot\tfrac12\cdot\tfrac14\cdot\tfrac12\cdot\tfrac14\cdot\tfrac34\cdot\tfrac34=\tfrac{9}{2048}\approx4.395\times10^{-3},\qquad
+\text{Neg}:\ \tfrac12\cdot\tfrac14\cdot\tfrac12\cdot\tfrac34\cdot\tfrac34\cdot\tfrac12\cdot\tfrac12=\tfrac{9}{1024}\approx8.789\times10^{-3}.
+\]
+判为 \textbf{Neg}。漏乘未出现词的 $1-P$ 项的，本小问不得分。
+
+\textbf{(7)}（1 分）不一致。多项式模型利用词频，good 出现 2 次被计两次；伯努利模型只看词是否出现，并把“未出现”也当作证据（Pos 类的常见词 movie 没出现，拉低了 Pos 的得分）。
+不平滑时，某类训练集中未出现的词条件概率为 0，整个连乘为 0，一个词就能否决一个类别。$\alpha=1$ 为拉普拉斯平滑，$0<\alpha<1$ 为 Lidstone 平滑。
+
+\textbf{(8)}（1 分）连续特征若用频数估计，测试值几乎都没在训练集中出现，条件概率大多为 0，平滑后也难以描述真实分布。
+Pos：$\mu=4$，$\sigma^2=\frac{4+0+4}{3}=\frac83$；Neg：$\mu=7$，$\sigma^2=\frac83$（MLE 除以 $n$）。
+$P(5|y)=\frac1{\sqrt{2\pi\sigma^2}}\exp\!\big(-\frac{(5-\mu)^2}{2\sigma^2}\big)$：Pos 约 $0.2025$，Neg 约 $0.1154$，判为 Pos。
+
+\medskip
+\noindent\textbf{7. 回归、感知机与正则化（8 分）}
+
+\textbf{(1)}（1 分）记 $e_i=\bm w^\top\bm x_i+b-y_i$，$J(\bm w,b)=\sum_{i=1}^m e_i^2$。
+$\frac{\partial J}{\partial\bm w}=2\sum_ie_i\bm x_i$，$\frac{\partial J}{\partial b}=2\sum_ie_i$；
+更新 $\bm w\leftarrow\bm w-2\eta\sum_ie_i\bm x_i$，$b\leftarrow b-2\eta\sum_ie_i$。
+（损失写成 $\frac12\sum e_i^2$ 或 $\frac1m\sum e_i^2$ 时，梯度中的系数相应改变，前后自洽即给分。）
+
+\textbf{(2)}（1 分）岭回归最小化 $\|X\bm w-\bm y\|^2+\lambda\|\bm w\|^2$，闭式解 $\hat{\bm w}=(X^\top X+\lambda I)^{-1}X^\top\bm y$。$X^\top X$ 半正定，$\lambda>0$ 时 $X^\top X+\lambda I$ 的特征值都不小于 $\lambda$，必定正定可逆。这解决了特征共线、或样本数少于特征数时的不可逆问题。
+
+\textbf{(3)}（0.5 分）把 $x$ 扩展为 $\bm\phi(x)=(1,x,x^2,\dots,x^M)$，建立 $\hat y=\sum_{j=0}^Mw_jx^j$，用最小二乘或梯度下降求解，并选择合适的阶数 $M$。模型对参数 $\bm w$ 是线性的：把 $\bm\phi(x)$ 当作新特征，就是线性回归。
+
+\textbf{(4)}（0.5 分）$M=1$ 欠拟合：训练、测试误差都较大，模型容量不足。$M=9$ 过拟合：训练误差为 0、测试误差很大，模型把噪声也拟合了。$M=3$ 最合适。
+
+\textbf{(5)}（0.5 分）$\hat y(2)=3$，误差 $-0.2$；$\hat y(3)=5.5$，误差 $0.3$；$\mathrm{MSE}=\frac{0.04+0.09}{2}=0.065$。注意分母是样本数 2。
+
+\textbf{(6)}（1 分）$\sigma(u)=\frac1{1+e^{-u}}$；$J=-\big[y\log p+(1-y)\log(1-p)\big]$，$p=\sigma(u)$，$u=\bm w^\top\bm x+b$。
+由 $\sigma'(u)=p(1-p)$：$\frac{\partial J}{\partial u}=-\frac yp\,p(1-p)+\frac{1-y}{1-p}\,p(1-p)=p-y$，再乘 $\frac{\partial u}{\partial\bm w}=\bm x$，得 $\frac{\partial J}{\partial\bm w}=(p-y)\bm x$。
+
+\textbf{(7)}（1 分）$p=\sigma(0)=0.5$，梯度 $(0.5-1)(1,2)=(-0.5,-1)$，$\partial J/\partial b=-0.5$。
+更新后 $\bm w=(0.25,\ 0.5)$，$b=0.25$；$u=0.25+1+0.25=1.5$，$P(y=1|\bm x)=\sigma(1.5)\approx0.8176$。
+
+\textbf{(8)}（0.5 分）任务：线性回归做回归，逻辑回归做（二）分类。输出：线性回归输出任意实数，逻辑回归经 Sigmoid 输出 $0\sim1$ 的概率并按阈值判类。损失：线性回归用 MSE，逻辑回归用交叉熵。
+不用 MSE：Sigmoid 加 MSE 的损失关于参数非凸；梯度含 $\sigma'(u)$ 因子，输出饱和时梯度很小，学习缓慢。交叉熵的梯度为 $p-y$，误差越大梯度越大。
+
+\textbf{(9)}（1 分）规则：若 $y_i(\bm w^\top\bm x_i+b)\le0$，则 $\bm w\leftarrow\bm w+\eta y_i\bm x_i$，$b\leftarrow b+\eta y_i$。
+$\bm x_1$：$1\times0=0\le0$，更新为 $\bm w=(3,3)$，$b=1$；$\bm x_2$：$-1\times(3+3+1)=-7\le0$，更新为 $\bm w=(2,2)$，$b=0$（0.6 分）。
+感知机直接输出 $\pm1$，是硬判别，只由误分类点驱动更新，找到任意一个分离面就停止；逻辑回归输出概率，是软判别，所有样本都参与极大似然优化（0.4 分）。
+
+\textbf{(10)}（1 分）L1 正则 $\lambda\|\bm w\|_1$ 使很多权重恰为 0，得到稀疏解，可做特征选择；L2 正则 $\lambda\|\bm w\|_2^2$ 使权重整体变小、一般不为 0（权重衰减），解更平滑稳定（0.5 分）。
+深度网络中（任两种，0.5 分）：Dropout（训练时随机丢弃神经元，减少共适应，近似集成多个子网络）；提前停止（验证误差开始上升时停止训练）；数据增强（扩充有效样本）；BatchNorm（带一定正则化效果）。
+
+\medskip
+\noindent\textbf{8. 隐马尔可夫模型的前向算法（8 分）}
+
+\textbf{(1)}（1 分）$\pi$：初始时刻各状态的概率；$A$：状态转移概率 $a_{ij}=P(i_{t+1}=q_j|i_t=q_i)$；$B$：观测概率 $b_j(k)=P(o_t=v_k|i_t=q_j)$。$\pi$ 和 $A$ 决定隐状态序列，$B$ 决定观测序列。两个假设为
+\[
+\text{齐次马尔可夫：}P(i_t|i_{t-1},o_{t-1},\dots,i_1,o_1)=P(i_t|i_{t-1});\]
+\[\text{观测独立：}P(o_t|i_T,o_T,\dots,i_1,o_1)=P(o_t|i_t).
+\]
+
+\textbf{(2)}（1 分）概率计算问题：已知 $\lambda$ 和 $O$，求 $P(O|\lambda)$，用前向/后向算法。学习问题：已知 $O$，估计 $\lambda$，用 Baum-Welch（EM）算法。预测（解码）问题：已知 $\lambda$ 和 $O$，求最可能的状态序列，用维特比算法。
+
+\textbf{(3)}（1 分）$\alpha_t(i)=P(o_1,\dots,o_t,\ i_t=q_i\,|\,\lambda)$。
+初值 $\alpha_1(i)=\pi_ib_i(o_1)$；递推 $\alpha_{t+1}(i)=\big[\sum_{j=1}^N\alpha_t(j)a_{ji}\big]b_i(o_{t+1})$；终止 $P(O|\lambda)=\sum_i\alpha_T(i)$。
+
+\textbf{(4)}（1 分）$\alpha_1=(0.4\times0.8,\ 0.4\times0.4,\ 0.2\times0.1)=(0.32,\ 0.16,\ 0.02)$。
+
+\textbf{(5)}（1 分）$\sum_j\alpha_1(j)a_{ji}=(0.226,\ 0.184,\ 0.090)$，例如 $i=1$：$0.32\times0.6+0.16\times0.2+0.02\times0.1=0.226$。
+$\alpha_2=(0.226\times0.2,\ 0.184\times0.6,\ 0.090\times0.9)=(0.0452,\ 0.1104,\ 0.0810)$。
+
+\textbf{(6)}（1 分）$\sum_j\alpha_2(j)a_{ji}=(0.0573,\ 0.10116,\ 0.07814)$，\\
+$\alpha_3=(0.0573\times0.2,\ 0.10116\times0.6,\ 0.07814\times0.9)=(0.01146,\ 0.060696,\ 0.070326)$。
+$P(O|\lambda)=0.01146+0.060696+0.070326=0.142482\approx0.1425$。
+（可用后向算法验证：$\sum_i\pi_ib_i(o_1)\beta_1(i)$ 同样等于 $0.142482$。）
+
+\textbf{(7)}（0.5 分）$P(i_3=q_j|O,\lambda)=\alpha_3(j)/P(O|\lambda)=(0.0804,\ 0.4260,\ 0.4936)$，第 3 天最可能是\textbf{雨}。
+
+\textbf{(8)}（0.5 分）直接枚举要对 $N^T$ 条路径求和，复杂度 $O(TN^T)$；前向算法复用中间结果，复杂度 $O(TN^2)$。
+
+\textbf{(9)}（1 分）是维特比算法：
+$\delta_1=(0.32,\ 0.16,\ 0.02)$；
+$\delta_2=(0.0384,\ 0.0576,\ 0.0432)$，$\psi_2=(1,1,2)$；
+$\delta_3=(0.004608,\ 0.01728,\ 0.01944)$，$\psi_3=(1,2,3)$。
+最大概率 $0.01944$，终点 $i_3^*=3$，回溯 $i_2^*=\psi_3(3)=3$，$i_1^*=\psi_2(3)=2$，最优序列为\textbf{（阴，雨，雨）}。
+一般情况下，“逐个时刻取最可能的状态”与“整条路径最可能”不一定相同。
+\end{document}

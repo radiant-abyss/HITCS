@@ -1,0 +1,193 @@
+<div id="kmeans-ten-points-example">
+  <style>
+    #kmeans-ten-points-example { color: var(--foreground); }
+    #kmeans-ten-points-example .km-plot { width: 100%; }
+    #kmeans-ten-points-example .km-chart { display: block; width: 100%; overflow: visible; }
+    #kmeans-ten-points-example .km-chart text { fill: var(--foreground); font-size: 12px; font-weight: 400; }
+    #kmeans-ten-points-example .km-chart .km-center { transition: transform 500ms ease; }
+    #kmeans-ten-points-example .km-chart .km-dot { transition: fill 400ms ease; }
+    #kmeans-ten-points-example .km-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin: 8px 0; }
+    #kmeans-ten-points-example .km-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    #kmeans-ten-points-example .km-swatch { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+    #kmeans-ten-points-example .km-centers { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 8px 0; }
+    #kmeans-ten-points-example .km-detail { margin: 8px 0; }
+    @media (prefers-reduced-motion: reduce) {
+      #kmeans-ten-points-example .km-chart .km-center,
+      #kmeans-ten-points-example .km-chart .km-dot { transition: none; }
+    }
+  </style>
+  <h3>中心移动与点的归属</h3>
+  <div class="viz-controls">
+    <label class="form-label" for="km-ten-stage">步骤
+      <select id="km-ten-stage" class="form-select">
+        <option value="0">初始中心</option>
+        <option value="1">第 1 轮：分配点</option>
+        <option value="2">第 1 轮：更新中心</option>
+        <option value="3">第 2 轮：重新分配点</option>
+        <option value="4">第 2 轮：更新中心</option>
+        <option value="5">第 3 轮：分组不变，停止</option>
+      </select>
+    </label>
+  </div>
+  <div class="km-legend">
+    <span class="km-legend-item"><span class="km-swatch" style="background:var(--viz-series-1)"></span>簇 1</span>
+    <span class="km-legend-item"><span class="km-swatch" style="background:var(--viz-series-2)"></span>簇 2</span>
+    <span class="km-legend-item"><span class="km-swatch" style="background:var(--viz-series-3)"></span>簇 3</span>
+    <span>× 中心</span>
+    <span class="text-small">虚线箭头：中心移动</span>
+  </div>
+  <div class="km-plot"><svg class="km-chart" role="img" aria-labelledby="km-ten-svg-title km-ten-svg-desc"></svg></div>
+  <div class="km-centers tabular-nums" aria-live="polite" id="km-ten-centers"></div>
+  <div class="km-detail tabular-nums" id="km-ten-p4" aria-live="polite"></div>
+  <div class="text-small" id="km-ten-members" aria-live="polite"></div>
+  <script>
+  (() => {
+    const root = document.getElementById('kmeans-ten-points-example');
+    const svg = root.querySelector('.km-chart');
+    const stageControl = root.querySelector('#km-ten-stage');
+    const centerText = root.querySelector('#km-ten-centers');
+    const p4Text = root.querySelector('#km-ten-p4');
+    const membersText = root.querySelector('#km-ten-members');
+    const points = [[0,0],[0,1],[1,0],[1,2],[4,0],[4,1],[5,0],[2,4],[2,5],[3,4]];
+    const initial = [[0,0],[1,2],[2,4]];
+    const firstCenters = [[1/3,1/3],[7/2,3/4],[7/3,13/3]];
+    const finalCenters = [[1/2,3/4],[13/3,1/3],[7/3,13/3]];
+    const firstLabels = [0,0,0,1,1,1,1,2,2,2];
+    const finalLabels = [0,0,0,0,1,1,1,2,2,2];
+    const stages = [
+      {centers:initial, labels:null},
+      {centers:initial, labels:firstLabels},
+      {centers:firstCenters, labels:firstLabels, from:initial},
+      {centers:firstCenters, labels:finalLabels},
+      {centers:finalCenters, labels:finalLabels, from:firstCenters},
+      {centers:finalCenters, labels:finalLabels}
+    ];
+    const color = j => 'var(--viz-series-' + (j+1) + ')';
+    const dist2 = (p,c) => (p[0]-c[0])**2 + (p[1]-c[1])**2;
+    const number = n => Number(n.toFixed(3)).toString();
+    const coord = c => '(' + c.map(number).join(', ') + ')';
+    const ns = 'http://www.w3.org/2000/svg';
+    function make(tag, attrs, parent, text) {
+      const el = document.createElementNS(ns,tag);
+      Object.entries(attrs || {}).forEach(([key,value]) => el.setAttribute(key,String(value)));
+      if (text !== undefined) el.textContent = text;
+      (parent || svg).appendChild(el);
+      return el;
+    }
+    let stage = 0;
+    const saved = window.openai?.widgetState;
+    if (saved?.modelContent?.example === 'kmeans-ten-points' && Number.isInteger(saved.privateContent?.stage)) {
+      stage = Math.max(0,Math.min(5,saved.privateContent.stage));
+    }
+    let pointMarks = [], centerMarks = [], arrows;
+    let sx,sy;
+    function renderFrame() {
+      const width = Math.max(280,root.querySelector('.km-plot').getBoundingClientRect().width);
+      const side = Math.min(440,width-84);
+      const left = Math.max(64,(width-side)/2), top = 20;
+      const height = side + 78;
+      svg.setAttribute('viewBox','0 0 ' + width + ' ' + height);
+      svg.style.height = height + 'px';
+      svg.replaceChildren();
+      make('title',{id:'km-ten-svg-title'},svg,'十个二维点的 k-means 分组与中心移动');
+      make('desc',{id:'km-ten-svg-desc'},svg,'初始中心是 P1、P4、P8。第 1 轮 P4 属于簇 2，第 2 轮变为簇 1；最终簇 1 包含 P1 至 P4，簇 2 包含 P5 至 P7，簇 3 包含 P8 至 P10。');
+      const all = points.concat(initial,firstCenters,finalCenters);
+      const minima = [0,1].map(k => Math.min(...all.map(p=>p[k])));
+      const maxima = [0,1].map(k => Math.max(...all.map(p=>p[k])));
+      const span = Math.max(maxima[0]-minima[0],maxima[1]-minima[1]) * 1.24;
+      const mid = [0,1].map(k=>(minima[k]+maxima[k])/2);
+      sx = x => left + (x-mid[0]+span/2)/span*side;
+      sy = y => top + (mid[1]+span/2-y)/span*side;
+      make('rect',{x:left,y:top,width:side,height:side,fill:'none',stroke:'var(--border)','stroke-width':1,'data-chart-frame':''});
+      const ticks = width<420 ? [0,2,4] : [0,1,2,3,4,5];
+      ticks.forEach(v=> {
+        make('line',{x1:sx(v),y1:top,x2:sx(v),y2:top+side,stroke:'var(--border)','stroke-width':1,'stroke-opacity':0.55});
+        make('line',{x1:left,y1:sy(v),x2:left+side,y2:sy(v),stroke:'var(--border)','stroke-width':1,'stroke-opacity':0.55});
+        make('text',{x:sx(v),y:top+side+22,'text-anchor':'middle'},svg,String(v));
+        make('text',{x:left-12,y:sy(v)+4,'text-anchor':'end'},svg,String(v));
+      });
+      make('text',{class:'axis-title','data-axis':'x',x:left+side/2,y:height-10,'text-anchor':'middle'},svg,'x₁');
+      make('text',{class:'axis-title','data-axis':'y',x:left-42,y:top+side/2,'text-anchor':'middle'},svg,'x₂');
+      const defs = make('defs',{},svg);
+      const marker = make('marker',{id:'km-ten-arrow',viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:5,markerHeight:5,orient:'auto-start-reverse'},defs);
+      make('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:'var(--muted-foreground)'},marker);
+      arrows = make('g',{},svg);
+      pointMarks = points.map((p,i)=> {
+        const g = make('g',{transform:'translate('+sx(p[0])+','+sy(p[1])+')'},svg);
+        make('circle',{r:i===3?9:0,fill:'none',stroke:'var(--foreground)','stroke-width':1},g);
+        const dot = make('circle',{class:'km-dot',r:4.5,fill:'var(--foreground)'},g);
+        make('text',{class:'km-point-label','data-base-x':8,'data-base-y':-8,x:8,y:-8},g,'P'+(i+1));
+        make('circle',{r:16,fill:'transparent','data-chart-hit':'','data-tooltip':'P'+(i+1)+' '+coord(p)},g);
+        return dot;
+      });
+      centerMarks = initial.map((c,j)=> {
+        const g = make('g',{class:'km-center'},svg);
+        g.style.transform='translate('+sx(c[0])+'px,'+sy(c[1])+'px)';
+        make('path',{d:'M -7 -7 L 7 7 M -7 7 L 7 -7',stroke:color(j),'stroke-width':3,fill:'none'},g);
+        make('text',{class:'km-center-label','data-base-x':10,'data-base-y':18,x:10,y:18},g,'μ'+['₁','₂','₃'][j]);
+        return g;
+      });
+      drawState();
+    }
+    function drawState() {
+      const state=stages[stage];
+      stageControl.value=String(stage);
+      pointMarks.forEach((dot,i)=>dot.setAttribute('fill',state.labels?color(state.labels[i]):'var(--foreground)'));
+      centerMarks.forEach((g,j)=>g.style.transform='translate('+sx(state.centers[j][0])+'px,'+sy(state.centers[j][1])+'px)');
+      arrows.replaceChildren();
+      if (state.from) state.from.forEach((c,j)=> {
+        if (dist2(c,state.centers[j])<1e-10) return;
+        make('line',{x1:sx(c[0]),y1:sy(c[1]),x2:sx(state.centers[j][0]),y2:sy(state.centers[j][1]),stroke:'var(--muted-foreground)','stroke-width':1.5,'stroke-dasharray':'4 4','marker-end':'url(#km-ten-arrow)'},arrows);
+      });
+      centerText.replaceChildren();
+      state.centers.forEach((c,j)=> {
+        const span=document.createElement('span');
+        span.textContent='μ'+['₁','₂','₃'][j]+' = '+coord(c);
+        centerText.appendChild(span);
+      });
+      const ds=state.centers.map(c=>dist2(points[3],c));
+      p4Text.textContent='P4 (1, 2)：距离平方 '+ds.map((d,j)=>'μ'+['₁','₂','₃'][j]+' '+number(d)).join(' · ')+(state.labels?'；归属：簇 '+(state.labels[3]+1):'');
+      membersText.textContent=state.labels?[0,1,2].map(j=>'簇 '+(j+1)+'：'+state.labels.map((label,i)=>label===j?'P'+(i+1):null).filter(Boolean).join('、')).join('　 /　 '):'初始中心：P1、P4、P8';
+      svg.querySelector('desc').textContent=membersText.textContent+'。'+centerText.textContent+'。'+p4Text.textContent;
+      if (typeof requestAnimationFrame==='function') requestAnimationFrame(fitLabels);
+    }
+    function fitLabels() {
+      if (typeof svg.querySelectorAll!=='function') return;
+      const frame=svg.querySelector('[data-chart-frame]').getBoundingClientRect();
+      const labels=Array.from(svg.querySelectorAll('.km-point-label, .km-center-label'));
+      labels.forEach(label=> {
+        label.style.visibility='visible';
+        label.setAttribute('x',label.getAttribute('data-base-x'));
+        label.setAttribute('y',label.getAttribute('data-base-y'));
+        const box=label.getBoundingClientRect();
+        const dx=box.right>frame.right-4?frame.right-4-box.right:box.left<frame.left+4?frame.left+4-box.left:0;
+        const dy=box.top<frame.top+4?frame.top+4-box.top:box.bottom>frame.bottom-4?frame.bottom-4-box.bottom:0;
+        label.setAttribute('x',Number(label.getAttribute('data-base-x'))+dx);
+        label.setAttribute('y',Number(label.getAttribute('data-base-y'))+dy);
+      });
+      const retained=[];
+      labels.forEach(label=> {
+        const box=label.getBoundingClientRect();
+        const overlaps=retained.some(other=>box.left<other.right+4 && box.right+4>other.left && box.top<other.bottom+4 && box.bottom+4>other.top);
+        if (overlaps && label.classList.contains('km-center-label')) label.style.visibility='hidden';
+        else retained.push(box);
+      });
+    }
+    svg.addEventListener('transitionend',fitLabels);
+    stageControl.addEventListener('change',()=> {
+      stage=Number(stageControl.value);
+      drawState();
+      window.openai?.setWidgetState?.({modelContent:{example:'kmeans-ten-points',stage:stageControl.options[stage].textContent,p4Cluster:stages[stage].labels?stages[stage].labels[3]+1:null},privateContent:{stage}})?.catch(()=>{});
+    });
+    window.addEventListener('openai:set_globals',event=> {
+      const state=event.detail?.globals?.widgetState;
+      if (state?.modelContent?.example==='kmeans-ten-points' && Number.isInteger(state.privateContent?.stage)) {
+        stage=Math.max(0,Math.min(5,state.privateContent.stage));
+        drawState();
+      }
+    });
+    renderFrame();
+    new ResizeObserver(renderFrame).observe(root.querySelector('.km-plot'));
+  })();
+  </script>
+</div>

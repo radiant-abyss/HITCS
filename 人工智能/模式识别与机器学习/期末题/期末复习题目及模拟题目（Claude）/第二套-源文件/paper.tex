@@ -1,0 +1,260 @@
+\input{preamble}
+\begin{document}
+
+\thispagestyle{firstpage}
+% ===== 卷头：仿哈工大试卷，按页面绝对坐标定位（单位 cm，原点为页面左上角，y 向下） =====
+\noindent\begin{tikzpicture}[remember picture,overlay,x=1cm,y=-1cm,shift={(current page.north west)}]
+  % 主管领导审核签字栏
+  \draw[line width=0.6pt] (3.6,1.6) rectangle (4.8,8.3);
+  \draw[line width=0.6pt] (3.6,4.2) -- (4.8,4.2);
+  \node[align=center,font=\zihao{-4}\songti,inner sep=0pt] at (4.2,2.9)
+    {主管\\[-2pt]领导\\[-2pt]审核\\[-2pt]签字};
+  % 标题
+  \node[font=\zihao{-2}\heiti] at (11.6,1.95) {哈尔滨工业大学 2026 年秋季学期};
+  \node[font=\zihao{2}\heiti] at (12.6,3.35) {模式识别与机器学习（A）\hspace{1em}试\hspace{0.5em}题（模拟）};
+  % 题号 / 得分 / 阅卷人（3 行，12 列）
+  \def\xs{5.2,6.55,7.75,8.95,10.15,11.35,12.55,13.75,14.95,16.15,17.35,18.55,20.05}
+  \foreach \y in {4.90,5.98,7.06,8.14} \draw[line width=0.5pt] (5.2,\y) -- (20.05,\y);
+  \foreach \x in \xs \draw[line width=0.5pt] (\x,4.90) -- (\x,8.14);
+  \foreach \t/\xa/\xb in {题号/5.2/6.55,一/6.55/7.75,二/7.75/8.95,三.1/8.95/10.15,三.2/10.15/11.35,
+      三.3/11.35/12.55,三.4/12.55/13.75,三.5/13.75/14.95,三.6/14.95/16.15,三.7/16.15/17.35,
+      三.8/17.35/18.55,总分/18.55/20.05}
+    \node[font=\zihao{-4}\heiti] at ({(\xa+\xb)/2},5.44) {\t};
+  \node[font=\zihao{-4}\heiti] at (5.875,6.52) {得分};
+  \node[font=\zihao{-4}\heiti] at (5.875,7.60) {阅卷人};
+  % 片纸鉴心 诚信不败
+  \node[font=\fontsize{26pt}{30pt}\selectfont\stliti] at (11.6,9.05) {片纸鉴心\hspace{0.6em}诚信不败};
+  \draw[line width=0.6pt] (2.5,9.75) -- (3.3,9.75);
+  \draw[line width=0.6pt] (4.6,9.75) -- (20.05,9.75);
+  % 密封线（内侧，带“密”“封”）
+  \draw[densely dotted,line width=1pt] (4.5,9.2) -- (4.5,27.0);
+  \foreach \y/\t in {15.6/密,21.3/封}
+    \node[fill=white,inner sep=1.5pt,font=\zihao{-4}\songti] at (4.32,\y) {\t};
+  % 学生信息（外侧，竖排）
+  \draw[densely dotted,line width=1pt] (3.95,9.2) -- (3.95,27.0);
+  \foreach \yb/\t/\len in {13.9/授课教师/2.8,17.9/姓名/3.0,22.0/学号/3.1,26.6/院系/3.4}
+    \node[rotate=90,anchor=west,fill=white,inner xsep=2pt,font=\zihao{-4}\heiti] at (3.1,\yb)
+      {\t\rule[-1.5pt]{\len cm}{0.5pt}};
+\end{tikzpicture}%
+\vspace*{6.85cm}
+
+\noindent{\zihao{5}说明：考试时间 120 分钟，满分 100 分，允许使用计算器。如无特别说明，$\log$ 表示自然对数 $\ln$，数值结果保留 4 位有效数字。}
+
+
+
+%==================== 一、单项选择题 ====================
+\sect{一、单项选择题（每小题 2 分，共 20 分）}
+\begin{enumerate}[label=\arabic*.]
+\item \judge 某模型训练误差为 0.02，验证误差为 0.35。下列做法中\textbf{最不合理}的是
+  \opts{增加高质量训练样本}{增大 L2 正则化系数 $\lambda$}{把 KNN 的 $k$ 从 15 减小到 1}{在全连接层后加入 Dropout}
+\item \judge 下列各组算法中，全部属于无监督学习的是
+  \opts{逻辑回归、K-means、PCA}{K-means、GMM、层次聚类、自编码器}{朴素贝叶斯、DBSCAN、VAE}{感知机、GMM、PCA}
+\item \judge 两类问题中 $P(\omega_1)=0.9$，$P(\omega_2)=0.1$，$p(x|\omega_1)=0.2$，$p(x|\omega_2)=0.4$。把 $\omega_2$ 误判为 $\omega_1$ 的损失为 10，把 $\omega_1$ 误判为 $\omega_2$ 的损失为 1，正确判断损失为 0。$P(\omega_2|x)$ 与最小风险贝叶斯决策结果分别为
+  \opts{$0.4$，判 $\omega_1$}{$0.4$，判 $\omega_2$}{$0.1818$，判 $\omega_1$}{$0.1818$，判 $\omega_2$}
+\item \judge 输入特征图 $32\times32\times3$，使用 16 个 $5\times5$ 卷积核，步长 1，填充 2。输出尺寸与该层参数量（含偏置）分别为
+  \opts{$32\times32\times16$，1216}{$28\times28\times16$，1216}{$32\times32\times16$，1200}{$28\times28\times16$，400}
+\item \judge 关于激活函数，下列说法\textbf{错误}的是
+  \optss{Sigmoid 导数最大值为 0.25，深层网络中容易出现梯度消失}{ReLU 在负半轴梯度为 0，可能出现神经元“死亡”}{$\tanh$ 的输出以 0 为中心}{softmax 输出各分量之和为 1，因此也常用作隐藏层激活来避免梯度消失}
+\item \judge 父节点含 6 个正例、2 个负例，按属性 $A$ 划分为 $(4\text{正},0\text{负})$ 和 $(2\text{正},2\text{负})$ 两个子节点。以 2 为底，属性 $A$ 的信息增益约为
+  \opts{0.811}{0.311}{0.500}{0.189}
+\item \judge 对 4 维中心化数据做 PCA，协方差矩阵特征值为 $5,3,1.5,0.5$。保留前 2 个主成分时，保留方差比例与平均重构误差 $\frac1n\sum_i\|\bm x_i-\hat{\bm x}_i\|^2$ 分别为
+  \opts{80\%，2}{80\%，8}{62.5\%，2}{20\%，8}
+\item \judge 关于序列模型，下列说法\textbf{错误}的是
+  \optss{RNN 各时刻共享参数，因此可处理任意长度的序列}{LSTM 的门用 Sigmoid 输出 $0\sim1$ 的值，与状态逐元素相乘}{Transformer 的自注意力可并行计算所有位置，但需要位置编码提供顺序信息}{GRU 比 LSTM 多一个输出门，因此表达能力更强}
+\item \judge 关于隐马尔可夫模型 $\lambda=(A,B,\pi)$，下列说法正确的是
+  \optss{观测 $o_t$ 只依赖于当前时刻的隐状态 $i_t$}{前向算法用于求最可能的隐状态序列}{Baum-Welch 算法用于计算 $P(O|\lambda)$}{HMM 是一种基于神经网络、含隐变量的序列模型}
+\item \judge 关于感知机、逻辑回归与支持向量机，下列说法正确的是
+  \optss{数据线性可分时，感知机得到的分离超平面是唯一的}{逻辑回归输出概率，因此其决策边界是非线性的}{硬间隔 SVM 能得到几何间隔最大的分离超平面}{三者都只能处理线性可分的数据}
+\end{enumerate}
+
+%==================== 二、判断题 ====================
+\sect{二、判断对错题（每小题 1 分，共 10 分，在题前括号内打“√”或“×”）}
+\begin{enumerate}[label=\arabic*.,start=11]
+\item \judge 采用 inverted dropout 时，训练阶段按保留概率放大激活值，测试阶段直接使用全部神经元，不再随机丢弃。
+\item \judge K-means 每次迭代都使簇内误差平方和不增，因此无论初始中心如何选取，都会收敛到同一个结果。
+\item \judge 多项式回归中阶数越高，训练误差一般越小，测试误差也一定越小。
+\item \judge 从贝叶斯角度看，L2 正则化对应参数的高斯先验，L1 正则化对应参数的拉普拉斯先验，后者更容易得到稀疏解。
+\item \judge 软间隔 SVM 中惩罚参数 $C$ 越大，对误分类的容忍度越高，间隔越宽。
+\item \judge EM 算法每次迭代都保证观测数据的对数似然不减，因此一定收敛到全局最优解。
+\item \judge 层次聚类中，单链法容易产生“链式效应”，全链法倾向于得到紧凑的簇。
+\item \judge HMM 的前向算法与维特比算法递推结构相同，区别在于前者对前一时刻所有状态求和，后者取最大值。
+\item \judge 池化层没有可学习参数，因此反向传播时梯度不会经过池化层。
+\item \judge 对固定的解码器参数 $\theta$，关于编码器参数 $\phi$ 最大化 VAE 的 ELBO，等价于最小化 $\KL\big(q_\phi(\bm z|\bm x)\,\|\,p_\theta(\bm z|\bm x)\big)$。
+\end{enumerate}
+
+%==================== 三、计算与分析题 ====================
+\sect{三、计算与分析题（共 8 题，共 70 分）}
+
+\noindent\textbf{1. 多层感知机与反向传播}\pts{10}
+
+一个 2-2-1 的多层感知机，隐藏层激活为 ReLU，输出层为线性单元，损失为 $L=\frac12(\hat y-y)^2$：
+\[
+\bm z=W^{(1)}\bm x+\bm b^{(1)},\quad \bm h=\mathrm{ReLU}(\bm z),\quad \hat y=\bm w^{(2)\top}\bm h+b^{(2)}.
+\]
+样本 $\bm x=(1,2)^\top$，$y=1$。初始参数为
+\[
+W^{(1)}=\begin{pmatrix}1&-1\\0.5&0.5\end{pmatrix},\quad
+\bm b^{(1)}=\begin{pmatrix}0.5\\-0.5\end{pmatrix},\quad
+\bm w^{(2)}=\begin{pmatrix}1\\2\end{pmatrix},\quad b^{(2)}=0.5 .
+\]
+\begin{enumerate}[label=(\arabic*)]
+\item 该网络共有多少个可学习参数？\pts{1}
+\item 计算隐藏层的净输入 $\bm z$ 与输出 $\bm h$。\pts{1}
+\item 计算网络输出 $\hat y$ 与损失 $L$。\pts{1}
+\item 求输出层误差 $\delta^{(2)}=\partial L/\partial\hat y$，以及 $\partial L/\partial\bm w^{(2)}$、$\partial L/\partial b^{(2)}$。\pts{1.5}
+\item 写出隐藏层误差项 $\bm\delta^{(1)}$ 的表达式（需体现 ReLU 的导数），并求 $\partial L/\partial W^{(1)}$、$\partial L/\partial\bm b^{(1)}$。\pts{2}
+\item 取学习率 $\eta=0.1$ 做一次梯度下降，写出更新后的全部参数。\pts{1.5}
+\item 用更新后的参数重新前向计算，求新的损失。隐藏层出现了什么现象？它对后续训练有什么影响？\pts{1}
+\item 给出两种缓解 (7) 中现象的方法，并说明为什么不能把全部权重初始化为 0。\pts{1}
+\end{enumerate}
+
+\bigskip
+\noindent\textbf{2. 支持向量机}\pts{8}
+
+二维训练集：正例 $\bm x_1=(2,2)$，$\bm x_2=(4,3)$；负例 $\bm x_3=(0,0)$。
+\begin{enumerate}[label=(\arabic*)]
+\item 结合本题，解释什么是分离超平面、支持向量，以及样本点到超平面的函数间隔与几何间隔。\pts{1}
+\item 写出线性可分 SVM（硬间隔）的原始优化问题（目标函数与约束条件）。\pts{1}
+\item 求最大间隔分离超平面 $\bm w^{*},b^{*}$ 与间隔 $2/\|\bm w^*\|$，并指出哪些样本是支持向量。\pts{1}
+\item 写出对偶问题，利用 $\bm w=\sum_i\alpha_iy_i\bm x_i$ 与 $\sum_i\alpha_iy_i=0$ 求出各 $\alpha_i$。为什么通常求解对偶问题？\pts{1}
+\item 新增两个负例 $\bm x_4=(1,0.5)$，$\bm x_5=(1.5,1.5)$。保持 (3) 中的 $\bm w^{*},b^{*}$ 不变，计算 5 个样本的松弛变量 $\xi_i$，并指出哪些样本落在间隔内但分类正确、哪些被误分类。\pts{1}
+\item 取 $C=1$，计算软间隔原始目标函数 $\frac12\|\bm w\|^2+C\sum_i\xi_i$ 的值。$C$ 增大或减小时，间隔宽度与误分类数会怎样变化？\pts{1}
+\item 写出软间隔 SVM 的对偶约束。按 KKT 条件，$\alpha_i=0$、$0<\alpha_i<C$、$\alpha_i=C$ 分别对应什么位置的样本？软间隔 SVM 可等价写成“合页损失 + L2 正则”，写出该形式。\pts{1}
+\item 阐述核技巧的基本原理：为什么它只需在对偶形式中替换内积？写出高斯核，并说明带宽 $\sigma$ 过小会带来什么问题。\pts{1}
+\end{enumerate}
+
+\bigskip
+\noindent\textbf{3. 非参数估计与聚类}\pts{12}
+
+一维数据集 $X=\{1,\,2,\,4,\,7,\,9,\,10\}$，$n=6$。
+\begin{enumerate}[label=(\arabic*)]
+\item 用宽度 $h=4$ 的超立方体（矩形）Parzen 窗估计 $\hat p(5.5)$。\pts{1}
+\item 用 $k=3$ 的 KNN 密度估计 $\hat p(5.5)=\frac{k}{nV}$。Parzen 窗与 KNN 密度估计分别固定了什么、让什么随数据变化？$h$ 或 $k$ 过大、过小各有什么后果？\pts{1}
+\item 将 $\{1,2,4\}$ 标为 A 类、$\{7,9,10\}$ 标为 B 类，分别用 1-NN 和 3-NN 对 $x=6$ 分类。\pts{1}
+\item 写出 K-means 的基本步骤和优化目标。用 K-means 聚为 $K=2$ 类，初始中心取 $\mu_1=1$，$\mu_2=4$，每轮先分配全部样本再更新中心。写出每轮的簇划分与中心直到收敛，并计算最终的簇内误差平方和（SSE）。\pts{1.5}
+\item K-means 有哪些缺点（至少写出三条）？\pts{1}
+\item 用 K-means++ 选初始中心。若第一个中心随机选中 $x=4$，写出其余每个样本被选为第二个中心的概率。它针对的是 K-means 的哪个缺点？\pts{1}
+\item 对 (4) 的最终结果，计算样本 $x=4$ 的轮廓系数 $s(4)$。$s(i)$ 接近 $+1$ 和接近 $-1$ 分别说明什么？\pts{1}
+\item 记 $C_1=\{1,2,4\}$，$C_2=\{7,9,10\}$。分别按单链法、全链法、平均链法计算 $d(C_1,C_2)$，并比较三种准则对噪声点的敏感程度和偏好的簇形状。\pts{1.5}
+\item 用两个分量的 GMM 建模，当前参数 $\pi_1=\pi_2=0.5$，$\mu_1=2$，$\mu_2=8$，$\sigma_1^2=\sigma_2^2=4$。说明 EM 算法的核心思想；计算 E 步中样本 $x=4$ 属于分量 1 的响应度 $\gamma_1(4)$；写出 M 步中 $\pi_k$、$\mu_k$、$\sigma_k^2$ 的更新公式。\pts{1.5}
+\item K-means 是 GMM-EM 在什么条件下的特例？运行 GMM-EM 时协方差矩阵可能不可逆，原因是什么？如何解决？\pts{0.5}
+\item 若要把客户分为若干群体，数据中含有较多噪声点且簇呈非凸形状，应选 K-means 还是 DBSCAN？为什么？DBSCAN 如何识别噪声点？\pts{1}
+\end{enumerate}
+
+\bigskip
+\noindent\textbf{4. 自编码器与变分自编码器}\pts{8}
+\begin{enumerate}[label=(\arabic*)]
+\item 自编码器把输入 $\bm x$ 编码为中间向量 $\bm z$，再解码为 $\bm x'$。写出编码、解码过程与训练目标。\pts{1}
+\item $\bm x'$ 的长度与 $\bm x$ 的长度是什么关系（大于、小于还是等于）？$\bm z$ 的维度通常比 $\bm x$ 大还是小？各说明理由。\pts{0.5}
+\item 以图像为例，列举自编码器的三种用途。\pts{0.5}
+\item 为什么普通自编码器不适合直接用来生成新样本？\pts{0.5}
+\item 设隐变量模型 $p_\theta(\bm x,\bm z)=p_\theta(\bm x|\bm z)\,p(\bm z)$，近似后验为 $q_\phi(\bm z|\bm x)$。证明
+\[
+\log p_\theta(\bm x)=\mathcal L(\theta,\phi;\bm x)+\KL\big(q_\phi(\bm z|\bm x)\,\|\,p_\theta(\bm z|\bm x)\big),
+\]
+其中 $\mathcal L=\E_{q_\phi(\bm z|\bm x)}[\log p_\theta(\bm x|\bm z)]-\KL\big(q_\phi(\bm z|\bm x)\,\|\,p(\bm z)\big)$。\pts{2}
+\item 由 (5) 说明 $\mathcal L$ 为什么叫证据下界（ELBO），为什么要最大化它而不直接最大化 $\log p_\theta(\bm x)$，以及 $\mathcal L$ 中两项各自的作用。\pts{1}
+\item 编码器输出 $q_\phi(\bm z|\bm x)=\mathcal N(\bm\mu,\mathrm{diag}(\bm\sigma^2))$，先验 $p(\bm z)=\mathcal N(\bm 0,I)$，已知
+$\KL=\frac12\sum_j\big(\mu_j^2+\sigma_j^2-1-\log\sigma_j^2\big)$。若 $\bm\mu=(1,0)$，$\log\bm\sigma^2=(0,-1)$，计算该 KL 项。\pts{1}
+\item 什么是重参数化技巧？不使用它时，梯度在哪一步无法传回编码器？\pts{1}
+\item 训练完成后，VAE 如何生成新样本？条件 VAE（CVAE）与 VAE 在输入和生成方式上有何不同？\pts{0.5}
+\end{enumerate}
+
+\bigskip
+\noindent\textbf{5. 卷积神经网络、循环神经网络与 Transformer}\pts{8}
+
+输入 $X$ 与卷积核 $K$ 如下，步长 1，无填充，无偏置（按互相关计算）：
+\[
+X=\begin{pmatrix}1&0&2&1\\0&1&1&0\\2&1&0&1\\1&0&1&2\end{pmatrix},\qquad
+K=\begin{pmatrix}1&0&1\\0&1&0\\1&0&1\end{pmatrix}.
+\]
+\begin{enumerate}[label=(\arabic*)]
+\item 求卷积输出特征图。\pts{1}
+\item 对 (1) 的结果做 $2\times2$、步长 2 的最大池化，求结果。卷积层“局部连接”和“权值共享”两个特点分别带来什么好处？\pts{1}
+\item 两层堆叠的 $3\times3$ 卷积（步长 1）的感受野是多少？设输入、输出通道数均为 $C$，忽略偏置，比较它与单层 $5\times5$ 卷积的参数量。\pts{1}
+\item 写出简单 RNN 在 $t$ 时刻隐藏状态 $\bm h_t$ 和输出 $\bm o_t$（softmax 输出）的计算公式（参数符号自行定义）。若用最后时刻的隐藏状态（长度 200）对句子做 10 类情感分类，输出层权重矩阵 $V$ 的行数和列数各为多少？\pts{1}
+\item 一维 RNN：$h_t=\tanh(w\,x_t+u\,h_{t-1})$，$w=1$，$u=0.5$，$h_0=0$，输入 $x_1=1$，$x_2=-1$。求 $h_1,h_2$。\pts{0.5}
+\item 求 $\partial h_2/\partial h_1$。据此说明为什么长序列上会出现梯度消失或梯度爆炸。\pts{0.5}
+\item 写出 LSTM 细胞状态 $c_t$ 与隐藏状态 $h_t$ 的更新式，说明三个门各自的作用。若 $c_{t-1}=2$，$f_t=0.5$，$i_t=0.8$，$\tilde c_t=0.5$，$o_t=0.5$，求 $c_t$ 和 $h_t$。LSTM 为什么能缓解 (6) 中的问题？\pts{1}
+\item GRU 与 LSTM 在门控结构上有什么区别？\pts{0.5}
+\item 缩放点积注意力 $\mathrm{Attn}(Q,K,V)=\mathrm{softmax}\!\big(QK^\top/\sqrt{d_k}\big)V$。取 $d_k=2$，单个查询 $\bm q=(1,0)$，键 $\bm k_1=(1,0)$，$\bm k_2=(0,1)$，值 $\bm v_1=(1,2)$，$\bm v_2=(3,0)$，求注意力权重与输出。为什么要除以 $\sqrt{d_k}$？\pts{1}
+\item 位置编码的作用是什么？RNN 是否需要位置编码？为什么？\pts{0.5}
+\end{enumerate}
+
+\bigskip
+\noindent\textbf{6. 朴素贝叶斯分类器}\pts{8}
+
+影评情感分类训练集如下，词表为 $\{\text{good, movie, great, boring, bad, plot}\}$（$n=6$）：
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{cll}
+\toprule
+文档 & 内容 & 类别\\ \midrule
+1 & good movie good & Pos\\
+2 & great movie & Pos\\
+3 & boring movie & Neg\\
+4 & bad boring plot & Neg\\ \midrule
+测试 & good good boring & ?\\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\arabic*)]
+\item 写出朴素贝叶斯分类器的决策公式。“朴素”指的是什么假设？若实际数据满足该假设，它是不是最小错误率意义下的最优分类器？\pts{1}
+\item 多项式朴素贝叶斯：求两类的先验概率。\pts{0.5}
+\item 多项式朴素贝叶斯：用拉普拉斯平滑 $P(x_i|y)=\frac{N_{yi}+1}{N_y+n}$，求测试文档所需的条件概率。\pts{1}
+\item 多项式朴素贝叶斯：计算两类的未归一化后验，判断测试文档的类别。\pts{1}
+\item 伯努利朴素贝叶斯：用 $P(x_i=1|y)=\frac{\text{类 }y\text{ 中含该词的文档数}+1}{\text{类 }y\text{ 的文档数}+2}$ 求两类下 6 个词的条件概率。\pts{1.5}
+\item 伯努利朴素贝叶斯：计算两类的未归一化后验，判断测试文档的类别（注意未在测试文档出现的词也要计入）。\pts{1}
+\item (4)(6) 的结论是否一致？从两种模型对“词频”的处理方式解释原因。不做平滑会出现什么问题？平滑因子 $\alpha=1$ 与 $0<\alpha<1$ 分别叫什么平滑？\pts{1}
+\item 另有连续特征“评论长度（百字）”，Pos 类取值 $\{2,4,6\}$，Neg 类取值 $\{5,7,9\}$。为什么连续特征要用高斯朴素贝叶斯？用极大似然估计求两类的 $\mu,\sigma^2$，写出 $P(x=5|y)$ 的计算式并求值，判断仅凭该特征时 $x=5$ 属于哪一类（先验相等）。\pts{1}
+\end{enumerate}
+
+\bigskip
+\noindent\textbf{7. 回归、感知机与正则化}\pts{8}
+\begin{enumerate}[label=(\arabic*)]
+\item 线性回归 $f(\bm x)=\bm w^\top\bm x+b$，目标值为 $y$。写出 $m$ 个样本上误差平方和损失的表达式，推导 $\bm w,b$ 的梯度，写出梯度下降的参数更新公式（学习率记为 $\eta$）。\pts{1}
+\item 写出最小二乘闭式解 $\hat{\bm w}=(X^\top X)^{-1}X^\top\bm y$ 与岭回归闭式解。岭回归如何解决 $X^\top X$ 不可逆的问题？\pts{1}
+\item 说明多项式回归的基本原理。它对输入 $x$ 是非线性的，为什么仍称为“线性模型”？\pts{0.5}
+\item 用不同阶数 $M$ 的多项式拟合同一数据，结果如下表。指出哪种情况欠拟合、哪种过拟合，并说明理由。\pts{0.5}
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+阶数 $M$ & 1 & 3 & 9\\ \midrule
+训练 MSE & 0.45 & 0.08 & 0.00\\
+测试 MSE & 0.48 & 0.10 & 1.85\\
+\bottomrule
+\end{tabular}
+\end{center}
+\item 最终取 $\hat y=0.5x^2+1$，求测试样本 $(2,\,3.2)$、$(3,\,5.2)$ 上的均方误差 $\mathrm{MSE}=\frac1m\sum_i(\hat y_i-y_i)^2$。\pts{0.5}
+\item 逻辑回归 $P(y=1|\bm x)=\sigma(\bm w^\top\bm x+b)$。写出 Sigmoid 函数与交叉熵损失，证明单样本梯度为 $\big(\sigma(\bm w^\top\bm x+b)-y\big)\bm x$。\pts{1}
+\item 设 $\bm x=(1,2)$，$y=1$，初值 $\bm w=\bm 0$，$b=0$，$\eta=0.5$。做一次梯度下降，求更新后的 $\bm w,b$ 与 $P(y=1|\bm x)$。\pts{1}
+\item 逻辑回归与线性回归在任务、输出、损失函数上有什么区别？为什么逻辑回归一般不用 MSE 作为损失？\pts{0.5}
+\item 感知机 $f(\bm x)=\mathrm{sign}(\bm w^\top\bm x+b)$，初值 $\bm w=(0,0)$，$b=0$，$\eta=1$。依次用误分类点 $\bm x_1=(3,3)$（$y=+1$）和 $\bm x_2=(1,1)$（$y=-1$）各更新一次，写出每次更新后的 $(\bm w,b)$。感知机与逻辑回归的判别方式有什么不同？\pts{1}
+\item 对比 L1 与 L2 正则化的作用与解的特点。再列举两种深度网络中常用的防止过拟合的方法，并说明原理。\pts{1}
+\end{enumerate}
+
+\bigskip
+\noindent\textbf{8. 隐马尔可夫模型的前向算法}\pts{8}
+
+某人每天的活动只取决于当天天气。隐状态集合 $Q=\{q_1{=}\text{晴},\,q_2{=}\text{阴},\,q_3{=}\text{雨}\}$，观测集合 $V=\{v_1{=}\text{散步},\,v_2{=}\text{宅家}\}$。模型 $\lambda=(A,B,\pi)$ 为
+\[
+A=\begin{pmatrix}0.6&0.3&0.1\\0.2&0.5&0.3\\0.1&0.4&0.5\end{pmatrix},\qquad
+B=\begin{pmatrix}0.8&0.2\\0.4&0.6\\0.1&0.9\end{pmatrix},\qquad
+\pi=(0.4,\ 0.4,\ 0.2)^\top .
+\]
+观测序列 $O=(\text{散步},\ \text{宅家},\ \text{宅家})$。
+\begin{enumerate}[label=(\arabic*)]
+\item 说明 HMM 三要素 $A,B,\pi$ 各自的含义，写出 HMM 的两个基本假设。\pts{1}
+\item HMM 的三个基本问题是什么？各用什么算法求解？\pts{1}
+\item 写出前向概率 $\alpha_t(i)$ 的定义，以及前向算法的初值、递推公式和终止公式。\pts{1}
+\item 计算 $\alpha_1(i)$，$i=1,2,3$。\pts{1}
+\item 计算 $\alpha_2(i)$，$i=1,2,3$（写出 $\sum_j\alpha_1(j)a_{ji}$ 的中间结果）。\pts{1}
+\item 计算 $\alpha_3(i)$，$i=1,2,3$，并求 $P(O|\lambda)$。\pts{1}
+\item 求第 3 天各天气的后验概率 $P(i_3=q_j\,|\,O,\lambda)$，判断第 3 天最可能的天气。\pts{0.5}
+\item 比较直接枚举法与前向算法求 $P(O|\lambda)$ 的时间复杂度（$N$ 个状态，序列长 $T$）。\pts{0.5}
+\item 把前向递推中的“求和”换为“取最大”，得到的是什么算法？用它求本题的最优状态序列及其概率。\pts{1}
+\end{enumerate}
+
+\vfill
+\begin{center}\zihao{5} —— 试题结束 ——\end{center}
+\end{document}
