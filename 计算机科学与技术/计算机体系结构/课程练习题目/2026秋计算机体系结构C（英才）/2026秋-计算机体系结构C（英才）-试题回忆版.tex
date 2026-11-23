@@ -1,0 +1,265 @@
+\documentclass[zihao=-4,a4paper,fontset=windows]{ctexart}
+% ---------- 版心：左侧留出密封线位置 ----------
+\usepackage[a4paper,left=4.85cm,right=0.95cm,top=2.3cm,bottom=2.4cm,headsep=0.4cm,footskip=0.9cm]{geometry}
+\usepackage{amsmath,amssymb}
+% ---------- 字体：Times New Roman + 宋体/黑体，与 HIT 试卷一致 ----------
+\setmainfont{Times New Roman}
+\usepackage{newtxmath}
+\usepackage{bm}
+\setCJKmainfont[AutoFakeBold=2.5]{SimSun}
+\setCJKsansfont{SimHei}
+\newCJKfontfamily\stliti{STLiti}
+\linespread{1.08}\selectfont
+
+\usepackage{enumitem}
+\usepackage{booktabs,array,multirow}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{needspace}
+
+% ---------- 页眉页脚 ----------
+\newcommand{\coursename}{计算机体系结构C（英才）}
+\newcommand{\pagefoot}{\zihao{5}\textbf{第\thepage 页（共\pageref{LastPage}页）}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\zihao{-5}\coursename}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.6pt}
+\fancyfoot[R]{\pagefoot}
+\fancyfootoffset[L]{2.35cm}
+\fancypagestyle{firstpage}{%
+  \fancyhf{}\renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0.6pt}\fancyfoot[R]{\pagefoot}\fancyfootoffset[L]{2.35cm}}
+
+% ---------- 常用命令 ----------
+\setlist{itemsep=1pt,topsep=2pt,parsep=0pt}
+\setlist[enumerate,1]{leftmargin=2.2em}
+% 选择题选项：\opts 两列排布（短选项），\optss 每项一行（长选项）
+\newcommand{\opts}[4]{\par\nopagebreak\noindent\hspace*{1.5em}%
+  \begin{tabular}{@{}p{0.45\linewidth}p{0.45\linewidth}@{}}A. #1 & B. #2\\ C. #3 & D. #4\end{tabular}\par}
+\newcommand{\optss}[4]{\par\nopagebreak\noindent\hspace*{1.5em}%
+  \begin{tabular}{@{}p{0.92\linewidth}@{}}A. #1\\ B. #2\\ C. #3\\ D. #4\end{tabular}\par}
+\newcommand{\blank}[1][2.5cm]{\underline{\hspace{#1}}}
+\newcommand{\judge}{（\hspace{1.5em}）}
+\newcommand{\pts}[1]{（#1分）}
+\newcommand{\sect}[1]{\par\needspace{5\baselineskip}\medskip\noindent{\zihao{4}\heiti #1}\par\smallskip}
+\newcommand{\ans}[1]{\textcolor{blue!60!black}{#1}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\KL}{D_{\mathrm{KL}}}
+
+% 直接以 XeLaTeX 编译得到试题。生成解答时在 \input 本文件前定义 \printanswers。
+\ifdefined\printanswers
+  \geometry{left=2.4cm,right=2.4cm}
+  \renewcommand{\coursename}{计算机体系结构C（英才）\quad 试题（回忆版）参考解答}
+  \fancyfootoffset[L]{0pt}
+\fi
+
+\begin{document}
+\ifdefined\printanswers
+
+\begin{center}
+{\LARGE\heiti 计算机体系结构C（英才）试题（回忆版）}\\[4pt]
+{\Large\heiti 参考解答}
+\end{center}
+{\zihao{5}选择题、填空题未回忆出具体题干。以下按试卷回忆版的题序给出解答。}
+
+\sect{三、简答题}
+\noindent\textbf{第 1 题\quad 体系结构、组成与实现}
+\begin{enumerate}[label=(\arabic*)]
+\item 指直接面对指令集的机器语言或汇编语言程序员，也包括为该指令集生成机器代码的编译器设计者。他们需要遵守指令、可见寄存器、数据类型和寻址方式等机器级约定。
+\item 若两机采用同一 ISA，则程序员可见的体系结构相同。流水线组织、乱序调度与 Cache 属于组成层面的设计，题述两机的组成有差异。实现层面要进一步比较具体电路、器件、工艺等，回忆中没有这些条件。
+\item 新增一条程序可见、可执行的向量指令，扩展了 ISA，因而改变体系结构。
+\end{enumerate}
+
+\noindent\textbf{第 3 题\quad Load-use 数据冒险}
+\begin{enumerate}[label=(\arabic*)]
+\item 两组紧邻的 load-use 关系是第 1 条 \texttt{lw} 到第 2 条 \texttt{add}（\texttt{R1}），以及第 4 条 \texttt{lw} 到第 5 条 \texttt{sub}（\texttt{R7}）。第 5 条也读取第 1 条加载的 \texttt{R1}，两条之间相隔较远。在有转发的经典五级顺序流水线中，两组紧邻的依赖各暂停 1 周期，合计 \textbf{2 个周期}。第 2 条到第 3 条的 \texttt{R3}、第 3 条到第 4 条的地址寄存器 \texttt{R5}，都可转发。
+\item 五条指令形成 $1\to2\to3\to4\to5$ 的真数据依赖链。乱序调度下，两条使用加载结果的指令仍要等数据可用，且这五条里没有独立指令可用来填补等待。
+\end{enumerate}
+
+\medskip
+\noindent\textbf{末题\quad 单级和两级 Cache 的平均访问时间}\quad
+设 $t_1,t_2$ 分别为 L1、L2 的命中访问时间，单位为周期。L2 的局部失效率为 $1-75\%=25\%$。
+\begin{align*}
+\mathrm{AMAT}_{\mathrm{L1}} &=t_1+0.04\times80=t_1+3.2,\\
+\mathrm{AMAT}_{\mathrm{L1+L2}}(4\%) &=t_1+0.04(t_2+0.25\times80)=t_1+0.04t_2+0.8,\\
+\mathrm{AMAT}_{\mathrm{L1+L2}}(2\%) &=t_1+0.02(t_2+0.25\times80)=t_1+0.02t_2+0.4.
+\end{align*}
+按只计失效引起的额外时间、忽略 L2 命中访问耗时的口径，三个结果依次为 $3.2$、$0.8$、$0.4$ 周期。原题若给出命中时间，应代入上式。
+
+\clearpage
+\sect{四、综合题}
+\noindent\textbf{1.\ 四级流水线}\quad
+第 2 段耗时最长，忽略段间寄存器开销时，时钟周期为 $3$ ns。其余各段每周期有 $1$ ns 空闲。五个任务的时空图如下，每列为一个时钟周期。
+\begin{center}
+\begin{tabular}{l*{8}{c}}
+\toprule
+任务 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8\\
+\midrule
+1 & S1 & S2 & S3 & S4 & & & &\\
+2 & & S1 & S2 & S3 & S4 & & &\\
+3 & & & S1 & S2 & S3 & S4 & &\\
+4 & & & & S1 & S2 & S3 & S4 &\\
+5 & & & & & S1 & S2 & S3 & S4\\
+\bottomrule
+\end{tabular}
+\end{center}
+串行执行需 $5(2+3+2+2)=45$ ns，流水执行需 $(4+5-1)\times3=24$ ns。
+\[
+\mathrm{TP}=\frac{5}{24}\ \text{个/ns},\qquad
+S=\frac{45}{24}=\frac{15}{8}=1.875,\qquad
+\eta=\frac{S}{4}=\frac{15}{32}=46.875\%.
+\]
+拆分后各段耗时为 $2,1.5,1.5,2,2$ ns，时钟周期为 $2$ ns，最大吞吐率为 $1/2$ 个/ns。
+
+\medskip
+\noindent\textbf{2.\ 两位饱和计数器分支预测}\quad
+强转移和弱转移都预测 \texttt{T}。遇到第 9 次实际不转移时，状态只退一格，所以第 10 次仍预测转移。
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+次序 & 实际 & 预测 & 更新后状态 & 正误\\
+\midrule
+1--8 & T & T & 强转移 & 全对\\
+9 & N & T & 弱转移 & 错\\
+10 & T & T & 强转移 & 对\\
+11--17 & T & T & 强转移 & 全对\\
+18 & N & T & 弱转移 & 错\\
+\bottomrule
+\end{tabular}
+\end{center}
+共预测失败 2 次，准确率为 $16/18\approx88.89\%$。按这 18 条分支指令计算，使用预测时 $CPI=1+2\times(2/18)=11/9\approx1.22$，每次都付出 2 周期开销时 $CPI=3$。若题目按整个程序计算，设分支指令占比为 $f_b$，则两种方案的额外 CPI 分别为 $2f_b(2/18)$ 和 $2f_b$。
+
+\medskip
+\noindent\textbf{3.\ Cache 的 3C、组相联与 Victim Cache}
+\begin{itemize}
+\item 强制不命中来自第一次访问一个块。冲突不命中来自映射位置受限、相同位置的块相互替换。容量不命中指同容量的全相联 Cache 也无法保住所需的块。
+\item 直接映射时 $0\bmod8=8\bmod8=0$。两块占用同一 Cache 行，前两次为强制不命中，后六次为冲突不命中。合计 8 次不命中，命中率为 $0\%$。
+\item 二路组相联共有 $8/2=4$ 组。块 0 与块 8 同属第 0 组，但可同时占据两路。前两次未命中，后六次命中，命中率为 $6/8=75\%$。
+\item 2:1 Cache 经验定律指出，在一些工作负载下，容量 $N$ 的直接映射 Cache 与容量 $N/2$ 的二路组相联 Cache 的失效率接近。增加相联度，为同一组内的块提供更多可用位置。
+\item Victim Cache 是存放刚被替换块的小型全相联缓冲。块 8 挤出块 0 后，下一次请求块 0 可以从缓冲找回，省去下一级访问。主 Cache 的不命中和 Victim Cache 的命中应区分统计。
+\end{itemize}
+
+
+\else
+\thispagestyle{firstpage}
+% ===== 卷头：仿哈工大试卷，按页面绝对坐标定位（单位 cm，原点为页面左上角，y 向下） =====
+\noindent\begin{tikzpicture}[remember picture,overlay,x=1cm,y=-1cm,shift={(current page.north west)}]
+  % 主管领导审核签字栏
+  \draw[line width=0.6pt] (3.6,1.6) rectangle (4.8,8.3);
+  \draw[line width=0.6pt] (3.6,4.2) -- (4.8,4.2);
+  \node[align=center,font=\zihao{-4}\songti,inner sep=0pt] at (4.2,2.9)
+    {主管\\[-2pt]领导\\[-2pt]审核\\[-2pt]签字};
+  % 标题
+  \node[font=\zihao{-2}\heiti] at (11.6,1.95) {哈尔滨工业大学 2026 年秋季学期};
+  \node[font=\zihao{2}\heiti] at (12.6,3.35) {计算机体系结构C（英才）\hspace{0.4em}试\hspace{0.35em}题（回忆版）};
+  % 题号、得分与阅卷人，按回忆中的题型设置栏位。
+  \def\xs{5.2,7.05,8.9,10.75,12.60,14.45,16.30,18.15,20.05}
+  \foreach \y in {4.90,5.98,7.06,8.14} \draw[line width=0.5pt] (5.2,\y) -- (20.05,\y);
+  \foreach \x in \xs \draw[line width=0.5pt] (\x,4.90) -- (\x,8.14);
+  \foreach \t/\xa/\xb in {题号/5.2/7.05,一/7.05/8.9,二/8.9/10.75,三/10.75/12.6,
+      四.1/12.6/14.45,四.2/14.45/16.3,四.3/16.3/18.15,总分/18.15/20.05}
+    \node[font=\zihao{-4}\heiti] at ({(\xa+\xb)/2},5.44) {\t};
+  \node[font=\zihao{-4}\heiti] at (6.125,6.52) {得分};
+  \node[font=\zihao{-4}\heiti] at (6.125,7.60) {阅卷人};
+  % 片纸鉴心 诚信不败
+  \node[font=\fontsize{26pt}{30pt}\selectfont\stliti] at (11.6,9.05) {片纸鉴心\hspace{0.6em}诚信不败};
+  \draw[line width=0.6pt] (2.5,9.75) -- (3.3,9.75);
+  \draw[line width=0.6pt] (4.6,9.75) -- (20.05,9.75);
+  % 密封线（内侧，带“密”“封”）
+  \draw[densely dotted,line width=1pt] (4.5,9.2) -- (4.5,27.0);
+  \foreach \y/\t in {15.6/密,21.3/封}
+    \node[fill=white,inner sep=1.5pt,font=\zihao{-4}\songti] at (4.32,\y) {\t};
+  % 学生信息（外侧，竖排）
+  \draw[densely dotted,line width=1pt] (3.95,9.2) -- (3.95,27.0);
+  \foreach \yb/\t/\len in {13.9/授课教师/2.8,17.9/姓名/3.0,22.0/学号/3.1,26.6/院系/3.4}
+    \node[rotate=90,anchor=west,fill=white,inner xsep=2pt,font=\zihao{-4}\heiti] at (3.1,\yb)
+      {\t\rule[-1.5pt]{\len cm}{0.5pt}};
+\end{tikzpicture}%
+\vspace*{6.85cm}
+
+\noindent{\zihao{5}说明：原卷满分 100 分。本卷据考后回忆整理，缺失的题干、条件和分值待核对。}
+
+
+\sect{一、选择题（每小题 1 分，共 20 分）}
+题干及选项待补。
+
+\sect{二、填空题（每小题 2 分）}
+题干、题量及本部分总分待补。
+
+\sect{三、简答题}
+\noindent\textbf{第 1 题\quad 体系结构、组成与实现}
+\begin{enumerate}[label=(\arabic*)]
+\item 计算机体系结构经典定义中的“程序员”指哪一类程序员？为什么？
+\item 两台计算机分别采用流水线执行、乱序调度并加入 Cache。从计算机体系结构、计算机组成、计算机实现三个层面分析两台计算机的异同。
+\item 若给计算机加入一条向量指令，是否改变了它的体系结构？说明理由。
+\end{enumerate}
+
+\noindent\textbf{第 3 题\quad Load-use 数据冒险}\par
+给定下列指令序列。
+\begin{center}
+\begin{tabular}{@{}r@{\quad}l@{}}
+1 & \texttt{lw\ \ R1, 4(R2)}\\
+2 & \texttt{add R3, R1, R4}\\
+3 & \texttt{add R5, R3, R6}\\
+4 & \texttt{lw\ \ R7, 8(R5)}\\
+5 & \texttt{sub R8, R7, R1}
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\arabic*)]
+\item 列出所有 load-use 关系，计算需要暂停多少个周期。
+\item 如果改用乱序调度，是否还需要这些暂停？说明理由。
+\end{enumerate}
+
+\smallskip
+\noindent\textbf{末题\quad 单级和两级 Cache 的平均访问时间}\par
+某单级 Cache 的失效率为 $4\%$，失效开销为 $80$ 个周期。现加入 L2 Cache。L2 的局部命中率为 $75\%$，失效开销为 $80$ 个周期。
+\begin{enumerate}[label=(\arabic*)]
+\item 分别求单级和两级 Cache 的平均访问时间。
+\item 若 L1 的失效率降至 $2\%$，重新计算两级 Cache 的平均访问时间。
+\end{enumerate}
+{\zihao{5}其余简答题及各级命中时间待核对。}
+
+\clearpage
+\sect{四、综合题}
+\noindent\textbf{1.\ 四级流水线}\par
+某同步流水线包含四段，各段耗时依次为 $2$ ns、$3$ ns、$2$ ns、$2$ ns。现用该流水线执行 $5$ 个任务。
+\begin{enumerate}[label=(\arabic*)]
+\item 画出时空图，指出瓶颈发生在哪一段，并说明它对其他阶段的影响。
+\item 计算完成这 $5$ 个任务时的吞吐率、加速比和效率。
+\item 将耗时 $3$ ns 的阶段划分为两个各耗时 $1.5$ ns 的阶段，求改进后的最大吞吐率。
+\end{enumerate}
+
+\needspace{8\baselineskip}
+\noindent\textbf{2.\ 两位饱和计数器分支预测}\par
+某分支预测器使用两位饱和计数器，初始状态为强转移。该分支连续执行 $18$ 次，实际转移序列为
+\[
+\texttt{TTTTTTTT N TTTTTTTT N}.
+\]
+其中 \texttt{T} 表示转移，\texttt{N} 表示不转移。
+\begin{enumerate}[label=(\arabic*)]
+\item 写出每次预测结果和计数器状态变化，统计预测失败次数。
+\item 求分支预测准确率。
+\item 理想 CPI 为 $1$。正确预测无额外开销，预测失败需要清除错误路径指令，额外花费 $2$ 个周期。按这组分支指令分别计算使用预测器以及每次分支都花费额外 $2$ 个周期时的 CPI，并比较。
+\end{enumerate}
+
+\needspace{8\baselineskip}
+\noindent\textbf{3.\ Cache 的 3C、组相联与 Victim Cache}\par
+某 Cache 初始为空，共有 $8$ 个块，每块存放 $1$ 个地址单位的数据。CPU 依次访问主存地址
+\[
+0,\quad8,\quad0,\quad8,\quad0,\quad8,\quad0,\quad8.
+\]
+\begin{enumerate}[label=(\arabic*)]
+\item 说明强制不命中、冲突不命中和容量不命中的含义。在直接映射下，前两次访问及后续访问分别属于哪类不命中？
+\item 直接映射时，该访问序列发生几次不命中？命中率是多少？
+\item 在总容量不变的条件下改用二路组相联，求命中率。结合 2:1 Cache 经验定律和 Victim Cache，说明如何缓解映射冲突。
+\end{enumerate}
+
+
+\fi
+\end{document}
